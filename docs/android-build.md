@@ -16,6 +16,7 @@
 - Ubuntu 24.04，官方 Godot **4.7-stable** 和匹配的 Android 调试模板，下载后核对官方 SHA-512。
 - Java 17，Android SDK 35 / Build Tools 35.0.1；使用预构建模板，不启用 Gradle。
 - 导出预设名为 `Android`；应用 ID 为 `org.lseyesl.microapex`。
+- `project.godot` 启用 `rendering/textures/vram_compression/import_etc2_astc`；Android 导出要求此项，即使使用 GL Compatibility 渲染器。工作流先导入资源，再导出 APK。
 - 仅包含 **ARM64**，适合红米 K40；这是调试 APK，不是商店发布包。
 - 不需要仓库密钥或发布签名。每次运行生成临时调试签名，因此不同运行的 APK 可能需要卸载旧版后安装；卸载会清除本地游戏记录。
 - 每次手动构建成功后，使用输入的 `tag` 创建预发布 Release，绑定本次构建的提交。标签须以字母或数字开头，仅包含字母、数字、点、下划线或连字符，并符合 Git 标签格式；打包前检查标签不能已存在。发布成功后再次构建需填写新标签，保留旧包。调试版不会标记为 Latest。
