@@ -1,0 +1,22 @@
+[
+  {
+    "name": "car_speed",
+    "prompt": "Use case: stylized-concept\nAsset type: Blender modeling reference sheet for an Android top-down 3D racing game.\nSubject: A high speed circuit coupe, long low wedge nose, wide low stance, rear wing, bright red body. Slower acceleration and larger turning radius expressed by a long wheelbase.\nStyle: coherent low-poly miniature motorsport, flat polygon surfaces, simple opaque materials, easy to reproduce as real low-poly geometry. Clean off-white background, soft studio illumination.\nComposition: One vehicle design shown consistently in a large front three-quarter view plus smaller orthographic top, side and front views. Wheels and body silhouettes clearly readable.\nConstraints: no real brands, no text, no watermark, no photoreal textures, no motion blur, no excessive details. Modeling reference, not game screenshot."
+  },
+  {
+    "name": "car_agile",
+    "prompt": "Use case: stylized-concept\nAsset type: Blender modeling reference sheet for an Android top-down 3D racing game.\nSubject: An agile small racing hatchback, short wheelbase, compact upright cabin, bright yellow body, small spoiler. Clearly shorter and narrower than a sports coupe.\nStyle: coherent low-poly miniature motorsport, flat polygon surfaces, simple opaque materials, easy to reproduce as real low-poly geometry. Clean off-white background, soft studio illumination.\nComposition: One vehicle design shown consistently in a large front three-quarter view plus smaller orthographic top, side and front views. Wheels and body silhouettes clearly readable.\nConstraints: no real brands, no text, no watermark, no photoreal textures, no motion blur, no excessive details. Modeling reference, not game screenshot."
+  },
+  {
+    "name": "car_dirt",
+    "prompt": "Use case: stylized-concept\nAsset type: Blender modeling reference sheet for an Android top-down 3D racing game.\nSubject: A dirt specialist rally hatchback, raised suspension, chunky tires, flared arches, blue body, compact roof air scoop.\nStyle: coherent low-poly miniature motorsport, flat polygon surfaces, simple opaque materials, easy to reproduce as real low-poly geometry. Clean off-white background, soft studio illumination.\nComposition: One vehicle design shown consistently in a large front three-quarter view plus smaller orthographic top, side and front views. Wheels and body silhouettes clearly readable.\nConstraints: no real brands, no text, no watermark, no photoreal textures, no motion blur, no excessive details. Modeling reference, not game screenshot."
+  },
+  {
+    "name": "car_balanced",
+    "prompt": "Use case: stylized-concept\nAsset type: Blender modeling reference sheet for an Android top-down 3D racing game.\nSubject: A balanced approachable circuit sports sedan, medium wheelbase, moderate proportions, green body, modest rear lip spoiler.\nStyle: coherent low-poly miniature motorsport, flat polygon surfaces, simple opaque materials, easy to reproduce as real low-poly geometry. Clean off-white background, soft studio illumination.\nComposition: One vehicle design shown consistently in a large front three-quarter view plus smaller orthographic top, side and front views. Wheels and body silhouettes clearly readable.\nConstraints: no real brands, no text, no watermark, no photoreal textures, no motion blur, no excessive details. Modeling reference, not game screenshot."
+  },
+  {
+    "name": "map_kit",
+    "prompt": "Use case: stylized-concept\nAsset type: Blender modeling reference sheet for an Android top-down 3D racing game.\nSubject: A modular miniature mixed-surface racing circuit asset kit. Clearly separated objects: asphalt straight tile, dirt straight tile, asphalt 90 degree bend, dirt 90 degree bend, red-white curb strip, red-white safety barrier, orange traffic cone, stacked tire barrier, faceted rock, low-poly tree, checkered start gantry. Tiles flat and joinable, six meter road width. No cars.\nStyle: coherent low-poly miniature motorsport, flat polygon surfaces, simple opaque materials, easy to reproduce as real low-poly geometry. Clean off-white background, soft studio illumination.\nComposition: Neatly spaced isometric asset catalog, all objects fully visible, uniform scale within categories.\nConstraints: no real brands, no text, no watermark, no photoreal textures, no motion blur, no excessive details. Modeling reference, not game screenshot."
+  }
+]

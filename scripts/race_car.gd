@@ -1,0 +1,84 @@
+extends CharacterBody3D
+
+const Dynamics = preload("res://scripts/vehicle_dynamics.gd")
+const Progress = preload("res://scripts/race_progress.gd")
+const Driver = preload("res://scripts/ai_driver.gd")
+const PathData = preload("res://scripts/track_path.gd")
+var dynamics
+var progress = Progress.new()
+var driver = Driver.new()
+var car_index := 0
+var player := false
+var display_name := ""
+var visual: Node3D
+var wheels: Array[Node3D] = []
+var wheel_rotations: Array[Vector3] = []
+var wheel_angle := 0.0
+var impact := 0.0
+var near:Dictionary={}
+var previous := Vector2.ZERO
+var reset_cooldown := 0.0
+
+func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> void:
+	dynamics=Dynamics.new(spec)
+	dynamics.reset_at(at,heading)
+	player=is_player
+	position=PathData.world(at,.06)
+	rotation.y=heading
+	var collision:=CollisionShape3D.new()
+	var box:=BoxShape3D.new()
+	box.size=Vector3(1.7,1.15,3.4)
+	collision.shape=box
+	collision.position.y=.65
+	add_child(collision)
+	motion_mode=CharacterBody3D.MOTION_MODE_FLOATING
+	visual=load("res://assets/models/"+str(spec.id)+".glb").instantiate()
+	add_child(visual)
+	for node in visual.find_children("Wheel_*","Node3D",true,false):
+		wheels.append(node)
+		wheel_rotations.append(node.rotation)
+	if player:
+		var marker:=MeshInstance3D.new()
+		var torus:=TorusMesh.new()
+		torus.inner_radius=2.15
+		torus.outer_radius=2.23
+		marker.mesh=torus
+		var material:=StandardMaterial3D.new()
+		material.albedo_color=Color("c2ff72")
+		material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		marker.material_override=material
+		marker.position.y=.06
+		add_child(marker)
+
+func tick(dt:float, controls:Dictionary, path) -> void:
+	previous=dynamics.position
+	near=path.nearest(previous)
+	dynamics.step(dt,float(controls.steer),bool(controls.throttle),bool(controls.brake),near.surface)
+	velocity=PathData.world(dynamics.velocity)
+	rotation.y=dynamics.yaw
+	move_and_slide()
+	dynamics.position=Vector2(position.x,position.z)
+	dynamics.velocity=Vector2(velocity.x,velocity.z)
+	impact=move_toward(impact,0.0,dt*12)
+	for i in range(get_slide_collision_count()):
+		var hit:=get_slide_collision(i)
+		impact=maxf(impact,previous.distance_to(dynamics.position)/dt*.15)
+		var other=hit.get_collider()
+		if other is CharacterBody3D and other.get("dynamics") != null:
+			var push:=Vector2(-hit.get_normal().x,-hit.get_normal().z)
+			other.dynamics.velocity+=push*minf(3.0,impact)*float(dynamics.spec.mass)/float(other.dynamics.spec.mass)
+	wheel_angle+=dynamics.speed()*dt/.34
+	for i in range(wheels.size()):
+		wheels[i].rotation=wheel_rotations[i]+Vector3(wheel_angle,(-dynamics.steering*.35 if "Front" in wheels[i].name else 0.0),0)
+	visual.rotation.z=lerpf(visual.rotation.z,-dynamics.steering*minf(dynamics.velocity.length()/45.0,1.0)*.035,dt*8)
+	reset_cooldown=maxf(0.0,reset_cooldown-dt)
+
+func reset_to_gate(path) -> void:
+	var gate:Dictionary=path.gate(progress.last_gate)
+	dynamics.reset_at(gate.point+gate.tangent*2.5,PathData.heading(gate.tangent))
+	position=PathData.world(dynamics.position,.06)
+	rotation.y=dynamics.yaw
+	velocity=Vector3.ZERO
+	previous=dynamics.position
+	progress.invalidate_for_reset()
+	reset_cooldown=2.0

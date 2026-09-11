@@ -1,0 +1,92 @@
+[
+  {
+    "name": "car_speed",
+    "triangles": 970,
+    "reference": "assets/references/car_speed.png",
+    "glb": "assets/models/car_speed.glb"
+  },
+  {
+    "name": "car_agile",
+    "triangles": 946,
+    "reference": "assets/references/car_agile.png",
+    "glb": "assets/models/car_agile.glb"
+  },
+  {
+    "name": "car_dirt",
+    "triangles": 994,
+    "reference": "assets/references/car_dirt.png",
+    "glb": "assets/models/car_dirt.glb"
+  },
+  {
+    "name": "car_balanced",
+    "triangles": 946,
+    "reference": "assets/references/car_balanced.png",
+    "glb": "assets/models/car_balanced.glb"
+  },
+  {
+    "name": "asphalt_straight",
+    "triangles": 60,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/asphalt_straight.glb"
+  },
+  {
+    "name": "asphalt_curve",
+    "triangles": 196,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/asphalt_curve.glb"
+  },
+  {
+    "name": "dirt_straight",
+    "triangles": 36,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/dirt_straight.glb"
+  },
+  {
+    "name": "dirt_curve",
+    "triangles": 196,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/dirt_curve.glb"
+  },
+  {
+    "name": "curb",
+    "triangles": 264,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/curb.glb"
+  },
+  {
+    "name": "safety_barrier",
+    "triangles": 48,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/safety_barrier.glb"
+  },
+  {
+    "name": "cone",
+    "triangles": 132,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/cone.glb"
+  },
+  {
+    "name": "tire_barrier",
+    "triangles": 864,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/tire_barrier.glb"
+  },
+  {
+    "name": "rock",
+    "triangles": 20,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/rock.glb"
+  },
+  {
+    "name": "tree",
+    "triangles": 84,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/tree.glb"
+  },
+  {
+    "name": "start_gantry",
+    "triangles": 468,
+    "reference": "assets/references/map_kit.png",
+    "glb": "assets/models/start_gantry.glb"
+  }
+]
