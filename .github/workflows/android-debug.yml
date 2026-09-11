@@ -3,17 +3,23 @@ name: Build Android APK
 # Only runs from Actions -> Run workflow. Never runs on push or pull_request.
 "on":
   workflow_dispatch:
+    inputs:
+      tag:
+        description: '新 Release 标签，例如 v0.1.0（不能已存在）'
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 concurrency:
-  group: android-debug-${{ github.ref }}
+  group: android-debug-${{ inputs.tag }}
   cancel-in-progress: false
 
 env:
   GODOT_VERSION: 4.7-stable
   GODOT_TEMPLATE_VERSION: 4.7.stable
+  RELEASE_TAG: ${{ inputs.tag }}
 
 jobs:
   android:
@@ -27,6 +33,25 @@ jobs:
     steps:
       - name: Check out selected branch
         uses: actions/checkout@v4
+
+      - name: Validate release tag
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] ||
+             ! git check-ref-format "refs/tags/$RELEASE_TAG"; then
+            echo '::error::Tag must be a valid Git tag using letters, numbers, dots, underscores or hyphens, starting with a letter or number.'
+            exit 1
+          fi
+          if git ls-remote --exit-code --refs origin "refs/tags/$RELEASE_TAG"; then
+            echo '::error::Tag already exists. Run the workflow with a new tag.'
+            exit 1
+          else
+            status=$?
+            if [[ "$status" -ne 2 ]]; then
+              echo '::error::Unable to check remote tags.'
+              exit "$status"
+            fi
+          fi
 
       - name: Check project files
         run: |
@@ -146,7 +171,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: android-debug-${{ github.run_number }}-${{ github.run_attempt }}
           RELEASE_SHA: ${{ github.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
