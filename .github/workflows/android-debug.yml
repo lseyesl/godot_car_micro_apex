@@ -139,6 +139,8 @@ jobs:
           set -euo pipefail
           godot --headless --path . --script res://tests/test_runner.gd 2>&1 | tee build/android/rules.log
           grep -Eq 'RULE_TESTS .*failures=0' build/android/rules.log
+          godot --headless --path . --script res://tests/handling.gd 2>&1 | tee build/android/handling.log
+          grep -Eq 'HANDLING .*failures=0' build/android/handling.log
           godot --headless --path . --script res://tests/integration.gd 2>&1 | tee build/android/integration.log
           grep -Eq 'INTEGRATION .*failures=0' build/android/integration.log
 

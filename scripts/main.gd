@@ -272,7 +272,7 @@ func show_menu() -> void:
 	var go:=button("驶入赛场  →",start_race,true)
 	go.custom_minimum_size.x=220
 	bottom.add_child(go)
-	v.add_child(label("左 / 右键相对车头转向  ·  油门与刹车可同时配合转向  ·  高速入弯请提前减速",15,Color("a8bcc4")))
+	v.add_child(label("左 / 右键相对车头转向  ·  油门与刹车可同时配合转向  ·  高速甩尾时反打修正",15,Color("a8bcc4")))
 	update_record_hint()
 
 func select_car(index:int) -> void:
@@ -310,10 +310,10 @@ func start_race() -> void:
 	time=0.0
 	countdown=3.0
 	state=State.COUNTDOWN
-	toast="相对车头转向 · 提前减速入弯 · 长按 RESET 复位"
+	toast="高速易甩尾 · 反打修正 · 长按 RESET 复位"
 	toast_until=10
 	build_hud()
-	camera.size=64
+	camera.size=44
 	update_camera(1.0,true)
 
 func build_hud() -> void:
@@ -400,7 +400,7 @@ func _physics_process(dt:float) -> void:
 		else:
 			input=car.driver.controls(car.dynamics,path,time)
 		car.tick(dt,input,path)
-		var event:Dictionary=car.progress.advance(car.previous,car.dynamics.position,path,time,0 if practice else 3)
+		var event:Dictionary=car.progress.advance(car.previous,car.dynamics.position,path,time,0 if practice else 3,car.position.y-.06)
 		if car.player and event.has("lap"):
 			if practice and event.valid and saved.record(selected_track,selected_car,event.duration):
 				toast="新纪录！  "+Catalog.clock_text(event.duration)
@@ -463,7 +463,7 @@ func _process(dt:float) -> void:
 func update_camera(dt:float, snap:bool=false) -> void:
 	if not is_instance_valid(player):
 		return
-	var ahead:Vector3=PathData.world(player.dynamics.velocity)*.55
+	var ahead:Vector3=PathData.world(player.dynamics.velocity)*.32
 	var target:Vector3=player.position+ahead
 	var desired:=target+Vector3(0,47,31)
 	camera.position=desired if snap else camera.position.lerp(desired,1.0-exp(-dt*5))
@@ -477,7 +477,7 @@ func ranking() -> Array:
 			return a.progress.finish_time<b.progress.finish_time
 		if a.progress.finish_time>=0: return true
 		if b.progress.finish_time>=0: return false
-		return a.progress.score(path,a.dynamics.position)>b.progress.score(path,b.dynamics.position))
+		return a.progress.score(path,a.dynamics.position,a.dynamics.route_s)>b.progress.score(path,b.dynamics.position,b.dynamics.route_s))
 	return sorted
 
 func update_hud() -> void:
@@ -489,7 +489,7 @@ func update_hud() -> void:
 	var message:=toast if time<toast_until else ""
 	if message=="":
 		var upcoming:Dictionary=path.gate(player.progress.next_gate)
-		var nearest:Dictionary=path.nearest(player.dynamics.position)
+		var nearest:Dictionary=path.nearest(player.dynamics.position,player.dynamics.route_s)
 		var past:=fposmod(float(nearest.s)-float(upcoming.s),path.length)
 		if past>10 and past<path.length*.3:
 			message="漏过检查点 · 请返回绿色标记或长按 RESET"

@@ -1,0 +1,113 @@
+{
+	"method": "Deterministic solo hard AI, same physics, 20Hz, three laps; no collisions; not a human skill balance proof.",
+	"results": [
+		{
+			"best_lap": 79.95,
+			"car": 0,
+			"laps": 3,
+			"max_lateral_error": 1.94579300059219,
+			"offroad_fraction": 0.0,
+			"seconds": 243.1,
+			"track": 0
+		},
+		{
+			"best_lap": 77.65,
+			"car": 1,
+			"laps": 3,
+			"max_lateral_error": 2.09743733036231,
+			"offroad_fraction": 0.0,
+			"seconds": 235.0,
+			"track": 0
+		},
+		{
+			"best_lap": 79.25,
+			"car": 2,
+			"laps": 3,
+			"max_lateral_error": 1.92709349208594,
+			"offroad_fraction": 0.0,
+			"seconds": 240.3,
+			"track": 0
+		},
+		{
+			"best_lap": 78.2,
+			"car": 3,
+			"laps": 3,
+			"max_lateral_error": 2.02569972064354,
+			"offroad_fraction": 0.0,
+			"seconds": 237.15,
+			"track": 0
+		},
+		{
+			"best_lap": 69.8,
+			"car": 0,
+			"laps": 3,
+			"max_lateral_error": 2.002724103639,
+			"offroad_fraction": 0.0,
+			"seconds": 212.1,
+			"track": 1
+		},
+		{
+			"best_lap": 66.4,
+			"car": 1,
+			"laps": 3,
+			"max_lateral_error": 2.07019065642343,
+			"offroad_fraction": 0.0,
+			"seconds": 201.05,
+			"track": 1
+		},
+		{
+			"best_lap": 66.7,
+			"car": 2,
+			"laps": 3,
+			"max_lateral_error": 2.04715872392504,
+			"offroad_fraction": 0.0,
+			"seconds": 202.5,
+			"track": 1
+		},
+		{
+			"best_lap": 67.1,
+			"car": 3,
+			"laps": 3,
+			"max_lateral_error": 2.0152223170009,
+			"offroad_fraction": 0.0,
+			"seconds": 203.3,
+			"track": 1
+		},
+		{
+			"best_lap": 87.3,
+			"car": 0,
+			"laps": 3,
+			"max_lateral_error": 1.59922776659952,
+			"offroad_fraction": 0.0,
+			"seconds": 265.05,
+			"track": 2
+		},
+		{
+			"best_lap": 82.65,
+			"car": 1,
+			"laps": 3,
+			"max_lateral_error": 1.71273514184394,
+			"offroad_fraction": 0.0,
+			"seconds": 250.1,
+			"track": 2
+		},
+		{
+			"best_lap": 80.2,
+			"car": 2,
+			"laps": 3,
+			"max_lateral_error": 1.75115819479377,
+			"offroad_fraction": 0.0,
+			"seconds": 243.35,
+			"track": 2
+		},
+		{
+			"best_lap": 82.2,
+			"car": 3,
+			"laps": 3,
+			"max_lateral_error": 1.71549867536671,
+			"offroad_fraction": 0.0,
+			"seconds": 249.5,
+			"track": 2
+		}
+	]
+}

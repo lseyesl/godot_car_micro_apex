@@ -3,6 +3,7 @@ extends RefCounted
 const Catalog = preload("res://scripts/catalog.gd")
 const WIDTH := 14.0
 const GATE_COUNT := 24
+const FIELD_SIZE := 280.0
 var points := PackedVector2Array()
 var distances := PackedFloat32Array()
 var length := 0.0
@@ -21,8 +22,6 @@ func _init(track_index: int = 0) -> void:
 			var p2: Vector2 = controls[(i + 1) % controls.size()]
 			var p3: Vector2 = controls[(i + 2) % controls.size()]
 			points.append(0.5 * ((2.0*p1) + (-p0+p2)*t + (2.0*p0-5.0*p1+4.0*p2-p3)*t*t + (-p0+3.0*p1-3.0*p2+p3)*t*t*t))
-	for i in range(points.size()):
-		points[i] *= [1.65,1.15,1.55][index]
 	distances.append(0.0)
 	for i in range(points.size()):
 		length += points[i].distance_to(points[(i+1)%points.size()])
@@ -36,9 +35,9 @@ func sample(distance: float) -> Dictionary:
 	var a := points[i]
 	var b := points[(i+1)%points.size()]
 	var tangent := (b-a).normalized()
-	return {"point":a.lerp(b, (s-distances[i])/(distances[i+1]-distances[i])), "tangent":tangent, "s":s, "surface":surface_at(s)}
+	return {"point":a.lerp(b, (s-distances[i])/(distances[i+1]-distances[i])), "tangent":tangent, "s":s, "surface":surface_at(s), "height":height_at(s)}
 
-func nearest(p: Vector2) -> Dictionary:
+func nearest(p: Vector2, route_hint: float = -1.0) -> Dictionary:
 	var best := INF
 	var result: Dictionary = {}
 	for i in range(points.size()):
@@ -46,15 +45,29 @@ func nearest(p: Vector2) -> Dictionary:
 		var b := points[(i+1)%points.size()]
 		var t := clampf((p-a).dot(b-a)/(b-a).length_squared(),0.0,1.0)
 		var q := a.lerp(b,t)
+		var s := lerpf(distances[i],distances[i+1],t)
+		if route_hint >= 0.0 and absf(wrapf(s-route_hint,-length*0.5,length*0.5)) > 65.0:
+			continue
 		var d := p.distance_squared_to(q)
 		if d < best:
 			best = d
 			var tangent := (b-a).normalized()
-			var s := lerpf(distances[i],distances[i+1],t)
-			result = {"point":q,"tangent":tangent,"s":s,"distance":sqrt(d),"lateral":(p-q).dot(Vector2(-tangent.y,tangent.x)),"surface":surface_at(s)}
+			result = {"point":q,"tangent":tangent,"s":s,"distance":sqrt(d),"lateral":(p-q).dot(Vector2(-tangent.y,tangent.x)),"surface":surface_at(s), "height":height_at(s)}
 	if result.distance > WIDTH * 0.5:
 		result.surface = "grass"
 	return result
+
+# Control indices define a ramp, flat deck and descent, all in route distance.
+func height_at(distance: float) -> float:
+	var controls: Array = definition.get("bridge_controls", [])
+	if controls.is_empty():
+		return 0.0
+	var s := fposmod(distance,length)
+	var start: float = distances[int(controls[0])*20]
+	var top: float = distances[int(controls[1])*20]
+	var end_top: float = distances[int(controls[2])*20]
+	var end: float = distances[int(controls[3])*20]
+	return 9.0 * smoothstep(start,top,s) * (1.0-smoothstep(end_top,end,s))
 
 func surface_at(distance: float) -> String:
 	var t := fposmod(distance,length)/length

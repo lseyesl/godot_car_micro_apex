@@ -6,7 +6,8 @@ var lane := 0.0
 var stuck_time := 0.0
 
 func controls(car, path, time: float) -> Dictionary:
-	var nearest: Dictionary = path.nearest(car.position)
+	var nearest: Dictionary = path.nearest(car.position,car.route_s)
+	car.route_s=nearest.s
 	var speed:float = car.velocity.length()
 	var look := clampf(7.0+speed*0.48,8.0,25.0)
 	var target: Dictionary = path.sample(float(nearest.s)+look)

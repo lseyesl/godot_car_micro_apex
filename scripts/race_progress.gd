@@ -10,10 +10,12 @@ var finish_time := -1.0
 var resets := 0
 
 # A lap needs every gate, in order, crossing forwards and inside the road.
-func advance(previous: Vector2, current: Vector2, path, time: float, target_laps: int = 3) -> Dictionary:
+func advance(previous: Vector2, current: Vector2, path, time: float, target_laps: int = 3, road_height: float = NAN) -> Dictionary:
 	if finish_time >= 0.0:
 		return {}
 	var gate: Dictionary = path.gate(next_gate)
+	if is_finite(road_height) and absf(road_height-float(gate.height)) > 2.0:
+		return {}
 	var normal: Vector2 = gate.tangent
 	var a: float = (previous-gate.point).dot(normal)
 	var b: float = (current-gate.point).dot(normal)
@@ -41,11 +43,11 @@ func invalidate_for_reset() -> void:
 	valid_lap = false
 	resets += 1
 
-func score(path, position: Vector2) -> float:
+func score(path, position: Vector2, route_hint: float = -1.0) -> float:
 	# Progress is capped at the next legal checkpoint: shortcuts cannot improve rank.
 	var g: Dictionary = path.gate(last_gate)
 	var span: float = path.length/path.GATE_COUNT
-	var near: Dictionary = path.nearest(position)
+	var near: Dictionary = path.nearest(position,route_hint)
 	var local := fposmod(float(near.s)-float(g.s),path.length)
 	if local > path.length*0.5:
 		local -= path.length

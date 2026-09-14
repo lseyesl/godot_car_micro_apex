@@ -1,29 +1,29 @@
 [
   {
     "name": "car_speed",
-    "version": 2,
-    "triangles": 7500,
+    "version": 3,
+    "triangles": 7686,
     "reference": "assets/references/car_speed.png",
     "glb": "assets/models/car_speed.glb"
   },
   {
     "name": "car_agile",
-    "version": 2,
-    "triangles": 7504,
+    "version": 3,
+    "triangles": 7652,
     "reference": "assets/references/car_agile.png",
     "glb": "assets/models/car_agile.glb"
   },
   {
     "name": "car_dirt",
-    "version": 2,
-    "triangles": 17032,
+    "version": 3,
+    "triangles": 17612,
     "reference": "assets/references/car_dirt.png",
     "glb": "assets/models/car_dirt.glb"
   },
   {
     "name": "car_balanced",
-    "version": 2,
-    "triangles": 7500,
+    "version": 3,
+    "triangles": 7968,
     "reference": "assets/references/car_balanced.png",
     "glb": "assets/models/car_balanced.glb"
   },

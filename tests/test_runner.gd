@@ -21,7 +21,7 @@ func _initialize() -> void:
 func run() -> void:
 	for index in range(3):
 		var track=Track.new(index)
-		check(track.length>1300 and track.length<2300,"Track length outside intended race scale")
+		check(track.length>650 and track.length<1200,"Track length outside intended race scale")
 		check(track.sample(0).point.distance_to(track.sample(track.length).point)<.001,"Track must close")
 		var asphalt:=0
 		var dirt:=0
@@ -60,6 +60,16 @@ func run() -> void:
 	p.advance(g.point-g.tangent,g.point+g.tangent,path,500)
 	check(p.finish_time==finished,"Finishing is immutable")
 	var car=Dynamics.new(Catalog.CARS[3])
+	for i in range(Catalog.CARS.size()):
+		var old_spec:Dictionary=Catalog.CARS[i].duplicate()
+		old_spec.radius=[8.8,5.5,7.3,6.8][i]
+		var previous=Dynamics.new(old_spec)
+		var tighter=Dynamics.new(Catalog.CARS[i])
+		for vehicle in [previous,tighter]:
+			vehicle.velocity=Vector2(0,-3)
+			vehicle.steering=1.0
+			vehicle.step(1.0/60,1,false,false,"asphalt")
+		check(absf(tighter.yaw)>absf(previous.yaw)*1.4,"Low-speed full-lock turn must be tighter than the original tuning")
 	for i in range(180):car.step(1.0/60,0,true,false,"asphalt")
 	check(car.speed()>15,"Car must accelerate under throttle")
 	for i in range(180):car.step(1.0/60,0,false,true,"asphalt")
@@ -73,7 +83,7 @@ func run() -> void:
 	car.velocity=Vector2(0,-40)
 	var angle:float=car.yaw
 	car.step(.1,1,true,false,"asphalt")
-	check(absf(car.yaw-angle)<=car.grip_for("asphalt")/40*.1+.002,"High-speed yaw is grip limited")
+	check(absf(car.yaw-angle)>car.grip_for("asphalt")/40*.1 and absf(car.yaw-angle)<.3,"High-speed body rotation must allow bounded oversteer")
 	check(car.grip_for("dirt")<car.grip_for("asphalt"),"Dirt grip must decrease")
 	car.reset_at(Vector2.ZERO,0)
 	car.velocity=Vector2(0,-40)
@@ -81,6 +91,8 @@ func run() -> void:
 	check(car.velocity.length()<17,"Off-road speed must decay even with throttle")
 	var store_path:="/tmp/micro-apex-record-test-%d.cfg"%OS.get_process_id()
 	var store=Store.new(store_path)
+	store.config.set_value("records","1_2",1.0)
+	check(not is_finite(store.best(1,2)),"Old layout records must not compete with new track times")
 	check(store.record(1,2,50),"First record should save")
 	check(not store.record(1,2,55),"Slower lap must not replace best")
 	check(not store.record(1,2,-1),"Invalid time rejected")

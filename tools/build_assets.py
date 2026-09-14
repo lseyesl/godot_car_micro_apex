@@ -5,6 +5,7 @@ import bpy, bmesh, math, json, random, sys
 from pathlib import Path
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
+CARS_ONLY='--cars-only' in sys.argv
 random.seed(812)
 bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)
 M={}
@@ -134,7 +135,7 @@ def finalize(name,before,reference,version=2):
  manifest.append({'name':name,'version':version,'triangles':tris,'reference':reference,'glb':f'assets/models/{name}.glb'})
  roots.append(root);return root
 
-specs=[('car_speed',4.6,1.94,1.18,'red',.35,1.42,-1.40),('car_agile',3.65,1.74,1.49,'yellow',.33,1.08,-1.12),('car_dirt',3.95,1.92,1.62,'blue',.405,1.22,-1.20),('car_balanced',4.3,1.83,1.44,'green',.34,1.29,-1.28)]
+specs=[('car_speed',4.9,2.08,1.08,'red',.35,1.52,-1.48),('car_agile',3.25,1.84,1.5,'yellow',.33,.98,-1.00),('car_dirt',4.05,2.16,1.8,'blue',.46,1.26,-1.24),('car_balanced',4.5,1.94,1.38,'green',.34,1.38,-1.36)]
 for idx,(name,L,W,H,color,R,front_axle,rear_axle) in enumerate(specs):
  before=set(bpy.context.scene.objects);speed=idx==0;rally=idx==2;sedan=idx==3;w=W/2
  base=.20 if not rally else .32;belt=.83 if speed else (.99 if rally else .92)
@@ -158,9 +159,9 @@ for idx,(name,L,W,H,color,R,front_axle,rear_axle) in enumerate(specs):
    poly_obj=mesh('Flared_wheel_arch',v,f,'trim' if rally else color)
    wheel('Wheel_'+('Front' if y==front_axle else 'Rear')+('_L' if s<0 else '_R'),s*(w-.075),y,R,.34 if rally else .26,rally)
  # Cabin envelope: separate windshield, roof, rear window, and two window panes per side.
- rear=-L*(.24 if speed or sedan else .395);front=L*(.19 if speed else .22)
- roof_rear=-L*(.135 if speed else (.18 if sedan else .30));roof_front=L*(.008 if speed else .025)
- bw=w*.85;rw=w*.74;z=belt+.025
+ rear=-L*(.30 if speed else (.24 if sedan else .395));front=L*(.10 if speed else .22)
+ roof_rear=-L*(.20 if speed else (.16 if sedan else .30));roof_front=L*(-.045 if speed else .045)
+ bw=w*(.77 if speed else .85);rw=w*(.59 if speed else .74);z=belt+.025
  verts=[(-bw,rear,z),(bw,rear,z),(bw,front,z),(-bw,front,z),(-rw,roof_rear,H),(rw,roof_rear,H),(rw,roof_front,H),(-rw,roof_front,H)]
  cabin=mesh('Cabin_frame',verts,[(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7),(4,5,6,7),(3,2,1,0)],color);recalc(cabin);bevel(cabin,.045)
  waist_bottom=[(x+(math.copysign(.08,x)),y+(-.045 if y==rear else .045),belt-.10) for x,y,_ in verts[:4]]
@@ -232,12 +233,16 @@ for idx,(name,L,W,H,color,R,front_axle,rear_axle) in enumerate(specs):
   cyl('Exhaust',(s*w*.57,-L/2-.07,base+.065),.06,.17,'metal',(math.pi/2,0,0),N=12)
   cyl('Exhaust_bore',(s*w*.57,-L/2-.159,base+.065),.043,.008,'rubber',(math.pi/2,0,0),N=12)
  box('Rear_diffuser',(0,-L/2+.025,base+.025),(W*.8,.15,.11),'trim',.02)
- # Every design has characteristic rear aero, with thin plates and end caps.
- wing_y=-L*.435;wing_z=belt+(.25 if speed else (.27 if rally else .11))
- for s in [-1,1]:box('Wing_upright',(s*w*.63,wing_y,(belt+wing_z)*.5),(.045,.14,wing_z-belt),'trim')
- box('Wing_airfoil',(0,wing_y,wing_z),(W*.97,.26,.055),color if speed or sedan else 'trim',.015)
- if speed or rally:
-  for s in [-1,1]:box('Wing_endplate',(s*w*.99,wing_y,wing_z+.02),(.038,.32,.19),color if speed else 'trim',.012)
+ # Each class has a different outline from the gameplay camera.
+ if speed:
+  wing_y=-L*.43;wing_z=1.23
+  for side in [-1,1]:box('GT_wing_pylon',(side*w*.65,wing_y,(belt+wing_z)*.5),(.065,.19,wing_z-belt),'trim')
+  box('GT_rear_wing',(0,wing_y,wing_z),(W*1.04,.42,.075),'trim',.02)
+  for side in [-1,1]:box('Red_wing_endplate',(side*w*1.04,wing_y,wing_z+.04),(.05,.48,.22),color,.012)
+ elif idx==1:
+  box('Hatch_roof_spoiler',(0,roof_rear-.14,H-.015),(W*.84,.26,.075),'trim',.015)
+ elif sedan:
+  box('Sedan_ducktail',(0,-L*.46,belt-.015),(W*.83,.13,.07),color,.02)
  if speed:
   for s in [-1,1]:
    poly('Side_air_intake',[(s*(w+.005),-.40,.36),(s*(w+.005),-.72,.39),(s*(w+.005),-.87,.73),(s*(w+.005),-.50,.69)],'trim',(s,0,0))
@@ -251,117 +256,159 @@ for idx,(name,L,W,H,color,R,front_axle,rear_axle) in enumerate(specs):
   for s in [-1,1]:
    box('Hood_vent',(s*w*.53,L*.32,hood_height(s*w*.53,L*.32)+.014),(.16,.26,.025),'trim',.02)
    for y in [front_axle-.4,rear_axle-.4]:box('Mud_flap',(s*(w-.07),y,base+.08),(.27,.035,.25),'rubber')
- root=finalize(name,before,f'assets/references/{name}.png');root.location=(idx*6.2,0,0)
-
-# Track kit: joinable surfaces with colored triangulation and modeled shoulders.
-for i in range(4):mat('asphalt_%d'%i,(.105+i*.007,.122+i*.007,.13+i*.007),1)
-for surface in ['asphalt','dirt']:
- for curved in [False,True]:
-  before=set(bpy.context.scene.objects)
-  def road_point(u,t,z=0):
-   if curved:
-    a=t*math.pi/2;r=9+u;return (r*math.cos(a),r*math.sin(a),z)
-   return (u,-5+t*10,z)
-  for row in range(20 if curved else 12):
-   count=20 if curved else 12
-   for col in range(6):
-    u=col-3;t=row/count
-    p=[road_point(u,t),road_point(u+1,t),road_point(u+1,(row+1)/count),road_point(u,(row+1)/count)]
-    for face in [[p[0],p[1],p[2]],[p[0],p[2],p[3]]]:poly('Road_surface',face,surface+'_%d'%random.randrange(5 if surface=='dirt' else 4),(0,0,1))
-  # Solid section walls and grass shoulders, without cracks between road tiles.
-  count=20 if curved else 1
-  for row in range(count):
-   t=row/count;tn=(row+1)/count
-   for s in [-1,1]:
-    poly('Road_edge',[road_point(s*3,t,0),road_point(s*3,tn,0),road_point(s*3,tn,-.22),road_point(s*3,t,-.22)],'dirt')
-    poly('Grass_verge',[road_point(s*3,t,-.015),road_point(s*3.65,t,-.04),road_point(s*3.65,tn,-.04),road_point(s*3,tn,-.015)],'grass',(0,0,1))
-    poly('Earth_side',[road_point(s*3.65,t,-.04),road_point(s*3.65,tn,-.04),road_point(s*3.65,tn,-.22),road_point(s*3.65,t,-.22)],'dirt')
-  if surface=='asphalt':
-   for s in [-1,1]:
-    for row in range(20 if curved else 1):
-     count=20 if curved else 1;t=row/count;tn=(row+1)/count
-     poly('White_edge_marking',[road_point(s*2.77,t,.008),road_point(s*2.86,t,.008),road_point(s*2.86,tn,.008),road_point(s*2.77,tn,.008)],'white',(0,0,1))
-   for row in range(0,12,2):poly('Dashed_center_line',[road_point(-.05,row/12,.009),road_point(.05,row/12,.009),road_point(.05,(row+.8)/12,.009),road_point(-.05,(row+.8)/12,.009)],'white',(0,0,1))
-  else:
-   for i in range(16):
-    x,y,z=road_point(random.choice([-1,1])*random.uniform(2.6,3.4),random.random())
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=random.uniform(.035,.08),location=(x,y,.015));bpy.context.object.data.materials.append(M['stone_2'])
-  # End thickness closes the perimeter; top stays exactly at z=0 for connections.
-  for t in [0,1]:poly('Tile_end',[road_point(-3.65,t,-.22),road_point(3.65,t,-.22),road_point(3.65,t,-.04),road_point(-3.65,t,-.04)],'dirt')
-  root=finalize(surface+('_curve' if curved else '_straight'),before,'assets/references/map_kit.png');root.location=(len(roots)*15,20,0)
-
-def tapered_barrier(y0,y1,color):
- profile=[(-.38,0),(.38,0),(.38,.13),(.20,.35),(.16,.82),(-.16,.82),(-.20,.35),(-.38,.13)]
- v=[(x,y,z) for y in [y0,y1] for x,z in profile];n=len(profile)
- f=[tuple(reversed(range(n))),tuple(range(n,2*n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)]
- o=mesh('Concrete_barrier',v,f,color);recalc(o);bevel(o,.014)
-
-for name in ['curb','safety_barrier','cone','tire_barrier','rock','tree','start_gantry']:
- before=set(bpy.context.scene.objects)
- if name=='curb':
-  for i in range(6):
-   y=(i-3)*.5
-   o=mesh('Kerb_block',[(-.27,y,0),(.27,y,0),(.27,y+.5,0),(-.27,y+.5,0),(-.27,y,.045),(.27,y,.14),(.27,y+.5,.14),(-.27,y+.5,.045)],[(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],'red' if i%2 else 'white');bevel(o,.012)
- elif name=='safety_barrier':
-  for i in range(4):tapered_barrier((i-2)*.75,(i-1)*.75,'red' if i%2 else 'white')
- elif name=='cone':
-  box('Rubber_base',(0,0,.045),(.46,.46,.09),'rubber',.035)
-  zs=[.09,.24,.34,.46,.55,.70];N=16;v=[]
-  for z in zs:
-   r=.2-(z-.09)/.61*.175
-   for i in range(N):v.append((r*math.cos(i*math.tau/N),r*math.sin(i*math.tau/N),z))
-  f=[]
-  for j in range(len(zs)-1):
-   for i in range(N):f.append((j*N+i,j*N+(i+1)%N,(j+1)*N+(i+1)%N,(j+1)*N+i))
-  o=mesh('Cone_bands',v,f,'orange');o.data.materials.append(M['white'])
-  for p in o.data.polygons:p.material_index=1 if p.index//N in [1,3] else 0
- elif name=='tire_barrier':
-  for x in [-.82,0,.82]:
-   for level in range(3):
-    z=.14+level*.265
-    bpy.ops.mesh.primitive_torus_add(major_segments=24,minor_segments=10,location=(x,0,z),major_radius=.29,minor_radius=.13);o=bpy.context.object;o.name='Stacked_tire';o.scale.z=.92;o.data.materials.append(M['rubber'])
-    for zz in [z-.07,z+.07]:
-     bpy.ops.mesh.primitive_torus_add(major_segments=24,minor_segments=4,location=(x,0,zz),major_radius=.398,minor_radius=.009);bpy.context.object.data.materials.append(M['trim'])
- elif name=='rock':
-  for loc,scale in [((0,0,.65),(1,.8,.75)),((-.8,.45,.16),(.30,.24,.2)),((.85,.25,.2),(.32,.35,.25)),((.1,-.85,.12),(.2,.3,.15))]:
-   bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=1,location=loc);o=bpy.context.object;o.name='Faceted_rock';o.scale=scale
-   for vert in o.data.vertices:vert.co*=random.uniform(.87,1.12)
-   for i in range(5):o.data.materials.append(M['stone_%d'%i])
-   for face in o.data.polygons:face.material_index=random.randrange(5)
- elif name=='tree':
-  beam('Trunk',(0,0,.02),(.08,0,2.2),.12,'bark',8)
-  for a,b in [((0,0,.8),(-.65,.1,2)),((0,0,1.2),(.65,.15,2.45)),((.05,0,1.7),(-.35,-.3,2.7))]:beam('Branch',a,b,.075,'bark',7)
-  for x,y,z,r in [(-.7,.05,1.9,.68),(.65,.1,2.45,.73),(-.34,-.2,2.7,.75),(.15,.4,3.12,.6),(0,-.2,2.12,.7)]:
-   bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=r,location=(x,y,z));o=bpy.context.object;o.name='Polygon_canopy'
-   for i in range(5):o.data.materials.append(M['leaf_%d'%i])
-   for face in o.data.polygons:face.material_index=random.randrange(5)
+ # Broad paint marks are designed to survive the small race-camera footprint.
+ def hood_stripe(x0,x1,y0,y1,paint):
+  x0,x1=sorted((x0,x1))
+  vertices=[];faces=[]
+  for j in range(17):
+   y=y0+(y1-y0)*j/16
+   for x in [x0,x1]:vertices.append((x,y,hood_height(x,y)+.034))
+  for j in range(16):faces.append((j*2,j*2+1,j*2+3,j*2+2))
+  mesh('Hood_livery',vertices,faces,paint)
+ roof_mid=(roof_front+roof_rear)*.5
+ if speed:
+  for side in [-1,1]:
+   hood_stripe(side*.14,side*.36,front+.08,L*.475,'white')
+   box('Twin_roof_stripe',(side*.25,roof_mid,H+.012),(.22,roof_front-roof_rear-.05,.018),'white')
+ elif idx==1:
+  box('Black_hatch_roof',(0,roof_mid,H+.012),(rw*1.84,roof_front-roof_rear-.06,.016),'trim',.018)
+  hood_stripe(-.34,.34,front+.08,L*.46,'trim')
+ elif rally:
+  hood_stripe(-.42,.42,front+.08,L*.46,'white')
+  # Raised roof rack and a horizontal spare give the off-road car a unique top view.
+  rack_y=roof_mid-.1
+  for side in [-1,1]:
+   beam('Rack_side',(side*rw*.90,roof_rear+.03,H+.17),(side*rw*.90,roof_front-.04,H+.17),.045,'trim')
+  for y in [roof_rear+.09,roof_mid,roof_front-.08]:
+   beam('Rack_crossbar',(-rw*.9,y,H+.13),(rw*.9,y,H+.13),.04,'metal')
+  bpy.ops.mesh.primitive_torus_add(major_segments=24,minor_segments=8,major_radius=.28,minor_radius=.105,location=(0,rack_y,H+.23))
+  spare=bpy.context.object;spare.name='Roof_spare';spare.data.materials.append(M['rubber'])
+  cyl('Spare_hub',(0,rack_y,H+.22),.17,.17,'metal',N=16)
+  box('Orange_rack_case',(-.50,rack_y,H+.25),(.25,.56,.25),'orange',.025)
  else:
-  for x in [-3.65,3.65]:
-   base=box('Red_base',(x,0,.3),(.9,.85,.6),'red',.07)
-   box('White_base_band',(x,0,.40),(.91,.86,.12),'white',.04)
-   for dx in [-.21,.21]:
-    for y in [-.21,.21]:beam('Tower_chord',(x+dx,y,.6),(x+dx,y,4.05),.045,'metal')
-   for j in range(5):
-    z=.65+j*.65
-    for y in [-.21,.21]:
-     beam('Tower_diagonal',(x-.21,y,z),(x+.21,y,z+.62),.025,'metal')
-     beam('Tower_rung',(x-.21,y,z),(x+.21,y,z),.035,'metal')
-  for y in [-.21,.21]:
-   for z in [3.48,4.05]:beam('Bridge_chord',(-3.65,y,z),(3.65,y,z),.05,'metal')
-   for j in range(10):
-    x=-3.65+j*.73
-    beam('Bridge_diagonal',(x,y,3.48),(x+.73,y,4.05),.027,'metal')
-  box('Checker_banner',(0,0,3.7),(7.3,.06,.58),'white')
-  for i in range(24):
-   for j in range(2):
-    if (i+j)%2:
-     for y in [-.037,.037]:box('Checker',(-3.65+(i+.5)*7.3/24,y,3.555+j*.29),(7.3/24,.012,.29),'rubber')
- root=finalize(name,before,'assets/references/map_kit.png');root.location=((len(roots)-8)*5,-12,0)
+  box('White_touring_roof',(0,roof_mid,H+.015),(rw*1.86,roof_front-roof_rear-.04,.018),'white',.02)
+  hood_stripe(-.50,.50,front+.08,L*.46,'white')
+  hood_stripe(-.10,.10,front+.08,L*.46,color)
+ if not rally:
+  bpy.ops.object.text_add(location=(0,roof_mid,H+.028))
+  number=bpy.context.object;number.name='Roof_race_number';number.data.body=['01','07','24','88'][idx]
+  number.data.align_x='CENTER';number.data.align_y='CENTER';number.data.size=.48 if speed else .66
+  number.rotation_euler.z=math.pi
+  # Yellow-on-black and black-on-white remain legible without relying on body hue.
+  number.data.materials.append(M['yellow' if idx==1 else 'trim'])
+  active(number);bpy.ops.object.convert(target='MESH')
+ root=finalize(name,before,f'assets/references/{name}.png',version=3);root.location=(idx*6.2,0,0)
+
+if not CARS_ONLY:
+ # Track kit: joinable surfaces with colored triangulation and modeled shoulders.
+ for i in range(4):mat('asphalt_%d'%i,(.105+i*.007,.122+i*.007,.13+i*.007),1)
+ for surface in ['asphalt','dirt']:
+  for curved in [False,True]:
+   before=set(bpy.context.scene.objects)
+   def road_point(u,t,z=0):
+    if curved:
+     a=t*math.pi/2;r=9+u;return (r*math.cos(a),r*math.sin(a),z)
+    return (u,-5+t*10,z)
+   for row in range(20 if curved else 12):
+    count=20 if curved else 12
+    for col in range(6):
+     u=col-3;t=row/count
+     p=[road_point(u,t),road_point(u+1,t),road_point(u+1,(row+1)/count),road_point(u,(row+1)/count)]
+     for face in [[p[0],p[1],p[2]],[p[0],p[2],p[3]]]:poly('Road_surface',face,surface+'_%d'%random.randrange(5 if surface=='dirt' else 4),(0,0,1))
+   # Solid section walls and grass shoulders, without cracks between road tiles.
+   count=20 if curved else 1
+   for row in range(count):
+    t=row/count;tn=(row+1)/count
+    for s in [-1,1]:
+     poly('Road_edge',[road_point(s*3,t,0),road_point(s*3,tn,0),road_point(s*3,tn,-.22),road_point(s*3,t,-.22)],'dirt')
+     poly('Grass_verge',[road_point(s*3,t,-.015),road_point(s*3.65,t,-.04),road_point(s*3.65,tn,-.04),road_point(s*3,tn,-.015)],'grass',(0,0,1))
+     poly('Earth_side',[road_point(s*3.65,t,-.04),road_point(s*3.65,tn,-.04),road_point(s*3.65,tn,-.22),road_point(s*3.65,t,-.22)],'dirt')
+   if surface=='asphalt':
+    for s in [-1,1]:
+     for row in range(20 if curved else 1):
+      count=20 if curved else 1;t=row/count;tn=(row+1)/count
+      poly('White_edge_marking',[road_point(s*2.77,t,.008),road_point(s*2.86,t,.008),road_point(s*2.86,tn,.008),road_point(s*2.77,tn,.008)],'white',(0,0,1))
+    for row in range(0,12,2):poly('Dashed_center_line',[road_point(-.05,row/12,.009),road_point(.05,row/12,.009),road_point(.05,(row+.8)/12,.009),road_point(-.05,(row+.8)/12,.009)],'white',(0,0,1))
+   else:
+    for i in range(16):
+     x,y,z=road_point(random.choice([-1,1])*random.uniform(2.6,3.4),random.random())
+     bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=random.uniform(.035,.08),location=(x,y,.015));bpy.context.object.data.materials.append(M['stone_2'])
+   # End thickness closes the perimeter; top stays exactly at z=0 for connections.
+   for t in [0,1]:poly('Tile_end',[road_point(-3.65,t,-.22),road_point(3.65,t,-.22),road_point(3.65,t,-.04),road_point(-3.65,t,-.04)],'dirt')
+   root=finalize(surface+('_curve' if curved else '_straight'),before,'assets/references/map_kit.png');root.location=(len(roots)*15,20,0)
+
+ def tapered_barrier(y0,y1,color):
+  profile=[(-.38,0),(.38,0),(.38,.13),(.20,.35),(.16,.82),(-.16,.82),(-.20,.35),(-.38,.13)]
+  v=[(x,y,z) for y in [y0,y1] for x,z in profile];n=len(profile)
+  f=[tuple(reversed(range(n))),tuple(range(n,2*n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)]
+  o=mesh('Concrete_barrier',v,f,color);recalc(o);bevel(o,.014)
+
+ for name in ['curb','safety_barrier','cone','tire_barrier','rock','tree','start_gantry']:
+  before=set(bpy.context.scene.objects)
+  if name=='curb':
+   for i in range(6):
+    y=(i-3)*.5
+    o=mesh('Kerb_block',[(-.27,y,0),(.27,y,0),(.27,y+.5,0),(-.27,y+.5,0),(-.27,y,.045),(.27,y,.14),(.27,y+.5,.14),(-.27,y+.5,.045)],[(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],'red' if i%2 else 'white');bevel(o,.012)
+  elif name=='safety_barrier':
+   for i in range(4):tapered_barrier((i-2)*.75,(i-1)*.75,'red' if i%2 else 'white')
+  elif name=='cone':
+   box('Rubber_base',(0,0,.045),(.46,.46,.09),'rubber',.035)
+   zs=[.09,.24,.34,.46,.55,.70];N=16;v=[]
+   for z in zs:
+    r=.2-(z-.09)/.61*.175
+    for i in range(N):v.append((r*math.cos(i*math.tau/N),r*math.sin(i*math.tau/N),z))
+   f=[]
+   for j in range(len(zs)-1):
+    for i in range(N):f.append((j*N+i,j*N+(i+1)%N,(j+1)*N+(i+1)%N,(j+1)*N+i))
+   o=mesh('Cone_bands',v,f,'orange');o.data.materials.append(M['white'])
+   for p in o.data.polygons:p.material_index=1 if p.index//N in [1,3] else 0
+  elif name=='tire_barrier':
+   for x in [-.82,0,.82]:
+    for level in range(3):
+     z=.14+level*.265
+     bpy.ops.mesh.primitive_torus_add(major_segments=24,minor_segments=10,location=(x,0,z),major_radius=.29,minor_radius=.13);o=bpy.context.object;o.name='Stacked_tire';o.scale.z=.92;o.data.materials.append(M['rubber'])
+     for zz in [z-.07,z+.07]:
+      bpy.ops.mesh.primitive_torus_add(major_segments=24,minor_segments=4,location=(x,0,zz),major_radius=.398,minor_radius=.009);bpy.context.object.data.materials.append(M['trim'])
+  elif name=='rock':
+   for loc,scale in [((0,0,.65),(1,.8,.75)),((-.8,.45,.16),(.30,.24,.2)),((.85,.25,.2),(.32,.35,.25)),((.1,-.85,.12),(.2,.3,.15))]:
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=1,location=loc);o=bpy.context.object;o.name='Faceted_rock';o.scale=scale
+    for vert in o.data.vertices:vert.co*=random.uniform(.87,1.12)
+    for i in range(5):o.data.materials.append(M['stone_%d'%i])
+    for face in o.data.polygons:face.material_index=random.randrange(5)
+  elif name=='tree':
+   beam('Trunk',(0,0,.02),(.08,0,2.2),.12,'bark',8)
+   for a,b in [((0,0,.8),(-.65,.1,2)),((0,0,1.2),(.65,.15,2.45)),((.05,0,1.7),(-.35,-.3,2.7))]:beam('Branch',a,b,.075,'bark',7)
+   for x,y,z,r in [(-.7,.05,1.9,.68),(.65,.1,2.45,.73),(-.34,-.2,2.7,.75),(.15,.4,3.12,.6),(0,-.2,2.12,.7)]:
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=r,location=(x,y,z));o=bpy.context.object;o.name='Polygon_canopy'
+    for i in range(5):o.data.materials.append(M['leaf_%d'%i])
+    for face in o.data.polygons:face.material_index=random.randrange(5)
+  else:
+   for x in [-3.65,3.65]:
+    base=box('Red_base',(x,0,.3),(.9,.85,.6),'red',.07)
+    box('White_base_band',(x,0,.40),(.91,.86,.12),'white',.04)
+    for dx in [-.21,.21]:
+     for y in [-.21,.21]:beam('Tower_chord',(x+dx,y,.6),(x+dx,y,4.05),.045,'metal')
+    for j in range(5):
+     z=.65+j*.65
+     for y in [-.21,.21]:
+      beam('Tower_diagonal',(x-.21,y,z),(x+.21,y,z+.62),.025,'metal')
+      beam('Tower_rung',(x-.21,y,z),(x+.21,y,z),.035,'metal')
+   for y in [-.21,.21]:
+    for z in [3.48,4.05]:beam('Bridge_chord',(-3.65,y,z),(3.65,y,z),.05,'metal')
+    for j in range(10):
+     x=-3.65+j*.73
+     beam('Bridge_diagonal',(x,y,3.48),(x+.73,y,4.05),.027,'metal')
+   box('Checker_banner',(0,0,3.7),(7.3,.06,.58),'white')
+   for i in range(24):
+    for j in range(2):
+     if (i+j)%2:
+      for y in [-.037,.037]:box('Checker',(-3.65+(i+.5)*7.3/24,y,3.555+j*.29),(7.3/24,.012,.29),'rubber')
+  root=finalize(name,before,'assets/references/map_kit.png');root.location=((len(roots)-8)*5,-12,0)
 
 # Save editable production source with packed references before presentation changes.
 for p in (ROOT/'assets/references').glob('*.png'):
  im=bpy.data.images.load(str(p));im.pack()
-scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.samples=32
+scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.samples=16
 scene.world.use_nodes=True;scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.65,.68,.72,1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.45
 mat('studio',(.71,.70,.67),.85)
 floor=box('Studio_floor',(0,0,-.09),(240,180,.15),'studio')
@@ -372,7 +419,9 @@ for loc,power,size in [((2,5,9),1400,7),((-6,-1,6),1000,6),((1,-6,8),1200,5)]:
  bpy.ops.object.light_add(type='AREA',location=loc);o=bpy.context.object;o.data.energy=power;o.data.shape='DISK';o.data.size=size;o.rotation_euler=(Vector((0,0,.5))-o.location).to_track_quat('-Z','Y').to_euler()
 scene.render.resolution_x=1200;scene.render.resolution_y=900;scene.render.resolution_percentage=100
 scene.view_settings.view_transform='AgX'
-bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'assets/blender/micro_apex_assets.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/('assets/blender/micro_apex_cars.blend' if CARS_ONLY else 'assets/blender/micro_apex_assets.blend')))
+if CARS_ONLY:
+ manifest += [entry for entry in json.loads((ROOT/'assets/models/manifest.json').read_text()) if not entry['name'].startswith('car_')]
 (ROOT/'assets/models/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 
 def visible(root,on):
@@ -381,13 +430,16 @@ for r in roots:visible(r,False)
 for i,r in enumerate(roots[:4]):
  r.location=(0,0,0);visible(r,True)
  cam.location=(6.5,9,5.2);cam.rotation_euler=(Vector((0,0,.7))-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.ortho_scale=6.1
- scene.render.filepath=str(ROOT/'assets/previews'/f'{r.name}-v2.png');bpy.ops.render.render(write_still=True)
+ scene.render.filepath=str(ROOT/'assets/previews'/f'{r.name}-v3.png');bpy.ops.render.render(write_still=True)
  visible(r,False)
 # Single comparison sheet of the actual four rebuilt vehicles.
 for i,r in enumerate(roots[:4]):r.location=((i%2)*6,(i//2)*7,0);visible(r,True)
 cam.location=(11,16,15);cam.rotation_euler=(Vector((3,3.5,.4))-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.ortho_scale=16
 scene.render.resolution_x=1600;scene.render.resolution_y=1200
 scene.render.filepath=str(ROOT/'assets/previews/cars.png');bpy.ops.render.render(write_still=True)
+if CARS_ONLY:
+ print('CAR_V3_COMPLETE',[(r['name'],r['triangles']) for r in manifest[:4]])
+ sys.exit(0)
 for r in roots[:4]:visible(r,False)
 for i,r in enumerate(roots[4:]):
  r.location=(0,0,0);visible(r,True);bpy.context.view_layer.update()

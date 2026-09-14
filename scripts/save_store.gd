@@ -1,5 +1,7 @@
 extends RefCounted
 
+const RECORD_SECTION := "records_mini_v5"
+
 var path:="user://micro_apex.cfg"
 var config:=ConfigFile.new()
 
@@ -15,12 +17,12 @@ func set_setting(key:String,value) -> void:
 	_save()
 
 func best(track:int,car:int) -> float:
-	return float(config.get_value("records","%d_%d"%[track,car],INF))
+	return float(config.get_value(RECORD_SECTION,"%d_%d"%[track,car],INF))
 
 func record(track:int,car:int,time:float) -> bool:
 	if not is_finite(time) or time<=0.0 or time>=best(track,car):
 		return false
-	config.set_value("records","%d_%d"%[track,car],time)
+	config.set_value(RECORD_SECTION,"%d_%d"%[track,car],time)
 	_save()
 	return true
 

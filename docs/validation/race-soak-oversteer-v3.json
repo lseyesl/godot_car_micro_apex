@@ -1,0 +1,42 @@
+{
+	"cars": [
+		{
+			"finish": 218.600000000066,
+			"laps": 3,
+			"name": "你",
+			"resets": 0
+		},
+		{
+			"finish": 217.183333333398,
+			"laps": 3,
+			"name": "车手 01",
+			"resets": 0
+		},
+		{
+			"finish": -1.0,
+			"laps": 2,
+			"name": "车手 02",
+			"resets": 0
+		},
+		{
+			"finish": -1.0,
+			"laps": 2,
+			"name": "车手 03",
+			"resets": 0
+		},
+		{
+			"finish": -1.0,
+			"laps": 2,
+			"name": "车手 04",
+			"resets": 0
+		},
+		{
+			"finish": -1.0,
+			"laps": 2,
+			"name": "车手 05",
+			"resets": 0
+		}
+	],
+	"success": true,
+	"time": 218.600000000066
+}

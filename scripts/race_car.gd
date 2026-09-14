@@ -52,21 +52,44 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 
 func tick(dt:float, controls:Dictionary, path) -> void:
 	previous=dynamics.position
-	near=path.nearest(previous)
+	near=path.nearest(previous,dynamics.route_s)
+	dynamics.route_s=near.s
+	position.y=near.height+.06
 	dynamics.step(dt,float(controls.steer),bool(controls.throttle),bool(controls.brake),near.surface)
 	velocity=PathData.world(dynamics.velocity)
 	rotation.y=dynamics.yaw
+	var incoming:Vector2=dynamics.velocity
 	move_and_slide()
+	var road:Dictionary=path.nearest(Vector2(position.x,position.z),dynamics.route_s)
+	dynamics.route_s=road.s
+	position.y=road.height+.06
+	visual.rotation.x=atan2(path.height_at(road.s+1)-path.height_at(road.s-1),2.0)
 	dynamics.position=Vector2(position.x,position.z)
 	dynamics.velocity=Vector2(velocity.x,velocity.z)
 	impact=move_toward(impact,0.0,dt*12)
+	var boundary_contact:=false
+	var wall_speed:Vector2=incoming
 	for i in range(get_slide_collision_count()):
 		var hit:=get_slide_collision(i)
 		impact=maxf(impact,previous.distance_to(dynamics.position)/dt*.15)
 		var other=hit.get_collider()
+		if other != null and other.is_in_group("track_boundary"):
+			boundary_contact=true
+			var normal:=Vector2(hit.get_normal().x,hit.get_normal().z).normalized()
+			var into:=maxf(0.0,-incoming.dot(normal))
+			impact=maxf(impact,into*.15)
+			# Project the incoming velocity: floating move_and_slide preserves speed
+			# along walls, which otherwise rewards holding throttle into a curb.
+			wall_speed-=normal*minf(wall_speed.dot(normal),0.0)
+			if into > incoming.length()*.72:
+				wall_speed=Vector2.ZERO
 		if other is CharacterBody3D and other.get("dynamics") != null:
 			var push:=Vector2(-hit.get_normal().x,-hit.get_normal().z)
 			other.dynamics.velocity+=push*minf(3.0,impact)*float(dynamics.spec.mass)/float(other.dynamics.spec.mass)
+	if boundary_contact:
+		# Apply friction once per physics tick, independent of seam contact count.
+		dynamics.velocity=wall_speed*exp(-5.0*dt)
+		velocity=PathData.world(dynamics.velocity)
 	wheel_angle+=dynamics.speed()*dt/.34
 	for i in range(wheels.size()):
 		wheels[i].rotation=wheel_rotations[i]+Vector3(wheel_angle,(-dynamics.steering*.35 if "Front" in wheels[i].name else 0.0),0)
@@ -76,7 +99,8 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 func reset_to_gate(path) -> void:
 	var gate:Dictionary=path.gate(progress.last_gate)
 	dynamics.reset_at(gate.point+gate.tangent*2.5,PathData.heading(gate.tangent))
-	position=PathData.world(dynamics.position,.06)
+	position=PathData.world(dynamics.position,gate.height+.06)
+	dynamics.route_s=gate.s
 	rotation.y=dynamics.yaw
 	velocity=Vector3.ZERO
 	previous=dynamics.position

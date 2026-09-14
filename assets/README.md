@@ -1,4 +1,4 @@
-# 美术资产 v2
+# 美术资产：赛车 v3 / 地图套件 v2
 
 参考图由内置 imagegen 生成，完整提示词保存在 `references/prompts.json`。四张车型多视图和一张地图元素参考板保存在 `references/`。
 
@@ -27,3 +27,13 @@
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python tools/build_assets.py
 ```
+
+## 赛车辨识度 v3
+
+四款现有赛车已修改并接入原 GLB 路径：赤焰 GT 为后移窄座舱、双白条长鼻跑车；黄蜂 RS 为黑顶 07 号短掀背；蓝岭 RX 为宽胎、顶架和备胎越野车；青岚 S 为白顶 88 号三厢房车。车型尺寸和涂装同时区分，大尾翼只保留在 GT 上。
+
+- 当前独立赛车源文件：`blender/micro_apex_cars.blend`。
+- 当前赛车近景：`previews/car_*-v3.png`；四车合影：`previews/cars.png`。
+- 原 `micro_apex_assets.blend` 保留上一版总库；当前赛车以独立源文件及生成器为准。
+- 仅重建赛车：在上面的 Blender 命令后添加 `-- --cars-only`。此模式保留地图 GLB 和地图清单，更新独立车辆源文件。
+- 每车仍为车身加四车轮共五个网格、四个 Wheel 枢轴。驾驶参数和共用碰撞体保持原样，碰撞仍是近似形状。
