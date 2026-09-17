@@ -69,7 +69,9 @@ jobs:
           java-version: '17'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
 
       - name: Install Android build tools
         run: sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.1'
@@ -178,7 +180,7 @@ jobs:
         run: |
           set -euo pipefail
           cat > "$RUNNER_TEMP/release-notes.md" <<EOF
-          Micro Apex Android ARM64 调试版，适用于红米 K40 等 ARM64 设备。
+          Micro Apex Android ARM64 调试版。
 
           下载 micro-apex-debug.apk 安装；附 SHA-256 校验文件和包信息。
           本包使用本次构建生成的临时调试签名，安装时可能需要卸载旧版；卸载会清除本地游戏记录。
