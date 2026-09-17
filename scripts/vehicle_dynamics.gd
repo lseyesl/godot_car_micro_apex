@@ -12,6 +12,10 @@ var slip := 0.0
 var route_s := -1.0
 var surface := "asphalt"
 
+const STEERING_GAIN: float = 1.2
+const GRIP_TURN_AUTHORITY: float = 1.15
+const HIGH_SPEED_TURN_AUTHORITY: float = 1.8
+
 func _init(car_spec: Dictionary = {}) -> void:
 	spec = car_spec
 
@@ -55,8 +59,12 @@ func step(dt: float, steer: float, throttle: bool, brake: bool, road: String) ->
 	# At speed this creates oversteer; countersteering arrests the rotation.
 	var pace := smoothstep(8.0,34.0,absf(longitudinal))
 	var loose := 1.2 if road == "dirt" else (1.35 if road == "grass" else 1.0)
-	var requested_rate := -steering*longitudinal/float(spec.radius)
-	var rotation_limit := grip/maxf(absf(longitudinal),2.0) + pace*1.5*loose
+	var requested_rate := -steering*longitudinal/float(spec.radius)*STEERING_GAIN
+	# Give full-lock input enough authority to rotate the car instead of
+	# converting most of the steering into lateral scrub.  The speed-dependent
+	# term still keeps high-speed corners bounded, while the small grip boost
+	# makes low-speed hairpins feel immediate as well.
+	var rotation_limit := grip*GRIP_TURN_AUTHORITY/maxf(absf(longitudinal),2.0) + pace*HIGH_SPEED_TURN_AUTHORITY*loose
 	var target_rate := clampf(requested_rate,-rotation_limit,rotation_limit)
 	var response := 14.0 if target_rate*yaw_rate < 0.0 else 9.0
 	yaw_rate = lerpf(yaw_rate,target_rate,1.0-exp(-response*dt))
