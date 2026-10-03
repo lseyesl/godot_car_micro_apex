@@ -1,0 +1,37 @@
+{
+  "version": "0.9.2",
+  "date": "2026-10-03",
+  "engine": "4.7.stable",
+  "reference_game": "Mini Motor Racing 2 / RC Car (SelvasM)",
+  "reference_urls": [
+    "https://www.taptap.io/app/181276",
+    "https://www.igdb.com/games/mini-motor-racing-2"
+  ],
+  "reference_images_reviewed": true,
+  "reference_images_bundled": false,
+  "core_checks": 240,
+  "district_checks": 23,
+  "failures": 0,
+  "closed_routes_test": true,
+  "packed_district_checks": 23,
+  "renders": [
+    "art-0.9.2-0-0.png",
+    "art-0.9.2-0-1.png",
+    "art-0.9.2-1-0.png",
+    "art-0.9.2-1-1.png",
+    "art-0.9.2-2-0.png",
+    "art-0.9.2-2-1.png"
+  ],
+  "renderer": "Godot OpenGL Compatibility / Mesa llvmpipe",
+  "original_models_added": 9,
+  "cc0_surface_sets": 11,
+  "physics_or_route_changes": false,
+  "balance_rerun": false,
+  "physical_android_tested": false,
+  "apk": {
+    "version_code": 11,
+    "signature": "v2/v3 verified",
+    "zip_16k_alignment": true,
+    "new_resources_checked": true
+  }
+}

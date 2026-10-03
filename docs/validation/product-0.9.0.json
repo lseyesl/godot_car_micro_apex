@@ -1,0 +1,31 @@
+{
+  "version": "0.9.0",
+  "engine": "4.7.stable",
+  "checks": {
+    "test_runner": 40,
+    "handling": 44,
+    "integration": 13,
+    "curb_collisions": 57,
+    "career": 67,
+    "product_flow": 19
+  },
+  "total_checks": 240,
+  "balance_combinations": 48,
+  "packaged_resource_flow": true,
+  "android": {
+    "review_apk": "micro-apex-0.9.0-review.apk",
+    "release_apk": "micro-apex-0.9.0-release-unsigned.apk",
+    "abi": "arm64-v8a",
+    "target_sdk": 36,
+    "minimum_sdk": 24,
+    "signature_review": "v2 and v3 verified",
+    "native_16k_alignment": true,
+    "physical_device_tested": false
+  },
+  "native_release_ui": {
+    "freeplay_navigation": true,
+    "keyboard_throttle": true,
+    "renderer": "Mesa llvmpipe under Xvfb",
+    "physical_device": false
+  }
+}

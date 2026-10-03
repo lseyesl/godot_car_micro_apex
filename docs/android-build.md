@@ -6,15 +6,15 @@
 
 1. 将工作流、`export_presets.cfg`、Godot 工程代码和运行所需资产提交到仓库。工作流须先存在于默认分支，GitHub 才会显示手动运行入口。
 2. 打开 GitHub 仓库 → **Actions** → **Build Android APK** → **Run workflow**。
-3. 选择需要构建的分支，填写必填的 **tag**（例如 `v0.1.0`），点击 **Run workflow**。这是将要创建的 Release 标签；代码仍来自所选分支的本次运行提交。
+3. 选择需要构建的分支，填写必填的 **tag**（例如 `v0.9.0`），点击 **Run workflow**。这是将要创建的 Release 标签；代码仍来自所选分支的本次运行提交。
 4. 成功后，在仓库 **Releases** 页面直接下载 APK，或点击运行摘要中的 Release 链接。另附 SHA-256 校验文件和包信息；该次运行的 **Artifacts** 也保留一份。
 
-工程和游戏代码现已落地。工作流在打包前运行规则测试与场景集成测试；代码和资源需先提交并推送到所选分支。
+工程和游戏代码现已落地。工作流在打包前运行规则、操控、碰撞、生涯与完整产品流程测试；代码和资源需先提交并推送到所选分支。
 
 ## 配置
 
 - Ubuntu 24.04，官方 Godot **4.7-stable** 和匹配的 Android 调试模板，下载后核对官方 SHA-512。
-- Java 17，Android SDK 35 / Build Tools 35.0.1；使用预构建模板，不启用 Gradle。
+- Java 17，Android SDK 36 / Build Tools 36.0.0；使用预构建模板，不启用 Gradle。
 - 导出预设名为 `Android`；应用 ID 为 `org.lseyesl.microapex`。
 - `project.godot` 启用 `rendering/textures/vram_compression/import_etc2_astc`；Android 导出要求此项，即使使用 GL Compatibility 渲染器。工作流先导入资源，再导出 APK。
 - 仅包含 **ARM64**，适合红米 K40；这是调试 APK，不是商店发布包。
@@ -28,3 +28,7 @@
 ## 验证范围
 
 本地检查工作流语法与导出预设，实际云端构建以 GitHub Actions 的执行结果为准。APK 安装及红米 K40 帧率仍需实机验证。
+
+## 本地候选版构建
+
+当前工程还提供 `tools/build_android.sh`，生成 ARM64 调试签名验收 APK 和未签名发行 APK。步骤、产物路径和真机验收边界见 [产品说明](product.md)。未签名发行 APK 需要发行方的正式签名；本地脚本不会创建或上传发行证书。

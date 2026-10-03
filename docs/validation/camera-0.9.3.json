@@ -1,0 +1,33 @@
+{
+  "version": "0.9.3",
+  "camera": {
+    "pitch_degrees": 38,
+    "vertical_fov_degrees": 34,
+    "projection": "perspective",
+    "standard_distance": 62,
+    "wide_distance": 86
+  },
+  "validation": {
+    "core_checks": 240,
+    "district_checks": 23,
+    "camera_framing_checks": 579,
+    "failures": 0,
+    "route_suite_passed": true,
+    "packed_camera_checks": 579,
+    "actual_gameplay_screenshots_reviewed": 6,
+    "android_signature_v2_v3_verified": true,
+    "android_16k_alignment_verified": true,
+    "physical_android_tested": false,
+    "full_track_visual_occlusion_verified": false
+  },
+  "unchanged": [
+    "routes",
+    "physics",
+    "career_progress"
+  ],
+  "remaining_art_gaps": [
+    "repeated_building_arrangements",
+    "limited_terrain_elevation",
+    "shadow_edges_need_device_review"
+  ]
+}

@@ -1,16 +1,48 @@
 extends Node3D
 
+const District = preload("res://scripts/track_district.gd")
 const PathData = preload("res://scripts/track_path.gd")
 var path
 var decoration: Node3D
 var gate_marker: Node3D
 var cached_models: Dictionary = {}
+var cached_materials: Dictionary = {}
+var surface_cache: Dictionary = {}
 
 func material(color: Color) -> StandardMaterial3D:
+	if cached_materials.has(color):
+		return cached_materials[color]
 	var m := StandardMaterial3D.new()
-	m.albedo_color=color.srgb_to_linear().lerp(color, .35)
+	cached_materials[color]=m
+	m.albedo_color=color.srgb_to_linear().lerp(color,.15)
 	m.roughness=1.0
 	return m
+
+func textured_material(asset:String,scale_factor:float=1.0,tint:Color=Color.WHITE) -> StandardMaterial3D:
+	var key:=asset+str(scale_factor)+str(tint)
+	if surface_cache.has(key):return surface_cache[key]
+	var m:=StandardMaterial3D.new()
+	m.albedo_color=tint
+	m.albedo_texture=load("res://assets/textures/surfaces/"+asset+"_albedo.jpg")
+	m.normal_enabled=true
+	m.normal_texture=load("res://assets/textures/surfaces/"+asset+"_normal.jpg")
+	m.normal_scale=.55
+	m.roughness=.88
+	m.metallic_specular=.2
+	m.uv1_triplanar=true
+	m.uv1_world_triplanar=true
+	m.uv1_scale=Vector3.ONE*scale_factor
+	m.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var ao_path:="res://assets/textures/surfaces/"+asset+"_ao.jpg"
+	if ResourceLoader.exists(ao_path):
+		m.ao_enabled=true
+		m.ao_texture=load(ao_path)
+		m.ao_light_affect=.25
+	surface_cache[key]=m
+	return m
+
+func surface_material(color:Color,scale_factor:float=1.0) -> StandardMaterial3D:
+	return textured_material("grass_path_3",.14,color)
 
 func add_box(at: Vector3, size: Vector3, color: Color, parent: Node3D = self) -> MeshInstance3D:
 	var node := MeshInstance3D.new()
@@ -60,7 +92,9 @@ func build(data, quality: int) -> void:
 	path=data
 	decoration=Node3D.new()
 	add_child(decoration)
-	build_landscape()
+	var district:=District.new()
+	add_child(district)
+	district.build_ground(self)
 	var curb_body:=StaticBody3D.new()
 	curb_body.name="TrackCurbs"
 	curb_body.add_to_group("track_boundary")
@@ -68,7 +102,7 @@ func build(data, quality: int) -> void:
 	var curbs:=SurfaceTool.new()
 	curbs.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var strips: Dictionary={}
-	for road in ["asphalt","dirt","white","red","verge"]:
+	for road in ["asphalt","dirt","white","red","verge","paint","wear"]:
 		var st:=SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		strips[road]=st
@@ -93,10 +127,18 @@ func build(data, quality: int) -> void:
 			var inner_b:Vector2=b+nb*(half+0.1)*side
 			var outer_a:Vector2=a+na*(half+0.8)*side
 			var outer_b:Vector2=b+nb*(half+0.8)*side
-			add_curb(curbs,curb_body,inner_a,inner_b,outer_a,outer_b,ha,hb,Color("e35a44") if i%4<2 else Color("e5ded0"))
+			add_curb(curbs,curb_body,inner_a,inner_b,outer_a,outer_b,ha,hb,Color("ad614e") if ta.dot(tb)<.9987 and int(path.distances[i]/3.0)%2==0 else Color("c9c7b9"))
 			var edge:SurfaceTool=strips["red" if i%4<2 else "white"]
 			ribbon_vertex(edge,inner_a,inner_b,outer_b,Vector3(ha,hb,hb)+Vector3.ONE*.035)
 			ribbon_vertex(edge,inner_a,outer_b,outer_a,Vector3(ha,hb,ha)+Vector3.ONE*.035)
+			# Thin continuous edge paint and a pair of broad, subtle rubber lines.
+			if road=="asphalt":
+				add_flat_strip(strips.paint,a,b,na,nb,(half-.55)*side,(half-.38)*side,ha+.035,hb+.035)
+			var wear_offset:float=side*2.5
+			if road=="asphalt" and ta.dot(tb)<.9995:
+				for lane in range(3):
+					var offset:float=wear_offset+lane*.6
+					add_flat_strip(strips.wear,a,b,na,nb,offset-.08,offset+.13,ha+.025,hb+.025)
 			var verge:SurfaceTool=strips.verge
 			ribbon_vertex(verge,outer_a,outer_b,b+nb*(half+3.0)*side,Vector3(ha,hb,hb)+Vector3.ONE*.005)
 			ribbon_vertex(verge,outer_a,b+nb*(half+3.0)*side,a+na*(half+3.0)*side,Vector3(ha,hb,ha)+Vector3.ONE*.005)
@@ -113,23 +155,43 @@ func build(data, quality: int) -> void:
 						add_box(PathData.world(foot,(ha+hb)*.25),Vector3(1.2,(ha+hb)*.5,1.2),Color("77848b"))
 	curbs.generate_normals()
 	var curb_mesh:=MeshInstance3D.new()
+	curb_mesh.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	curb_mesh.mesh=curbs.commit()
-	var curb_material:=material(Color.WHITE)
+	var curb_material:=textured_material("concrete_wall_005",.32).duplicate() as StandardMaterial3D
 	curb_material.vertex_color_use_as_albedo=true
 	curb_material.cull_mode=BaseMaterial3D.CULL_DISABLED
 	curb_mesh.material_override=curb_material
 	add_child(curb_mesh)
-	var colors:Dictionary={"asphalt":Color("46515b"),"dirt":Color("c99258"),"white":Color("e5ded0"),"red":Color("e35a44"),"verge":Color("b1bd81")}
+	var colors:Dictionary={"asphalt":Color("686b6a"),"dirt":Color("c49d76"),"white":Color("e5ded0"),"red":Color("f05d48"),"verge":[Color("b7b6a3"),Color("9e987f"),Color("bea184")][path.theme],"paint":Color("d6d3be"),"wear":Color("626563")}
 	for road in strips:
 		var node:=MeshInstance3D.new()
+		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.mesh=strips[road].commit()
-		var m:=material(colors[road])
+		var m:StandardMaterial3D
+		if road=="asphalt":m=textured_material("clean_asphalt",.2,Color("d8dddb")).duplicate()
+		elif road=="dirt":m=textured_material("brown_mud_dry",.17,Color("ddd1b6")).duplicate()
+		elif road=="verge":m=textured_material("cobblestone_floor_03" if path.theme==0 else "grass_path_3",.23,Color("c6c6b6")).duplicate()
+		else:m=material(colors[road]).duplicate()
 		m.cull_mode=BaseMaterial3D.CULL_DISABLED
 		node.material_override=m
 		add_child(node)
 	var start:Dictionary=path.gate(0)
 	var gantry:=model("start_gantry",PathData.world(start.point),PathData.heading(start.tangent))
 	gantry.scale.x=2.05
+	var banner:=Node3D.new()
+	add_child(banner)
+	banner.position=PathData.world(start.point)
+	banner.rotation.y=PathData.heading(start.tangent)
+	add_box(Vector3(0,5.4,0),Vector3(14.5,1.25,.32),Color("284d5a"),banner)
+	for side in [-1,1]:
+		var lettering:=Label3D.new()
+		lettering.text="MICRO APEX / GRAND PRIX"
+		lettering.font_size=64
+		lettering.pixel_size=.012
+		lettering.position=Vector3(0,5.4,side*.18)
+		lettering.rotation.y=0 if side==1 else PI
+		lettering.modulate=Color("e5e5ce")
+		banner.add_child(lettering)
 	for j in range(14):
 		for k in range(2):
 			var normal:=Vector2(-start.tangent.y,start.tangent.x)
@@ -141,11 +203,11 @@ func build(data, quality: int) -> void:
 		var n:=Vector2(-gate.tangent.y,gate.tangent.x)
 		for side in [-1,1]:
 			model("cone",PathData.world(gate.point+n*(path.WIDTH*.5+1.3)*side,gate.height)).scale=Vector3.ONE*1.8
-	build_scenery()
+	district.build_details(self)
 	gate_marker=Node3D.new()
 	add_child(gate_marker)
 	for side in [-1,1]:
-		add_box(Vector3(side*(path.WIDTH*.5+1.0),2,0),Vector3(.18,4,.18),Color("b5f46c"),gate_marker)
+		add_box(Vector3(side*(path.WIDTH*.5+1.0),2,0),Vector3(.18,4,.18),Color("ffd34e"),gate_marker)
 	set_quality(quality)
 
 func show_gate(index: int) -> void:
@@ -157,137 +219,77 @@ func set_quality(quality:int) -> void:
 	if is_instance_valid(decoration):
 		decoration.visible=quality>0
 
-# The map is a small tabletop diorama; scenery is kept outside the driveable ribbon.
-func build_landscape() -> void:
-	var ground:Color=[Color("83b77a"),Color("79a265"),Color("cc9b68")][path.index]
-	var surround:Color=[Color("48afbe"),Color("557b60"),Color("af7958")][path.index]
-	add_box(Vector3(0,-3.6,0),Vector3(900,2,900),surround)
-	add_box(Vector3(0,-1.7,0),Vector3(280,3,280),Color("e5cf9d"))
-	add_box(Vector3(0,-.22,0),Vector3(277,.4,277),ground)
-	for side in [-1,1]:
-		add_box(Vector3(side*138,-.02,0),Vector3(1,.3,276),Color("f2dfb6"))
-		add_box(Vector3(0,-.02,side*138),Vector3(276,.3,1),Color("f2dfb6"))
-	if path.index==0:
-		for i in range(9):
-			add_box(Vector3(-157, -.9, -114+i*28),Vector3(15,.12,.65),Color("8dd7d7"),decoration)
-		for i in range(3):
-			var dock_z:float=-76+i*65
-			add_box(Vector3(151,-.1,dock_z),Vector3(26,.6,5),Color("b68a60"),decoration)
-			for k in range(8):
-				add_box(Vector3(140+k*3,-.1,dock_z),Vector3(.18,.7,5),Color("805e49"),decoration)
-			add_box(Vector3(151,-.9,dock_z+9),Vector3(5,1.8,12),Color("f6efe0"),decoration)
-			add_box(Vector3(151,.5,dock_z+10),Vector3(3,1.2,5),Color("ed7551"),decoration)
+func add_flat_strip(st:SurfaceTool,a:Vector2,b:Vector2,na:Vector2,nb:Vector2,inner:float,outer:float,ha:float,hb:float) -> void:
+	ribbon_vertex(st,a+na*inner,b+nb*inner,b+nb*outer,Vector3(ha,hb,hb))
+	ribbon_vertex(st,a+na*inner,b+nb*outer,a+na*outer,Vector3(ha,hb,ha))
 
-func clear_plot(p:Vector2, radius:float) -> bool:
-	return maxf(absf(p.x),absf(p.y))<127-radius and path.nearest(p).distance>path.WIDTH*.5+radius+2
-
-func signboard(parent:Node3D, caption:String, at:Vector3, width:float, tint:Color) -> void:
-	add_box(at,Vector3(width,2.6,.35),tint,parent)
-	for side in [-1,1]:
-		add_box(at+Vector3(side*(width*.5-.6),-2,0),Vector3(.22,4,.22),Color("e3ded0"),parent)
-	var label:=Label3D.new()
-	label.text=caption
-	label.font_size=64
-	label.pixel_size=.022
-	label.position=at+Vector3(0,0,.21)
-	label.no_depth_test=false
-	label.modulate=Color("fff6dc")
-	parent.add_child(label)
-
-func pavilion(p:Vector2, angle:float, kind:int) -> void:
-	var group:=Node3D.new()
-	decoration.add_child(group)
-	group.position=PathData.world(p)
-	group.rotation.y=angle
-	var accent:Color=[Color("ef7750"),Color("e7c15e"),Color("51a7b2")][kind%3]
-	add_box(Vector3(0,.02,0),Vector3(18,.16,16),Color("bcb5a1"),group)
-	if kind%3==0:
-		# Open garage fronts, deep dark bays, a striped fascia and roof vents.
-		add_box(Vector3(0,2.5,-2),Vector3(15,5,8),Color("f1dfbb"),group)
-		for x in [-5,0,5]:
-			add_box(Vector3(x,2,2.04),Vector3(4.1,3.6,.15),Color("344a53"),group)
-			add_box(Vector3(x,.12,5),Vector3(.18,.12,5),Color("fff0c5"),group)
-		add_box(Vector3(0,5.1,-1.8),Vector3(16,.55,9),accent,group)
-		for x in [-4,4]:
-			add_box(Vector3(x,5.7,-2),Vector3(2,.6,2),Color("e1dac7"),group)
-		signboard(group,"APEX / PIT",Vector3(0,6.4,2.2),12,accent)
-	elif kind%3==1:
-		# Terraced grandstand with colorful seat rows and a canopy.
-		for row in range(4):
-			add_box(Vector3(0,.5+row*.7,-row*2),Vector3(16,1+row*1.4,2),Color("d1d7c8"),group)
-			for seat in range(10):
-				add_box(Vector3(-7+seat*1.55,1.2+row*1.4,-row*2),Vector3(1,.5,.85),accent if seat%3 else Color("f5edcd"),group)
-		for x in [-8,8]:
-			add_box(Vector3(x,4,-3),Vector3(.35,8,.35),Color("445e61"),group)
-		add_box(Vector3(0,8,-3),Vector3(18,.4,10),accent,group)
-	else:
-		for x in [-5,5]:
-			for z in [-4,4]:
-				add_box(Vector3(x,2.5,z),Vector3(.2,5,.2),Color("f0e4ce"),group)
-		var roof:=add_box(Vector3(0,5,0),Vector3(12,.4,10),accent,group)
-		roof.rotation.z=.06
-		add_box(Vector3(0,1.2,0),Vector3(8,2.4,3),Color("eadebf"),group)
-		signboard(group,"MINI / CLUB",Vector3(0,5.8,4.5),10,accent)
-
-func build_scenery() -> void:
-	var rng:=RandomNumberGenerator.new()
-	rng.seed=8139+path.index
-	var occupied:Array[Vector2]=[]
-	# Put landmarks close to the route, oriented toward the passing cars.
-	for i in range(0,24,2):
-		var at:Dictionary=path.sample(path.length*i/24.0)
-		var n:=Vector2(-at.tangent.y,at.tangent.x)
-		for side in [-1,1]:
-			var p:Vector2=at.point+n*24*side
-			if not clear_plot(p,12):continue
-			var available:=true
-			for previous in occupied:
-				if previous.distance_to(p)<26:available=false
-			if not available:continue
-			pavilion(p,atan2(-n.x*side,-n.y*side),occupied.size())
-			occupied.append(p)
-	# Dense, deterministic clusters make the surroundings read as a designed place.
-	for i in range(270):
-		var p:=Vector2(rng.randf_range(-130,130),rng.randf_range(-130,130))
-		if not clear_plot(p,3.5):continue
-		var available:=true
-		for previous in occupied:
-			if previous.distance_to(p)<15:available=false
-		if not available:continue
-		if path.index==2 and i%3!=0:
-			var rock:=model("rock",PathData.world(p),rng.randf()*TAU,decoration)
-			rock.scale=Vector3(rng.randf_range(2,4),rng.randf_range(3,7),rng.randf_range(2,4))
-			tint_model(rock,Color("b8734c") if i%2 else Color("d39960"))
-		elif path.index==2:
-			add_box(PathData.world(p,2.6),Vector3(.9,5.2,.9),Color("618b59"),decoration)
-			add_box(PathData.world(p+Vector2(.8,0),3),Vector3(2.3,.65,.65),Color("618b59"),decoration)
-			add_box(PathData.world(p+Vector2(1.7,0),3.7),Vector3(.65,2,.65),Color("618b59"),decoration)
-		else:
-			var tree:=model("tree",PathData.world(p),rng.randf()*TAU,decoration)
-			tree.scale=Vector3.ONE*rng.randf_range(2.6,4.2)
-	# Short billboard/tire groups follow the road without cluttering the racing line.
-	for i in range(0,48,3):
-		var at:Dictionary=path.sample(path.length*i/48.0)
-		var n:=Vector2(-at.tangent.y,at.tangent.x)
-		var p:Vector2=at.point+n*11.5
-		if not clear_plot(p,1):continue
-		var group:=Node3D.new()
-		decoration.add_child(group)
-		group.position=PathData.world(p)
-		group.rotation.y=PathData.heading(at.tangent)
-		for k in range(3):
-			var tire:=model("tire_barrier",Vector3(0,0,(k-1)*2.3),0,group)
-			tire.scale=Vector3.ONE*1.2
-	# Painted starting boxes follow the grid positions.
-	for i in range(6):
-		var at:Dictionary=path.sample(-6-float(i/2)*6)
-		var n:=Vector2(-at.tangent.y,at.tangent.x)
-		var p:Vector2=at.point+n*(-2 if i%2==0 else 2)
-		var mark:=add_box(PathData.world(p,.065),Vector3(2,.035,.18),Color("f5e8ba"))
-		mark.rotation.y=PathData.heading(at.tangent)
+func solid_cone(at:Vector3,bottom:float,top:float,height:float,tint:Color,parent:Node3D,segments:int=10) -> MeshInstance3D:
+	var node:=MeshInstance3D.new()
+	var shape:=CylinderMesh.new()
+	shape.bottom_radius=bottom
+	shape.top_radius=top
+	shape.height=height
+	shape.radial_segments=segments
+	node.mesh=shape
+	node.material_override=material(tint)
+	parent.add_child(node)
+	node.position=at
+	return node
 
 func tint_model(node:Node, color:Color) -> void:
 	if node is MeshInstance3D:
 		node.material_override=material(color)
 	for child in node.get_children():
 		tint_model(child,color)
+
+# Rounded toy trees and colorful track furniture establish the miniature club style.
+func club_tree(p:Vector2, scale_factor:float, variant:int) -> void:
+	var group:=Node3D.new()
+	decoration.add_child(group)
+	group.position=PathData.world(p)
+	group.scale=Vector3.ONE*scale_factor
+	add_box(Vector3(0,2,0),Vector3(.8,4,.8),Color("926951"),group)
+	for at in [Vector3(-1.2,4.5,0),Vector3(1.2,4.8,.6),Vector3(0,6,-.4)]:
+		var crown:=MeshInstance3D.new()
+		var sphere:=SphereMesh.new()
+		sphere.radius=2.6
+		sphere.height=4.8
+		sphere.radial_segments=12
+		sphere.rings=6
+		crown.mesh=sphere
+		crown.material_override=material([Color("66b878"),Color("93ce79"),Color("43a68a")][variant%3])
+		group.add_child(crown)
+		crown.position=at
+
+func pine_tree(p:Vector2, size:float, variant:int) -> void:
+	var group:=Node3D.new()
+	decoration.add_child(group)
+	group.position=PathData.world(p)
+	group.scale=Vector3.ONE*size
+	solid_cone(Vector3(0,2,0),.4,.25,4,Color("796950"),group)
+	for tier in range(3):
+		solid_cone(Vector3(0,3.2+tier*1.9,0),3.3-tier*.7,.08,4.6-tier*.6,[Color("496e5c"),Color("63866a"),Color("7b9873")][(variant+tier)%3],group,9)
+
+func palm_tree(p:Vector2, size:float, angle:float) -> void:
+	var group:=Node3D.new()
+	decoration.add_child(group)
+	group.position=PathData.world(p)
+	group.scale=Vector3.ONE*size
+	group.rotation.y=angle
+	var trunk:=solid_cone(Vector3(.35,3.2,0),.5,.28,6.4,Color("b29164"),group)
+	trunk.rotation.z=-.1
+	var st:=SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in range(7):
+		var d:=Vector2(cos(i*TAU/7),sin(i*TAU/7))
+		var n:=Vector2(-d.y,d.x)
+		var base:=Vector2(.7,0)
+		for tri in [[Vector3(base.x,6.2,base.y),PathData.world(base+d*2+n*.65,7),PathData.world(base+d*4.7,5.7)], [Vector3(base.x,6.2,base.y),PathData.world(base+d*4.7,5.7),PathData.world(base+d*2-n*.65,6.9)]]:
+			for v in tri:st.add_vertex(v)
+	st.generate_normals()
+	var leaves:=MeshInstance3D.new()
+	leaves.mesh=st.commit()
+	var m:=material(Color("69a578")).duplicate() as StandardMaterial3D
+	m.cull_mode=BaseMaterial3D.CULL_DISABLED
+	leaves.material_override=m
+	group.add_child(leaves)

@@ -1,0 +1,1730 @@
+[
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.5,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 39.5,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.15,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.4,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.6,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 39.7,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.75,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 38.55,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 38.95,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 37.05,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 38.45,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 37.85,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 38.0,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 37.25,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 39.1,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 36.15,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.35,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 39.25,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.05,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.35,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.5,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 39.8,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.55,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 38.6,
+		"success": true,
+		"tier": 0,
+		"track": 0
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 38.75,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 36.8,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 38.5,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 37.85,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 37.85,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 37.05,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 38.85,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.95,
+		"success": true,
+		"tier": 3,
+		"track": 0
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 47.7,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.65,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.5,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.95,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 43.55,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 45.65,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 48.15,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.3,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.55,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.4,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.4,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.1,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.6,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.9,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.65,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 38.5,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 47.7,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.55,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.6,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 45.25,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 43.65,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 45.85,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 48.05,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.25,
+		"success": true,
+		"tier": 0,
+		"track": 1
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.45,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.65,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.6,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.05,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.75,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.8,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.75,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 38.55,
+		"success": true,
+		"tier": 3,
+		"track": 1
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 50.95,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 47.0,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 46.15,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 47.35,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 45.0,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 48.9,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 51.25,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.35,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 47.3,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 43.75,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 43.0,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.15,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.9,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 45.65,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 47.95,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 39.8,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 50.55,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 46.85,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 45.9,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 47.35,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.85,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 48.9,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 50.95,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.3,
+		"success": true,
+		"tier": 0,
+		"track": 2
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 47.3,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 43.9,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.95,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.2,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.1,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 45.6,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 47.9,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 39.45,
+		"success": true,
+		"tier": 3,
+		"track": 2
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 34.7,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 33.1,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 35.35,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 34.05,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 35.05,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.75,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 34.25,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 33.3,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.25,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 30.75,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.8,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 31.65,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.55,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 30.65,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.0,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 31.1,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.35,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.55,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.95,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 34.65,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.7,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.55,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.2,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.85,
+		"success": true,
+		"tier": 0,
+		"track": 3
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 32.9,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 31.3,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.5,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 32.35,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.45,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 31.0,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 32.65,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 31.5,
+		"success": true,
+		"tier": 3,
+		"track": 3
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 44.8,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.3,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 43.5,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 43.2,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.9,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.9,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 45.1,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.85,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 41.9,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 39.55,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.55,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.35,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.05,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 40.0,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 42.0,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 38.05,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 45.4,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.9,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 44.1,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 43.8,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 43.55,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 43.4,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 45.3,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.3,
+		"success": true,
+		"tier": 0,
+		"track": 4
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.2,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.05,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 41.45,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.6,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.7,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 40.4,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 42.45,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 38.45,
+		"success": true,
+		"tier": 3,
+		"track": 4
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 35.0,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.75,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.3,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 33.0,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 31.75,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 33.55,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 35.25,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 30.05,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.7,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 30.4,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 30.1,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 30.85,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 29.55,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 31.45,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 32.95,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": false,
+		"seconds": 27.85,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.3,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.2,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 32.85,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.65,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 32.35,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 34.0,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 35.6,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 30.65,
+		"success": true,
+		"tier": 0,
+		"track": 5
+	},
+	{
+		"car": 0,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.25,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 1,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 30.8,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 2,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 30.65,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 3,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 31.35,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 4,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 30.05,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 5,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 31.75,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 6,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 33.35,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	},
+	{
+		"car": 7,
+		"offroad": 0,
+		"reverse": true,
+		"seconds": 28.5,
+		"success": true,
+		"tier": 3,
+		"track": 5
+	}
+]

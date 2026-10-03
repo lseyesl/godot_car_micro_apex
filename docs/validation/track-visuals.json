@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-03",
+  "engine": "4.7.stable",
+  "automated_checks": 240,
+  "failures": 0,
+  "rendered_tracks": [
+    0,
+    1,
+    2
+  ],
+  "renderer": "OpenGL Compatibility / Mesa llvmpipe",
+  "physical_android_performance": "not tested",
+  "balance_rerun": false
+}
