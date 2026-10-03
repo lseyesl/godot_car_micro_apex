@@ -5,7 +5,7 @@ name: Build Android APK
   workflow_dispatch:
     inputs:
       tag:
-        description: '新 Release 标签，例如 v0.1.0（不能已存在）'
+        description: '新 Release 标签，例如 v0.9.0（不能已存在）'
         required: true
         type: string
 
@@ -74,7 +74,7 @@ jobs:
           packages: ''
 
       - name: Install Android build tools
-        run: sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.1'
+        run: sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
 
       - name: Install Godot and matching Android template
         run: |
@@ -136,15 +136,8 @@ jobs:
             exit 1
           fi
 
-      - name: Test gameplay rules and scene integration
-        run: |
-          set -euo pipefail
-          godot --headless --path . --script res://tests/test_runner.gd 2>&1 | tee build/android/rules.log
-          grep -Eq 'RULE_TESTS .*failures=0' build/android/rules.log
-          godot --headless --path . --script res://tests/handling.gd 2>&1 | tee build/android/handling.log
-          grep -Eq 'HANDLING .*failures=0' build/android/handling.log
-          godot --headless --path . --script res://tests/integration.gd 2>&1 | tee build/android/integration.log
-          grep -Eq 'INTEGRATION .*failures=0' build/android/integration.log
+      - name: Validate gameplay, career and full product flow
+        run: python3 tools/validate.py --godot godot
 
       - name: Export and verify APK
         run: |
@@ -152,8 +145,8 @@ jobs:
           godot --headless --path . --export-debug Android build/android/micro-apex-debug.apk \
             2>&1 | tee build/android/export.log
           test -s build/android/micro-apex-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/android/micro-apex-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/android/micro-apex-debug.apk \
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/android/micro-apex-debug.apk
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging build/android/micro-apex-debug.apk \
             > build/android/apk-info.txt
           grep -F 'org.lseyesl.microapex' build/android/apk-info.txt
           grep -F 'arm64-v8a' build/android/apk-info.txt

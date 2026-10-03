@@ -1,0 +1,25 @@
+{
+  "version": "0.10.0",
+  "tracks": 6,
+  "cars": 8,
+  "career_events": 36,
+  "checks": {
+    "rules": 52,
+    "handling": 88,
+    "integration": 13,
+    "curb_collisions": 114,
+    "career": 100,
+    "product_flow": 19,
+    "district_layout": 41,
+    "camera_framing": 1734
+  },
+  "balance_combinations": 192,
+  "six_car_expansion_races": 3,
+  "failures": 0,
+  "physical_android_tested": false,
+  "legacy_ids_preserved": true,
+  "android_signature_v2_v3": true,
+  "android_16k_alignment": true,
+  "packed_models_with_four_wheels": 8,
+  "packed_tracks_loaded": 6
+}

@@ -1,0 +1,32 @@
+{
+  "version": "0.9.1",
+  "date": "2026-10-03",
+  "engine": "4.7.stable",
+  "core_checks": 240,
+  "district_checks": 23,
+  "layout_closed_and_no_crossings": true,
+  "balance_combinations": 48,
+  "failures": 0,
+  "length_m": [
+    828.0,
+    913.5,
+    855.9
+  ],
+  "record_section": "records_district_v6",
+  "old_records_retained": true,
+  "career_progress_retained": true,
+  "rendered_tracks": [
+    0,
+    1,
+    2
+  ],
+  "renderer": "OpenGL Compatibility / Mesa llvmpipe",
+  "reference_images_received": false,
+  "reference_web_access": "unavailable",
+  "physical_android_tested": false,
+  "packed_resource_flow": {
+    "checks": 19,
+    "failures": 0,
+    "note": "Full exported gameplay flow checked before final primitive batching; final batching separately checked with district suite and rendered race views."
+  }
+}

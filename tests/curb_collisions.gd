@@ -31,7 +31,7 @@ func place(car,path,s:float,lateral:float,motion:Vector2) -> void:
 	car.rotation.y=car.dynamics.yaw
 	car.velocity=Track.world(motion)
 func run() -> void:
-	for index in range(3):
+	for index in range(Catalog.TRACKS.size()):
 		var path=Track.new(index)
 		var view=View.new()
 		root.add_child(view)

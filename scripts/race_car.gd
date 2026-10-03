@@ -18,6 +18,8 @@ var impact := 0.0
 var near:Dictionary={}
 var previous := Vector2.ZERO
 var reset_cooldown := 0.0
+var dust:CPUParticles3D
+var effects_enabled:=true
 
 func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> void:
 	dynamics=Dynamics.new(spec)
@@ -37,14 +39,44 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 	for node in visual.find_children("Wheel_*","Node3D",true,false):
 		wheels.append(node)
 		wheel_rotations.append(node.rotation)
+	dust=CPUParticles3D.new()
+	dust.amount=16
+	dust.lifetime=.65
+	dust.local_coords=false
+	dust.fixed_fps=30
+	dust.direction=Vector3(0,1,1)
+	dust.spread=35
+	dust.gravity=Vector3(0,.6,0)
+	dust.initial_velocity_min=.4
+	dust.initial_velocity_max=1.4
+	dust.scale_amount_min=.5
+	dust.scale_amount_max=1.3
+	var puff:=SphereMesh.new()
+	puff.radius=.25
+	puff.height=.5
+	puff.radial_segments=6
+	puff.rings=3
+	var dust_material:=StandardMaterial3D.new()
+	dust_material.albedo_color=Color("c8ad80")
+	dust_material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+	dust_material.vertex_color_use_as_albedo=true
+	puff.material=dust_material
+	dust.mesh=puff
+	var fade:=Gradient.new()
+	fade.set_color(0,Color(1,1,1,.5))
+	fade.set_color(1,Color(1,1,1,0))
+	dust.color_ramp=fade
+	dust.position=Vector3(0,.2,1.4)
+	dust.emitting=false
+	add_child(dust)
 	if player:
 		var marker:=MeshInstance3D.new()
 		var torus:=TorusMesh.new()
-		torus.inner_radius=2.15
-		torus.outer_radius=2.23
+		torus.inner_radius=2.0
+		torus.outer_radius=2.14
 		marker.mesh=torus
 		var material:=StandardMaterial3D.new()
-		material.albedo_color=Color("c2ff72")
+		material.albedo_color=Color("ffd34e")
 		material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
 		marker.material_override=material
 		marker.position.y=.06
@@ -66,6 +98,7 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 	visual.rotation.x=atan2(path.height_at(road.s+1)-path.height_at(road.s-1),2.0)
 	dynamics.position=Vector2(position.x,position.z)
 	dynamics.velocity=Vector2(velocity.x,velocity.z)
+	dust.emitting=effects_enabled and dynamics.surface!="asphalt" and dynamics.velocity.length()>6
 	impact=move_toward(impact,0.0,dt*12)
 	var boundary_contact:=false
 	var wall_speed:Vector2=incoming

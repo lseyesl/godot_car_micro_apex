@@ -10,7 +10,7 @@ func check(value:bool,message:String) -> void:
 		failures+=1
 		push_error(message)
 func _initialize() -> void:
-	for index in range(3):
+	for index in range(Catalog.TRACKS.size()):
 		var path=Track.new(index)
 		var crossings:=0
 		for i in range(path.points.size()):

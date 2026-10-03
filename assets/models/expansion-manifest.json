@@ -1,0 +1,30 @@
+[
+  {
+    "name": "car_pickup",
+    "version": 3,
+    "triangles": 15200,
+    "reference": "Original expansion vehicle: pickup / open roadster / muscle / tubular buggy",
+    "glb": "assets/models/car_pickup.glb"
+  },
+  {
+    "name": "car_roadster",
+    "version": 3,
+    "triangles": 5998,
+    "reference": "Original expansion vehicle: pickup / open roadster / muscle / tubular buggy",
+    "glb": "assets/models/car_roadster.glb"
+  },
+  {
+    "name": "car_muscle",
+    "version": 3,
+    "triangles": 5834,
+    "reference": "Original expansion vehicle: pickup / open roadster / muscle / tubular buggy",
+    "glb": "assets/models/car_muscle.glb"
+  },
+  {
+    "name": "car_buggy",
+    "version": 3,
+    "triangles": 14992,
+    "reference": "Original expansion vehicle: pickup / open roadster / muscle / tubular buggy",
+    "glb": "assets/models/car_buggy.glb"
+  }
+]

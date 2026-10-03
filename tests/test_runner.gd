@@ -19,7 +19,7 @@ func _initialize() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	for index in range(3):
+	for index in range(Catalog.TRACKS.size()):
 		var track=Track.new(index)
 		check(track.length>650 and track.length<1200,"Track length outside intended race scale")
 		check(track.sample(0).point.distance_to(track.sample(track.length).point)<.001,"Track must close")
@@ -28,7 +28,7 @@ func run() -> void:
 		for i in range(100):
 			if track.surface_at(track.length*i/100.0)=="dirt":dirt+=1
 			else:asphalt+=1
-		check(asphalt>10 and dirt>10,"Each track must mix surfaces")
+		check(asphalt>10 and (dirt>10 if not track.definition.dirt_ranges.is_empty() else dirt==0),"Surface samples must match mixed or pure-asphalt route definition")
 		var off:Dictionary=track.nearest(Vector2(500,500))
 		check(off.surface=="grass","Road exterior must slow cars")
 	var path=Track.new(0)
@@ -60,7 +60,7 @@ func run() -> void:
 	p.advance(g.point-g.tangent,g.point+g.tangent,path,500)
 	check(p.finish_time==finished,"Finishing is immutable")
 	var car=Dynamics.new(Catalog.CARS[3])
-	for i in range(Catalog.CARS.size()):
+	for i in range(4):
 		var old_spec:Dictionary=Catalog.CARS[i].duplicate()
 		old_spec.radius=[8.8,5.5,7.3,6.8][i]
 		var previous=Dynamics.new(old_spec)
@@ -118,6 +118,11 @@ func run() -> void:
 	check(input.driving().steer==0 and input.driving().throttle,"Releasing one finger must not cancel another")
 	input.clear()
 	check(not input.driving().throttle,"Pause clearing must release all touches")
+	input.position=Vector2(40,12)
+	gas.position=input.get_global_transform_with_canvas()*input.areas.throttle.get_center()
+	input._input(gas)
+	check(input.driving().throttle,"Safe-area offset must preserve touch hit positions")
+	input.clear()
 	input.queue_free()
 	print("RULE_TESTS checks=%d failures=%d"%[checks,failures])
 	quit(1 if failures else 0)

@@ -1,0 +1,13 @@
+{
+  "version": "0.9.4",
+  "camera_distance": 42,
+  "wide_distance": 62,
+  "max_speed_zoom": 3,
+  "lookahead_limit": 8,
+  "camera_checks": 867,
+  "camera_failures": 0,
+  "upcoming_road_distance_tested": 18,
+  "routes_physics_models_unchanged": true,
+  "core_tests_rerun": false,
+  "physical_android_tested": false
+}

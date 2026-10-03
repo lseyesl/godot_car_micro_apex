@@ -1,57 +1,57 @@
 # Micro Apex
 
-Godot 4.7 制作的横屏俯视角 3D 赛车原型。四款赛车、三条混合路面赛道，提供六车场地竞速和无 AI 的计时练习。
+横屏俯视 3D 单机赛车，包含 8 款可解锁赛车、12 个路线方向、36 场生涯赛事、性能升级、计时挑战和驾驶训练。
 
-## 启动
+当前版本 **0.10.0 产品候选版**。完整玩法、验收范围及发行前事项见 [产品说明](docs/product.md)。
 
-使用 Godot **4.7** 导入根目录的 `project.godot`，按 F6/F5 运行主场景。也可以在工程目录运行：
+[查看新增地图、车辆与实机截图](docs/expansion.md)。
 
-```sh
-godot --editor --path .
-godot --path .
-```
+## 开始开发
 
-运行时不需要 Blender。可编辑 Blender 源文件和 imagegen 参考图单独保留在 `assets/`，通过 `.gdignore` 排除在 Godot 导入之外。
-
-## 操作
-
-| 操作 | 手机 | 电脑开发 |
-| --- | --- | --- |
-| 转向 | 左下左右按钮，相对车头 | A / D 或左右方向键 |
-| 油门 | 右下 GAS | W / 上方向键 |
-| 刹车 | 右下 BRAKE | S / 下方向键 / 空格 |
-| 倒车 | 停稳后松开刹车，再按住 | 同上 |
-| 复位 | 长按 RESET 1.2 秒 | 长按 R |
-| 暂停 | 右上暂停按钮 | Esc |
-
-可以同时转向和加速/刹车。高速转向受抓地力限制；土路更容易滑动，路外会明显减速。绿色标杆指示下一合法检查点。漏点需返回或复位，不能靠抄近路计圈。
-
-竞速固定 3 圈，玩家完赛立即结算。计时练习无圈数上限，通过“结束练习”退出。每款车、每条赛道分别保存最佳有效单圈；复位圈不刷新纪录。设置与纪录保存在 `user://micro_apex.cfg`。
-
-## Android
-
-使用 [手动 GitHub Actions 构建](docs/android-build.md)，下载 ARM64 调试 APK。不会在 push 或 PR 时自动触发。
-
-## 验证
+使用 Godot **4.7 stable** 打开 `project.godot`，按 F5 运行。游戏运行不需要 Blender。
 
 ```sh
 godot --headless --path . --editor --import
-godot --headless --path . --script res://tests/test_runner.gd
-godot --headless --path . --script res://tests/integration.gd
-mkdir -p build
-godot --headless --path . --script res://tests/benchmark.gd
-godot --headless --path . --script res://tests/race_soak.gd
+godot --editor --path .
 ```
 
-规则和场景集成测试已加入打包工作流。注意 Godot 某些脚本解析错误可能仍以退出码 0 返回，因此 CI 同时检查测试完成标记。
+云环境已准备的引擎在 `/workspace/.cloud-tools/bin/godot`；先将该目录加到 PATH，避免使用预装的旧版本。
 
-[验证报告](docs/validation.md)记录圈时、实际六车试跑、验证范围及未验证部分。当前完成的是可运行原型；云端 APK 构建与红米 K40 的安装、触控手感和帧率尚待验证。
+## 游玩
 
-## 主要代码
+先完成驾驶训练，再参加生涯，赢得星级和金币，解锁杯赛、车辆并升级性能。自由比赛和练习可以随时重玩已拥有车辆。
 
-- `scripts/vehicle_dynamics.gd`：加速、刹车、倒车、转弯和路面差异。
-- `scripts/track_path.gd` / `track_view.gd`：三条赛道的数据与三维场景。
-- `scripts/race_progress.gd`：顺序检查点、有效圈、完赛和排名进度。
-- `scripts/ai_driver.gd`：根据路线曲率、路面与难度制动，不改车辆属性。
-- `scripts/main.gd`：选车、比赛状态、HUD、暂停和结算。
-- `scripts/touch_controls.gd` / `save_store.gd`：多点触控与本地存档。
+| 操作 | 手机 | 键盘 |
+| --- | --- | --- |
+| 转向 | 左下左右按钮 | A / D 或方向键 |
+| 油门 | GAS | W / 上方向键 |
+| 刹车 | BRAKE | S / 下方向键 / 空格 |
+| 倒车 | 停稳后松开并再次按刹车 | 同左 |
+| 复位 | 长按 RESET 1.2 秒 | 长按 R |
+| 暂停 / 返回 | 暂停按钮 / 系统返回 | Esc |
+
+设置中可调整自动油门、触控尺寸、镜头、画质、音乐和主音量。进度保存在 `user://micro_apex.cfg`，上一份有效备份为 `.bak`。单机游戏不收集或上传玩家数据。
+
+## 验证与打包
+
+```sh
+python3 tools/validate.py --godot godot
+# 包含四车、六路线、原厂与满级的 48 组自动驾驶检查：
+python3 tools/validate.py --godot godot --balance
+# 配置 SDK 36、Build Tools 36.0.0、Java 和 Godot 模板后：
+bash tools/build_android.sh
+```
+
+`build/android/` 提供可安装的调试签名验收包和需要发行方签名的未签名发行包。请先完成真机验收，再进入商店发行流程。
+
+## 工程结构
+
+- `scripts/career.gd`：杯赛、奖励、解锁、购买与升级。
+- `scripts/save_store.gd`：原子保存、回滚和备份恢复。
+- `scripts/frontend.gd`：俱乐部、生涯、车库、自由驾驶、设置和许可页面。
+- `scripts/main.gd`：比赛、教学、结算、镜头与音频流程。
+- `scripts/vehicle_dynamics.gd`、`race_progress.gd`：车辆动力与合法计圈。
+- `scripts/track_path.gd`、`track_view.gd`：正反路线与程序化场景。
+- `tests/`：规则、整场比赛、生涯与升级回归检查。
+- `tools/build_audio.py`：原创合成音效与音乐生成器。
+- `assets/`：模型、Blender 源文件、字体与第三方许可。

@@ -37,3 +37,16 @@
 - 原 `micro_apex_assets.blend` 保留上一版总库；当前赛车以独立源文件及生成器为准。
 - 仅重建赛车：在上面的 Blender 命令后添加 `-- --cars-only`。此模式保留地图 GLB 和地图清单，更新独立车辆源文件。
 - 每车仍为车身加四车轮共五个网格、四个 Wheel 枢轴。驾驶参数和共用碰撞体保持原样，碰撞仍是近似形状。
+
+## 产品版音频与字体
+
+`tools/build_audio.py` 使用确定性波形与噪声合成生成引擎、路面、碰撞、按钮、倒数、发车、结算和循环音乐，没有使用外部采样。`fonts/NotoSansCJK-Regular.ttc` 随应用打包，许可见 `legal/Noto-CJK-LICENSE.txt`。Godot 引擎及第三方组件声明见 `legal/Godot-LICENSE.txt` 和 `legal/Godot-COPYRIGHT.txt`，游戏内设置页面可阅读。
+
+
+## 0.9.2 地图美术资源
+
+`models/district_art_*.glb`、`district_pine.glb`、`district_oak.glb`、`district_outcrop.glb` 由 `tools/build_district_art.py` 原创生成。`textures/surfaces/` 为 Poly Haven CC0 材质，具体来源与 SHA256 见该目录的 manifest.json，完整许可见 legal/PolyHaven-CC0.txt。参考游戏的截图只在临时工作目录用于分析，不随素材分发。
+
+## 0.10.0 原创扩充车型
+
+`car_pickup`、`car_roadster`、`car_muscle`、`car_buggy` 由 `tools/build_expansion_cars.py` 构建，复用项目原有网格构造与车轮函数。可编辑源文件位于 `assets/blender/micro_apex_expansion.blend`，独立清单位于 `assets/models/expansion-manifest.json`。没有使用参考游戏的模型、商标或贴图。
