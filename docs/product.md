@@ -1,4 +1,6 @@
-# Micro Apex 0.10.0 — 单机产品候选版
+# Micro Apex 0.10.1 — 单机产品候选版
+
+0.10.1 修复 Android 导出清单中的重复 Provider authority，并增加 CI 校验；见 [Android 构建说明](android-build.md)。
 
 目标是 Android 横屏单机赛车。采用原创 Micro Apex 俱乐部品牌与俯视三维赛车形式。
 
@@ -43,8 +45,8 @@ GODOT_BIN=godot ANDROID_HOME=/path/to/android-sdk bash tools/build_android.sh
 
 在 Godot 编辑器设置中指定 Android SDK 和 Java SDK 路径。`export_presets.cfg` 含 Android 调试、Android 未签名发行和 Linux 导出预设。
 
-- `build/android/micro-apex-0.10.0-review.apk`：ARM64 调试签名安装包，用于设备验收。
-- `build/android/micro-apex-0.10.0-release-unsigned.apk`：发行构建，需要发行方使用自己保管的正式证书签名后才能安装或发布。
+- `build/android/micro-apex-0.10.1-review.apk`：ARM64 调试签名安装包，用于设备验收。
+- `build/android/micro-apex-0.10.1-release-unsigned.apk`：发行构建，需要发行方使用自己保管的正式证书签名后才能安装或发布。
 - `build/android/SHA256SUMS.txt`：构建产物校验。
 - `build/linux/`：用于云端验证导出资源与启动的 Linux 版本。
 

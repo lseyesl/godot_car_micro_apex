@@ -14,7 +14,7 @@
 ## 配置
 
 - Ubuntu 24.04，官方 Godot **4.7-stable** 和匹配的 Android 调试模板，下载后核对官方 SHA-512。
-- Java 17，Android SDK 36 / Build Tools 36.0.0；使用预构建模板，不启用 Gradle。
+- Java 17，Android SDK 36 / Build Tools 36.0.0；使用匹配的 `android_source.zip` 模板，通过 Gradle 合并清单并打包。
 - 导出预设名为 `Android`；应用 ID 为 `org.lseyesl.microapex`。
 - `project.godot` 启用 `rendering/textures/vram_compression/import_etc2_astc`；Android 导出要求此项，即使使用 GL Compatibility 渲染器。工作流先导入资源，再导出 APK。
 - 仅包含 **ARM64**，适合红米 K40；这是调试 APK，不是商店发布包。
@@ -32,3 +32,20 @@
 ## 本地候选版构建
 
 当前工程还提供 `tools/build_android.sh`，生成 ARM64 调试签名验收 APK 和未签名发行 APK。步骤、产物路径和真机验收边界见 [产品说明](product.md)。未签名发行 APK 需要发行方的正式签名；本地脚本不会创建或上传发行证书。
+
+## 0.10.1：Android 清单导出修复
+
+排查 v0.1.3 Release 的 `package info null` 反馈时，Actions 本身成功，APK 的 ZIP、校验和与签名也正常，但清单中发现两个 Provider 共用了 `org.lseyesl.microapex.fileprovider`。Godot 4.7 的非 Gradle 导出会统一改写 Provider authorities；改用 Gradle 清单合并后，FileProvider 和 AndroidX Startup 保留各自独立的 authority。
+
+这修复了已验证的清单缺陷，尚不能代替反馈设备上的安装复测，也不能仅凭该发现认定所有 `package info null` 都是同一原因。
+
+CI 现在安装匹配的 Android 源模板，导出时使用 `--install-android-build-template`。完整 JDK 17+ 必须包含 `javac`。生成的 `android/build/` 不提交到 Git。
+
+新增检查：
+
+```sh
+python3 -m unittest discover -s tests -p test_android_manifest.py
+python3 tools/verify_android_apk.py path/to/app.apk --sdk "$ANDROID_HOME"
+```
+
+检查覆盖 ZIP 完整性、ARM64 库、APK 签名、16 KB 对齐，以及重复 Provider authority、启动入口和 activity-alias 目标。旧 APK 被重复 authority 检查拒绝；检查通过的 APK 仍需要目标 Android 设备验证。
