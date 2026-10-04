@@ -5,7 +5,7 @@ name: Build Android APK
   workflow_dispatch:
     inputs:
       tag:
-        description: '新 Release 标签，例如 v0.9.0（不能已存在）'
+        description: '新 Release 标签，例如 v0.10.1（不能已存在）'
         required: true
         type: string
 
@@ -62,6 +62,9 @@ jobs:
             fi
           done
 
+      - name: Test Android manifest validation
+        run: python3 -m unittest discover -s tests -p test_android_manifest.py
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -105,8 +108,9 @@ jobs:
           sha512sum --check selected-checksums.txt
           unzip -q "$engine"
           install -m 755 "Godot_v${GODOT_VERSION}_linux.x86_64" "$HOME/.local/bin/godot"
-          unzip -q "$templates" 'templates/android_debug.apk' -d extracted
+          unzip -q "$templates" 'templates/android_debug.apk' 'templates/android_source.zip' -d extracted
           install -m 644 extracted/templates/android_debug.apk "$template_dir/android_debug.apk"
+          install -m 644 extracted/templates/android_source.zip "$template_dir/android_source.zip"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Configure SDK paths and debug signing
@@ -142,10 +146,10 @@ jobs:
       - name: Export and verify APK
         run: |
           set -euo pipefail
-          godot --headless --path . --export-debug Android build/android/micro-apex-debug.apk \
+          godot --headless --path . --install-android-build-template --export-debug Android build/android/micro-apex-debug.apk \
             2>&1 | tee build/android/export.log
           test -s build/android/micro-apex-debug.apk
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/android/micro-apex-debug.apk
+          python3 tools/verify_android_apk.py build/android/micro-apex-debug.apk
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging build/android/micro-apex-debug.apk \
             > build/android/apk-info.txt
           grep -F 'org.lseyesl.microapex' build/android/apk-info.txt

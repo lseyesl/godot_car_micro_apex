@@ -25,7 +25,7 @@ if digest(archive,'sha512')!=sums[TEMPLATE]:raise SystemExit('Template SHA-512 m
 target=BASE/'data/godot/export_templates/4.7.stable'
 target.mkdir(parents=True,exist_ok=True)
 with zipfile.ZipFile(archive) as source:
-    for name in ['android_debug.apk','android_release.apk','linux_debug.x86_64','linux_release.x86_64']:
+    for name in ['android_debug.apk','android_release.apk','android_source.zip','linux_debug.x86_64','linux_release.x86_64']:
         temporary=target/(name+'.tmp')
         temporary.write_bytes(source.read('templates/'+name))
         temporary.chmod(0o755)
@@ -48,7 +48,7 @@ proxy=urllib.parse.urlparse(environment.get('HTTPS_PROXY',environment.get('https
 if proxy.hostname:args+=['--proxy=http','--proxy_host='+proxy.hostname,'--proxy_port='+str(proxy.port or 80)]
 subprocess.run(args,input='y\n'*100,text=True,env=environment,check=True)
 java=shutil.which('java')
-if not java or not shutil.which('keytool'):raise SystemExit('Java 17+ and keytool must be installed')
+if not java or not shutil.which('keytool') or not shutil.which('javac'):raise SystemExit('A full JDK 17+ (java, javac, keytool) must be installed for Gradle export')
 java_root=pathlib.Path(java).resolve().parent.parent
 settings=BASE/'config/godot/editor_settings-4.7.tres'
 settings.parent.mkdir(parents=True,exist_ok=True)

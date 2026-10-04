@@ -6,3 +6,7 @@ build/
 .DS_Store
 __pycache__/
 *.pyc
+
+# Generated from the matching Godot Android source template.
+/android/build/
+/android/.build_version
