@@ -47,6 +47,13 @@ func run() -> void:
 	check(game.state==game.State.COUNTDOWN,"Returning from background starts resume countdown")
 	game.player.reset_to_gate(game.path)
 	check(not game.player.progress.valid_lap,"Live reset invalidates lap")
+	game.state=Main.State.RACING
+	var opponent=game.cars[1]
+	opponent.progress.finish_time=20.0
+	await physics_frame
+	await physics_frame
+	check(opponent.collision_layer==0 and opponent.collision_mask==0,"Finished opponents must not block the finish lane")
+	check(opponent.progress.finish_time==20.0,"Clearing finish lane must preserve classification time")
 	game.player.progress.finish_time=22.0
 	game.cars[1].progress.finish_time=21.0
 	check(game.ranking()[0]==game.cars[1] and game.ranking()[1]==game.player,"Finished cars rank by finish order")
