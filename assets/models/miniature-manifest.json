@@ -1,0 +1,58 @@
+[
+  {
+    "name": "car_speed",
+    "version": 4,
+    "triangles": 11928,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_speed.glb"
+  },
+  {
+    "name": "car_agile",
+    "version": 4,
+    "triangles": 11040,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_agile.glb"
+  },
+  {
+    "name": "car_dirt",
+    "version": 4,
+    "triangles": 20588,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_dirt.glb"
+  },
+  {
+    "name": "car_balanced",
+    "version": 4,
+    "triangles": 10748,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_balanced.glb"
+  },
+  {
+    "name": "car_pickup",
+    "version": 4,
+    "triangles": 20216,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_pickup.glb"
+  },
+  {
+    "name": "car_roadster",
+    "version": 4,
+    "triangles": 11098,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_roadster.glb"
+  },
+  {
+    "name": "car_muscle",
+    "version": 4,
+    "triangles": 12280,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_muscle.glb"
+  },
+  {
+    "name": "car_buggy",
+    "version": 4,
+    "triangles": 21740,
+    "reference": "Original miniature proportions: short wheelbase, broad cabin, oversize wheels",
+    "glb": "assets/models/car_buggy.glb"
+  }
+]

@@ -1,6 +1,6 @@
 extends RefCounted
 
-const RECORD_SECTION := "records_district_v6"
+const RECORD_SECTION := "records_compact_v8"
 var path := "user://micro_apex.cfg"
 var config := ConfigFile.new()
 var last_error := OK

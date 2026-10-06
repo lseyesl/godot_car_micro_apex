@@ -24,7 +24,7 @@ func _initialize() -> void:
 				var second:Dictionary=path.nearest(hit,path.distances[j])
 				check(absf(first.height-second.height)>6,"Crossings need car clearance")
 				check(absf(wrapf(first.s-second.s,-path.length*.5,path.length*.5))>65,"Route hint must preserve crossing branch")
-		check(crossings==0,"Miniature layouts must not intersect")
+		check(crossings>0 if index==3 else crossings==0,"Only the port should contain a grade-separated crossing")
 		for gate_index in range(path.GATE_COUNT):
 			var gate:Dictionary=path.gate(gate_index)
 			if gate.height<6:continue

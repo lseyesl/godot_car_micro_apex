@@ -19,7 +19,7 @@ def activate(o):
 def box(name,p,size,mat,bevel=.035):
  bpy.ops.mesh.primitive_cube_add(size=1,location=p);o=bpy.context.object;o.name=name;o.dimensions=size;bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);o.data.materials.append(M[mat])
  if bevel:
-  m=o.modifiers.new('Soft manufactured edge','BEVEL');m.width=bevel;m.segments=2;bpy.ops.object.modifier_apply(modifier=m.name)
+  m=o.modifiers.new('Soft manufactured edge','BEVEL');m.width=max(bevel,.13) if min(size)>1 else bevel;m.segments=3;bpy.ops.object.modifier_apply(modifier=m.name)
   m=o.modifiers.new('Weighted corner normals','WEIGHTED_NORMAL');m.keep_sharp=True;bpy.ops.object.modifier_apply(modifier=m.name)
  return o
 
@@ -32,7 +32,7 @@ def beam(name,a,b,r,mat):
 def mesh(name,verts,faces,mat):
  m=bpy.data.meshes.new(name);m.from_pydata(verts,[],faces);m.update();o=bpy.data.objects.new(name,m);bpy.context.collection.objects.link(o);o.data.materials.append(M[mat]);return o
 
-def window(x,y,z,side=0,w=1.6,h=1.65):
+def window(x,y,z,side=0,w=1.9,h=1.75):
  # local facade window, normal initially toward negative Y
  objs=[];objs.append(box('Window stone surround',(x,y,z),(w+.30,.24,h+.30),'trim'))
  objs.append(box('Recessed blue glass',(x,y-.15,z),(w,.12,h),'glass',.015))
@@ -63,12 +63,12 @@ def facade_sign(text,p,size=.7):
  bpy.ops.object.text_add(location=p,rotation=(math.pi/2,0,0));o=bpy.context.object;o.name='Original sign '+text;o.data.body=text;o.data.align_x='CENTER';o.data.align_y='CENTER';o.data.size=size;o.data.extrude=.007;o.data.materials.append(M['trim']);bpy.ops.object.convert(target='MESH')
 
 def building(variant):
- first=set(bpy.context.scene.objects);w=10.2;d=9.4;height=6.8 if variant in [0,1] else 5.5
+ first=set(bpy.context.scene.objects);w=9.0;d=8.0;height=5.6 if variant in [0,1] else 4.7
  bodymat='plaster' if variant in [0,1,4] else ('wood' if variant in [2,3] else 'stone')
  box('Masonry foundation',(0,0,.35),(w+.5,d+.5,.7),'stone',.07)
  box('Main facade',(0,0,height/2+.45),(w,d,height),bodymat,.09)
  box('Raised stone pavement',(0,-.1,.05),(12.5,12.5,.1),'stone',.04)
- for z in [.85,3.9]:box('Storey string course',(0,0,z),(w+.16,d+.16,.16),'timber' if variant in [2,3] else 'trim',.02)
+ for z in [.85,3.25]:box('Storey string course',(0,0,z),(w+.16,d+.16,.16),'timber' if variant in [2,3] else 'trim',.02)
  if variant in [0,2,3,4]:
   roof(w+1.0,d+1.1,height+.45,2.3,hip=variant==0)
  else:
@@ -79,7 +79,7 @@ def building(variant):
  for side in [0,math.pi]:
   for x in [-2.7,2.7]:
    window(x,-d/2-.06,2.4,side)
-   if height>6:window(x,-d/2-.06,5.5,side,h=1.45)
+   if variant in [0,1]:window(x,-d/2-.06,4.6,side,w=1.9,h=1.4)
  for side in [-math.pi/2,math.pi/2]:
   for x in [-2.6,1.6]:window(x,-w/2-.05,3.0,side,w=1.45,h=1.8)
  box('Recessed doorway',(0,-d/2-.04,1.65),(1.65,.18,2.8),'dark',.04)
@@ -127,15 +127,15 @@ def export(name,objects):
 
 def tree(pine):
  beam('Tree trunk',(0,0,0),(.2,0,5.8),.22,'timber')
- for i in range(110):
+ for i in range(65):
   angle=i*2.399
   if pine:
-   z=2+i/110*6.2;r=(8.8-z)*.38;rad=random.uniform(.3,.65)
+   z=2+i/65*6.2;r=(8.8-z)*.38;rad=random.uniform(.45,.80)
    p=(math.cos(angle)*r*random.uniform(.4,1),math.sin(angle)*r*random.uniform(.4,1),z)
   else:
-   z=4+random.random()*3.2;r=random.uniform(.4,2.6);rad=random.uniform(.38,.8);p=(math.cos(angle)*r,math.sin(angle)*r,z)
+   z=4+random.random()*3.2;r=random.uniform(.4,2.6);rad=random.uniform(.65,1.05);p=(math.cos(angle)*r,math.sin(angle)*r,z)
   if i%15==0:beam('Branch',(.1,0,3),p,.055,'timber')
-  bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=rad,location=p);o=bpy.context.object;o.scale=(1.2,.85,.7 if pine else 1)
+  bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=rad,location=p);o=bpy.context.object;o.scale=(1.2,.85,.7 if pine else 1)
   bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);o.data.materials.append(M['leaf'+str(i%4)])
   for f in o.data.polygons:f.use_smooth=True
  export('district_pine' if pine else 'district_oak',set(bpy.context.scene.objects))

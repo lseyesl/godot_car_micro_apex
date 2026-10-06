@@ -10,11 +10,14 @@ var driver = Driver.new()
 var car_index := 0
 var player := false
 var display_name := ""
+var marker:MeshInstance3D
+var occlusion_visual:Node3D
 var visual: Node3D
 var wheels: Array[Node3D] = []
 var wheel_rotations: Array[Vector3] = []
 var wheel_angle := 0.0
 var impact := 0.0
+var finish_elapsed:=0.0
 var near:Dictionary={}
 var previous := Vector2.ZERO
 var reset_cooldown := 0.0
@@ -70,7 +73,19 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 	dust.emitting=false
 	add_child(dust)
 	if player:
-		var marker:=MeshInstance3D.new()
+		occlusion_visual=visual.duplicate() as Node3D
+		add_child(occlusion_visual)
+		var silhouette:=StandardMaterial3D.new()
+		silhouette.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		silhouette.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+		silhouette.albedo_color=Color(.5,1.0,.88,.65)
+		silhouette.no_depth_test=true
+		silhouette.render_priority=100
+		for mesh in occlusion_visual.find_children("*","MeshInstance3D",true,false):
+			mesh.material_override=silhouette
+			mesh.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		occlusion_visual.hide()
+		marker=MeshInstance3D.new()
 		var torus:=TorusMesh.new()
 		torus.inner_radius=2.0
 		torus.outer_radius=2.14
@@ -78,6 +93,7 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 		var material:=StandardMaterial3D.new()
 		material.albedo_color=Color("ffd34e")
 		material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.no_depth_test=true
 		marker.material_override=material
 		marker.position.y=.06
 		add_child(marker)
@@ -95,7 +111,10 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 	var road:Dictionary=path.nearest(Vector2(position.x,position.z),dynamics.route_s)
 	dynamics.route_s=road.s
 	position.y=road.height+.06
-	visual.rotation.x=atan2(path.height_at(road.s+1)-path.height_at(road.s-1),2.0)
+	visual.rotation.x=atan(path.slope_at(road.s)*dynamics.forward().dot(road.tangent))
+	if marker!=null:
+		var normal:=Vector3(-road.tangent.x*path.slope_at(road.s),1,-road.tangent.y*path.slope_at(road.s)).normalized()
+		marker.basis=Basis(Quaternion(Vector3.UP,global_basis.inverse()*normal))
 	dynamics.position=Vector2(position.x,position.z)
 	dynamics.velocity=Vector2(velocity.x,velocity.z)
 	dust.emitting=effects_enabled and dynamics.surface!="asphalt" and dynamics.velocity.length()>6
@@ -131,9 +150,10 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 
 func reset_to_gate(path) -> void:
 	var gate:Dictionary=path.gate(progress.last_gate)
-	dynamics.reset_at(gate.point+gate.tangent*2.5,PathData.heading(gate.tangent))
-	position=PathData.world(dynamics.position,gate.height+.06)
-	dynamics.route_s=gate.s
+	var pose:Dictionary=path.sample(gate.s+2.5)
+	dynamics.reset_at(pose.point,PathData.heading(pose.tangent))
+	position=PathData.world(dynamics.position,pose.height+.06)
+	dynamics.route_s=pose.s
 	rotation.y=dynamics.yaw
 	velocity=Vector3.ZERO
 	previous=dynamics.position

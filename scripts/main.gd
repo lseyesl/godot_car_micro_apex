@@ -476,6 +476,15 @@ func _physics_process(dt:float) -> void:
 	time+=dt
 	for car in cars:
 		if car.progress.finish_time>=0:
+			# Finished opponents clear the finish lane instead of becoming parked obstacles.
+			car.collision_layer=0
+			car.collision_mask=0
+			car.finish_elapsed+=dt
+			if car.finish_elapsed<1.2:
+				car.tick(dt,car.driver.controls(car.dynamics,path,time),path)
+			else:
+				car.hide()
+				car.dust.emitting=false
 			continue
 		var input:Dictionary
 		if car.player and not automated_player and not ("--autodrive" in OS.get_cmdline_user_args()):
@@ -560,6 +569,15 @@ func update_camera(dt:float, snap:bool=false) -> void:
 	camera_distance=zoom if snap else lerpf(camera_distance,zoom,1.0-exp(-dt*2.0))
 	var ahead:Vector3=PathData.world(player.dynamics.velocity.limit_length(32.0))*.25
 	var target:Vector3=player.position+ahead
+	# Preview the vertical profile as well as horizontal motion on bridge descents.
+	if player.dynamics.velocity.length()>6:
+		var road:Dictionary=path.nearest(player.dynamics.position,player.dynamics.route_s)
+		var direction:=signf(player.dynamics.velocity.dot(road.tangent))
+		var preview:Dictionary=path.sample(road.s+direction*18.0)
+		target.y=lerpf(player.position.y,preview.height+.06,.6)
+		# In compact hairpins the route turns away from current velocity; preview the bend.
+		target.x=lerpf(target.x,preview.point.x,.25)
+		target.z=lerpf(target.z,preview.point.y,.25)
 	camera_shake=move_toward(camera_shake,0.0,dt*.6)
 	# A narrow perspective lens gives foreground depth without rotating with the car.
 	var pitch:=deg_to_rad(CAMERA_PITCH)
@@ -568,6 +586,9 @@ func update_camera(dt:float, snap:bool=false) -> void:
 	var desired:=target+offset+Vector3(sin(time*72),0,cos(time*61))*minf(camera_shake,.18)
 	camera.position=desired if snap else camera.position.lerp(desired,1.0-exp(-dt*5))
 	camera.rotation_degrees=Vector3(-CAMERA_PITCH,CAMERA_YAW,0)
+	if player.occlusion_visual!=null:
+		player.occlusion_visual.visible=path.overhead_cover(player.position,camera.position)
+		player.occlusion_visual.rotation=player.visual.rotation
 
 func ranking() -> Array:
 	var sorted:=cars.duplicate()

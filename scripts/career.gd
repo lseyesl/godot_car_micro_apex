@@ -24,7 +24,7 @@ static func event(index:int) -> Dictionary:
 		"name":(["码头冲刺","集市追逐","雪岭计时","港区回转","老城计时","雪岭大奖赛"] if cup>=4 else ["开幕冲刺","林间追逐","红岩计时","海湾回转","森林计时","收官大奖赛"])[round_index],
 		"mode":"trial" if trial else "race","laps":1 if trial else (2 if cup==0 else 3),
 		"difficulty":mini(cup,2),"ai_level":mini(cup,2),"reward":600+cup*300+round_index*60,
-		"gold":float([47,54,58,38,48,39][track])*[1.15,1.05,1.0,.92,1.05,.98][cup]}
+		"gold":float([70,71,75,74,71,74][track])*[1.15,1.05,1.0,.92,1.05,.98][cup]}
 
 func number(section:String,key:String,fallback:int=0) -> int:
 	var value=store.config.get_value(section,key,fallback)
@@ -131,7 +131,7 @@ func finish_event(token:String,place:int,seconds:float,laps:int,valid_run:bool=t
 	var first_bonus:=900 if previous==0 else 0
 	var amount:=int(participation)+first_bonus+improvement*200
 	var total:=credits()+amount
-	var best=store.config.get_value("events","best_%d"%index,INF)
+	var best=store.config.get_value("event_times_compact_v8","best_%d"%index,INF)
 	var best_seconds:=float(best) if best is float or best is int else INF
 	var receipt:={"ok":true,"event":index,"stars":earned,"improved":improvement,"reward":amount,"first_bonus":first_bonus,"balance":total}
 	var ok:bool=store.transaction(func():
@@ -140,7 +140,7 @@ func finish_event(token:String,place:int,seconds:float,laps:int,valid_run:bool=t
 		store.config.set_value("career","active",{})
 		store.config.set_value("career","last_receipt",receipt)
 		store.config.set_value("events","stars_%d"%index,maxi(previous,earned))
-		store.config.set_value("events","best_%d"%index,minf(best_seconds,seconds)))
+		store.config.set_value("event_times_compact_v8","best_%d"%index,minf(best_seconds,seconds)))
 	return receipt if ok else failure("奖励未能保存，请重试；金币尚未入账")
 
 static func failure(message:String) -> Dictionary:

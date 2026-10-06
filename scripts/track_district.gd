@@ -2,6 +2,7 @@ extends Node3D
 
 # Original, deterministic miniature districts. Building plots are fitted to the road,
 # not scattered across a generic island. Nothing is placed in the driving corridor.
+const Scenery=preload("res://scripts/track_scenery.gd")
 const PathData=preload("res://scripts/track_path.gd")
 var view
 var path
@@ -34,6 +35,14 @@ func available(p:Vector2,radius:float) -> bool:
 func reserve(p:Vector2,radius:float) -> void:
 	plots.append({"point":p,"radius":radius})
 
+# Outer landmarks move outward when a denser route occupies their old footprint.
+func fit_landmark(preferred:Vector2,radius:float) -> Vector2:
+	var outward:=preferred.normalized()
+	for step in range(17):
+		var candidate:=preferred+outward*float(step)*4.0
+		if available(candidate,radius):return candidate
+	return Vector2.INF
+
 func build_ground(owner_view) -> void:
 	view=owner_view
 	path=view.path
@@ -41,8 +50,9 @@ func build_ground(owner_view) -> void:
 	rng.seed=89013+path.index
 	var colors:=["b8b9a0","83937c","c5a687"]
 	var ground:MeshInstance3D=view.add_box(Vector3(100,-1.08,0) if path.theme==0 else Vector3(0,-1.08,0),Vector3(448,2,640) if path.theme==0 else Vector3(640,2,640),Color(colors[path.theme]))
-	ground.material_override=view.textured_material("cobblestone_floor_03" if path.theme==0 else ("grass_ground" if path.theme==1 else "brown_mud_dry"),.32 if path.theme==0 else .14,Color("d0cebe") if path.theme==0 else Color.WHITE)
-	if path.index==3:ground.material_override=view.textured_material("clean_asphalt",.18,Color("b4b7b2"))
+	ground.material_override=view.miniature_material("cobblestone_floor_03" if path.theme==0 else ("grass_ground" if path.theme==1 else "brown_mud_dry"),.28,Color(["bbba9d","819570","b79c7b"][path.theme]),.22)
+	if path.index==3:ground.material_override=view.miniature_material("clean_asphalt",.25,Color("869698"),.23)
+	ground.material_override=view.miniature_material("grass_ground" if path.index in [0,1] else "brown_mud_dry",.25,Color(Scenery.GROUND[path.index]),.18)
 	if path.theme==0:
 		var sea:MeshInstance3D=view.add_box(Vector3(-330,-2.3,0),Vector3(412,.3,640),Color("639c9d"))
 		var water:=ShaderMaterial.new()
@@ -99,8 +109,8 @@ func build_details(owner_view) -> void:
 
 	# Repeatable plots follow both sides of the circuit. A radius reservation protects
 	# the entire footprint, including roof overhang, from road and neighbouring plots.
-	for i in range(0,48):
-		var at:Dictionary=path.sample(path.length*(i+.12)/48.0)
+	for i in range(0,96):
+		var at:Dictionary=path.sample(path.length*(i+.12)/96.0)
 		var normal:=Vector2(-at.tangent.y,at.tangent.x)
 		for side in [-1,1]:
 			var p:Vector2=at.point+normal*19.5*side
@@ -111,22 +121,7 @@ func build_details(owner_view) -> void:
 			elif path.theme==0:art_building(p,angle,i%2)
 			elif path.theme==1:art_building(p,angle,2+i%2)
 			else:art_building(p,angle,4+i%2)
-	# Deliberate clusters in remaining plots and at the edge of the map.
-	for x in range(-140,151,11):
-		for z in range(-140,151,11):
-			var p:=Vector2(x+rng.randf_range(-2,2),z+rng.randf_range(-2,2))
-			if path.theme==0 and (p.x < -114 or p.x>115 or absf(p.y)>113):continue
-			if not available(p,3.8):continue
-			if path.theme==0:
-				if rng.randf()>.4:continue
-				planter(p)
-			elif path.theme==1:
-				art_tree(p,rng.randf_range(.8,1.25),true)
-				if rng.randf()<.3:boulders(p+Vector2(3,2))
-			else:
-				if rng.randf()<.32 and available(p,6):
-					mesa(p,rng.randf_range(3.5,5.8),rng.randf_range(3.5,7))
-				else:boulders(p)
+	Scenery.new(self).build()
 	if path.index==5:snow_cover()
 	street_furniture()
 	starting_grid()
@@ -175,7 +170,9 @@ func townhouse(p:Vector2,angle:float,variant:int) -> void:
 	bench(Vector3(4,.4,6),group)
 
 func warehouse(p:Vector2,angle:float,variant:int) -> void:
-	reserve(p,19)
+	p=fit_landmark(p,24)
+	if not p.is_finite():return
+	reserve(p,24)
 	var group:=group_at(p,angle)
 	box(Vector3(0,.05,0),Vector3(32,.15,32),"9e9e90",group)
 	box(Vector3(0,4,-3),Vector3(26,8,15),["b6b7aa","a5b3ae","aaa18a","a59983"][variant],group)
@@ -230,7 +227,9 @@ func frontier(p:Vector2,angle:float,variant:int) -> void:
 		view.solid_cone(Vector3(x,.65,2),.6,.6,1.3,Color("8f7560"),group,10)
 
 func container_yard(p:Vector2) -> void:
-	reserve(p,24)
+	p=fit_landmark(p,28)
+	if not p.is_finite():return
+	reserve(p,28)
 	var group:=group_at(p)
 	box(Vector3(0,.05,0),Vector3(37,.2,38),"9ca39a",group)
 	for i in range(6):
@@ -244,7 +243,9 @@ func container_yard(p:Vector2) -> void:
 	box(Vector3(-14,17,-9),Vector3(.12,12,.12),"747d75",group)
 
 func log_yard(p:Vector2) -> void:
-	reserve(p,22)
+	p=fit_landmark(p,24)
+	if not p.is_finite():return
+	reserve(p,24)
 	var group:=group_at(p)
 	box(Vector3(0,.1,0),Vector3(32,.2,35),"b7a383",group)
 	for stack in range(3):
@@ -257,8 +258,10 @@ func log_yard(p:Vector2) -> void:
 		box(Vector3(x,1.5,0),Vector3(.18,.18,35),"b5a580",group)
 
 func freight_train() -> void:
-	var group:=group_at(Vector2(140,65))
-	reserve(Vector2(140,65),23)
+	var p:=fit_landmark(Vector2(140,65),31)
+	if not p.is_finite():return
+	var group:=group_at(p)
+	reserve(p,31)
 	box(Vector3(0,.1,0),Vector3(50,.2,12),"9d917c",group)
 	for z in [-2,2]:box(Vector3(0,.4,z),Vector3(60,.25,.2),"737b77",group)
 	for x in range(-28,29,2):box(Vector3(x,.2,0),Vector3(.35,.25,6),"8c7b60",group)
@@ -271,6 +274,8 @@ func freight_train() -> void:
 				wheel.rotation.x=PI*.5
 
 func water_tower(p:Vector2) -> void:
+	p=fit_landmark(p,9)
+	if not p.is_finite():return
 	reserve(p,9)
 	var group:=group_at(p)
 	for x in [-3,3]:
@@ -282,6 +287,8 @@ func water_tower(p:Vector2) -> void:
 		band.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func parking(p:Vector2,angle:float) -> void:
+	p=fit_landmark(p,20)
+	if not p.is_finite():return
 	reserve(p,20)
 	var group:=group_at(p,angle)
 	box(Vector3(0,.06,0),Vector3(37,.15,15),"858e87",group)
@@ -447,32 +454,35 @@ func art_building(p:Vector2,angle:float,variant:int) -> void:
 	var group:=group_at(p,angle)
 	var building:Node3D=view.model("district_art_"+str(variant),Vector3.ZERO,0,group)
 	finish_model(building,variant)
+	# Furnish the reserved plot itself, so broad building setbacks are not empty.
+	for side in [-1,1]:
+		var patch:=box(Vector3(side*5.6,.18,0),Vector3(1.8,.36,5.6),"7c9860",group)
+		patch.material_override=view.material(Color("75965f"))
+		art_tree(p+Vector2(side*5.6,1.7).rotated(-angle),.32,path.theme==1)
+	if path.index==0:
+		view.solid_cone(Vector3(-2,2.7,5.9),1.5,.2,.55,Color("d9a16a"),group,12)
+		box(Vector3(-2,1.25,5.9),Vector3(.12,2.5,.12),"8e7c5e",group)
+		view.solid_cone(Vector3(-2,1,5.9),.65,.65,.15,Color("d4bd90"),group,12)
+		bench(Vector3(2,.4,5.9),group)
+	# Small garden stays inside the reserved nine-metre building plot.
+	box(Vector3(5.4,.16,4.8),Vector3(2.6,.32,2.6),"979c7d",group)
+	art_tree(p+Vector2(5.4,4.8).rotated(-angle),.3,false)
 
 func finish_model(node:Node,variant:int) -> void:
 	if node is MeshInstance3D:
 		var key:=String(node.name)
 		var asset:=""
-		var scale_factor:=.3
-		if key.begins_with("plaster"):asset="concrete_wall_005"
-		elif key.begins_with("stone"):asset="concrete_wall_005"
+		var tint:=Color.WHITE
+		if key.begins_with("plaster"):
+			asset="concrete_wall_005"
+			tint=Color(["d4bd92","9abbb2","c2b095","b4b291","d5ae83","c5b292"][variant])
+		elif key.begins_with("stone"):
+			asset="concrete_wall_005";tint=Color("a7a99a")
 		elif key.begins_with("roof"):
-			asset="clay_roof_tiles" if variant<2 else "weathered_brown_planks"
-			scale_factor=.28
-		elif key.begins_with("wood") or key.begins_with("timber"):asset="weathered_brown_planks"
-		if not asset.is_empty():
-			var tint:=Color.WHITE
-			if key.begins_with("plaster"):
-				# Quiet, warm facades frame the track instead of competing with it.
-				tint=Color(["ded4b9","c6d2cc","d3c6aa","c3c7b0","dbbda0","d0c0a6"][variant])
-				var finish_key:="plaster_"+str(variant)
-				if not finishes.has(finish_key):
-					var finish:=ShaderMaterial.new()
-					finish.shader=load("res://assets/shaders/district_plaster.gdshader")
-					finish.set_shader_parameter("plaster_tint",tint)
-					finish.set_shader_parameter("surface_texture",load("res://assets/textures/surfaces/concrete_wall_005_albedo.jpg"))
-					finishes[finish_key]=finish
-				node.material_override=finishes[finish_key]
-			else:node.material_override=view.textured_material(asset,scale_factor,tint)
+			asset="clay_roof_tiles";tint=Color(["b57958","64848c","708878","8f715a","ac775b","968366"][variant])
+		elif key.begins_with("wood") or key.begins_with("timber"):
+			asset="weathered_brown_planks";tint=Color("aa8963") if key.begins_with("wood") else Color("74654f")
+		if not asset.is_empty():node.material_override=view.miniature_material(asset,.3,tint,.25 if asset=="clay_roof_tiles" else .16)
 	for child in node.get_children():finish_model(child,variant)
 
 func art_tree(p:Vector2,size:float,pine:bool) -> void:
@@ -482,7 +492,7 @@ func art_tree(p:Vector2,size:float,pine:bool) -> void:
 
 func finish_foliage(node:Node) -> void:
 	if node is MeshInstance3D and String(node.name).begins_with("leaf"):
-		node.material_override=view.textured_material("grass_ground",.7,Color("6f895b"))
+		node.material_override=view.miniature_material("grass_ground",.5,Color(["5b815d","6d9265","83a571","96ae78"][int(String(node.name).trim_prefix("leaf"))%4]),.13)
 	for child in node.get_children():finish_foliage(child)
 
 func landscape_pockets() -> void:
@@ -543,8 +553,8 @@ func expansion_plot(p:Vector2,angle:float,variant:int) -> void:
 		art_building(p,angle,2+variant%2)
 		# Cabin snow caps and timber ski racks give the alpine camp a new silhouette.
 		for side in [-1,1]:
-			var cap:=box(Vector3(0,7.18,side*2.625),Vector3(11.3,.18,5.75),"e2e8e6",group)
-			cap.rotation.x=side*.413
+			var cap:=box(Vector3(0,6.37,side*2.275),Vector3(10.2,.18,5.12),"e2e8e6",group)
+			cap.rotation.x=side*.468
 			cap.material_override=view.material(Color("d8e5ec"))
 		for x in [-5.5,-4.7,-3.9]:
 			var ski:=box(Vector3(x,1.5,5),Vector3(.25,3,.12),"b55d52",group)

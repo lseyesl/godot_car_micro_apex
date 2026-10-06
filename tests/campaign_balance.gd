@@ -29,7 +29,8 @@ func run() -> void:
 						if near.surface=="grass":offroad+=1
 						car.step(.05,input.steer,input.throttle,input.brake,near.surface)
 						elapsed+=.05
-						progress.advance(before,car.position,path,elapsed,1)
+						var road:Dictionary=path.nearest(car.position,car.route_s)
+						progress.advance(before,car.position,path,elapsed,1,road.height)
 					var success:bool=progress.laps==1 and offroad==0
 					if not success:failures+=1
 					var result:={"track":track,"reverse":reversed,"tier":tier,"car":model,"seconds":snappedf(elapsed,.01),"offroad":offroad,"success":success}

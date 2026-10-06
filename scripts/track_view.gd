@@ -1,5 +1,6 @@
 extends Node3D
 
+const Structures=preload("res://scripts/track_structures.gd")
 const District = preload("res://scripts/track_district.gd")
 const PathData = preload("res://scripts/track_path.gd")
 var path
@@ -38,6 +39,18 @@ func textured_material(asset:String,scale_factor:float=1.0,tint:Color=Color.WHIT
 		m.ao_enabled=true
 		m.ao_texture=load(ao_path)
 		m.ao_light_affect=.25
+	surface_cache[key]=m
+	return m
+
+func miniature_material(asset:String,scale_factor:float,tint:Color,strength:float=.16) -> ShaderMaterial:
+	var key:="miniature_"+asset+str(scale_factor)+str(tint)+str(strength)
+	if surface_cache.has(key):return surface_cache[key]
+	var m:=ShaderMaterial.new()
+	m.shader=load("res://assets/shaders/miniature_surface.gdshader")
+	m.set_shader_parameter("detail_texture",load("res://assets/textures/surfaces/"+asset+"_albedo.jpg"))
+	m.set_shader_parameter("tile_scale",scale_factor)
+	m.set_shader_parameter("tint",tint.srgb_to_linear().lerp(tint,.15))
+	m.set_shader_parameter("detail_strength",strength)
 	surface_cache[key]=m
 	return m
 
@@ -80,7 +93,7 @@ func add_curb(st: SurfaceTool, body: StaticBody3D, a: Vector2, b: Vector2,
 		PathData.world(outer_b,hb+.85),PathData.world(outer_a,ha+.85)])
 	for face in [[0,4,5,1],[3,2,6,7],[4,7,6,5],[0,3,7,4],[1,5,6,2],[0,1,2,3]]:
 		for index in [face[0],face[1],face[2],face[0],face[2],face[3]]:
-			st.set_color(color)
+			st.set_color(color.srgb_to_linear().lerp(color,.15))
 			st.add_vertex(vertices[index])
 	var shape:=ConvexPolygonShape3D.new()
 	shape.points=vertices
@@ -127,7 +140,7 @@ func build(data, quality: int) -> void:
 			var inner_b:Vector2=b+nb*(half+0.1)*side
 			var outer_a:Vector2=a+na*(half+0.8)*side
 			var outer_b:Vector2=b+nb*(half+0.8)*side
-			add_curb(curbs,curb_body,inner_a,inner_b,outer_a,outer_b,ha,hb,Color("ad614e") if ta.dot(tb)<.9987 and int(path.distances[i]/3.0)%2==0 else Color("c9c7b9"))
+			add_curb(curbs,curb_body,inner_a,inner_b,outer_a,outer_b,ha,hb,Color(District.Scenery.EDGE[path.index]) if int(path.distances[i]/3.0)%2==0 else Color("ddd8bf"))
 			var edge:SurfaceTool=strips["red" if i%4<2 else "white"]
 			ribbon_vertex(edge,inner_a,inner_b,outer_b,Vector3(ha,hb,hb)+Vector3.ONE*.035)
 			ribbon_vertex(edge,inner_a,outer_b,outer_a,Vector3(ha,hb,ha)+Vector3.ONE*.035)
@@ -142,6 +155,7 @@ func build(data, quality: int) -> void:
 			var verge:SurfaceTool=strips.verge
 			ribbon_vertex(verge,outer_a,outer_b,b+nb*(half+3.0)*side,Vector3(ha,hb,hb)+Vector3.ONE*.005)
 			ribbon_vertex(verge,outer_a,b+nb*(half+3.0)*side,a+na*(half+3.0)*side,Vector3(ha,hb,ha)+Vector3.ONE*.005)
+		Structures.segment(self,a,b,na,nb,ha,hb,i)
 		if maxf(ha,hb) > .2:
 			var midpoint:=PathData.world((a+b)*.5,(ha+hb)*.5)
 			var span:=PathData.world(b,hb)-PathData.world(a,ha)
@@ -153,26 +167,26 @@ func build(data, quality: int) -> void:
 					# Keep bridge supports away from the road underneath.
 					if path.nearest(foot).distance>half:
 						add_box(PathData.world(foot,(ha+hb)*.25),Vector3(1.2,(ha+hb)*.5,1.2),Color("77848b"))
+	Structures.signs(self)
 	curbs.generate_normals()
 	var curb_mesh:=MeshInstance3D.new()
 	curb_mesh.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	curb_mesh.mesh=curbs.commit()
-	var curb_material:=textured_material("concrete_wall_005",.32).duplicate() as StandardMaterial3D
-	curb_material.vertex_color_use_as_albedo=true
-	curb_material.cull_mode=BaseMaterial3D.CULL_DISABLED
+	var curb_material:=miniature_material("concrete_wall_005",.32,Color.WHITE,.12).duplicate() as ShaderMaterial
+	curb_material.set_shader_parameter("vertex_tint",true)
 	curb_mesh.material_override=curb_material
 	add_child(curb_mesh)
-	var colors:Dictionary={"asphalt":Color("686b6a"),"dirt":Color("c49d76"),"white":Color("e5ded0"),"red":Color("f05d48"),"verge":[Color("b7b6a3"),Color("9e987f"),Color("bea184")][path.theme],"paint":Color("d6d3be"),"wear":Color("626563")}
+	var colors:Dictionary={"asphalt":Color("686b6a"),"dirt":Color("c49d76"),"white":Color("e5ded0"),"red":Color("f05d48"),"verge":[Color("b7b6a3"),Color("9e987f"),Color("bea184")][path.theme],"paint":Color("d6d3be"),"wear":Color("4b5961")}
 	for road in strips:
 		var node:=MeshInstance3D.new()
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.mesh=strips[road].commit()
-		var m:StandardMaterial3D
-		if road=="asphalt":m=textured_material("clean_asphalt",.2,Color("d8dddb")).duplicate()
-		elif road=="dirt":m=textured_material("brown_mud_dry",.17,Color("ddd1b6")).duplicate()
-		elif road=="verge":m=textured_material("cobblestone_floor_03" if path.theme==0 else "grass_path_3",.23,Color("c6c6b6")).duplicate()
+		var m:Material
+		if road=="asphalt":m=miniature_material("clean_asphalt",.35,Color(District.Scenery.ROAD[path.index]),.25)
+		elif road=="dirt":m=miniature_material("brown_mud_dry",.3,Color(District.Scenery.DIRT[path.index]),.28)
+		elif road=="verge":m=miniature_material("cobblestone_floor_03" if path.theme==0 else "grass_path_3",.30,Color(District.Scenery.VERGE[path.index]),.18)
 		else:m=material(colors[road]).duplicate()
-		m.cull_mode=BaseMaterial3D.CULL_DISABLED
+		if m is StandardMaterial3D:m.cull_mode=BaseMaterial3D.CULL_DISABLED
 		node.material_override=m
 		add_child(node)
 	var start:Dictionary=path.gate(0)
