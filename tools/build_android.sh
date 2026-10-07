@@ -17,12 +17,12 @@ trap 'rm -f "$import_log"' EXIT
 "$godot_bin" --headless --path . --editor --import 2>&1 | tee "$import_log"
 # Godot can return zero after a script parse error; do not package broken scripts.
 python3 -c 'import pathlib,sys; text=pathlib.Path(sys.argv[1]).read_text(); sys.exit("Godot import reported errors; export stopped") if "SCRIPT ERROR:" in text or "ERROR:" in text else None' "$import_log"
-"$godot_bin" --headless --path . --install-android-build-template --export-debug Android build/android/micro-apex-0.13.1-review.apk
-"$godot_bin" --headless --path . --export-release 'Android Release Unsigned' build/android/micro-apex-0.13.1-release-unsigned.apk
+"$godot_bin" --headless --path . --install-android-build-template --export-debug Android build/android/micro-apex-0.13.3-review.apk
+"$godot_bin" --headless --path . --export-release 'Android Release Unsigned' build/android/micro-apex-0.13.3-release-unsigned.apk
 # The release APK deliberately needs the publisher's signing key before installation.
-test -s build/android/micro-apex-0.13.1-review.apk
-test -s build/android/micro-apex-0.13.1-release-unsigned.apk
+test -s build/android/micro-apex-0.13.3-review.apk
+test -s build/android/micro-apex-0.13.3-release-unsigned.apk
 if [ -n "${ANDROID_HOME:-}" ]; then
-  python3 tools/verify_android_apk.py build/android/micro-apex-0.13.1-review.apk --sdk "$ANDROID_HOME"
+  python3 tools/verify_android_apk.py build/android/micro-apex-0.13.3-review.apk --sdk "$ANDROID_HOME"
 fi
-sha256sum build/android/micro-apex-0.13.1-*.apk > build/android/SHA256SUMS.txt
+sha256sum build/android/micro-apex-0.13.3-*.apk > build/android/SHA256SUMS.txt

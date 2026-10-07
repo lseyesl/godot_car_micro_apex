@@ -59,7 +59,9 @@ func step(dt: float, steer: float, throttle: bool, brake: bool, road: String) ->
 	# At speed this creates oversteer; countersteering arrests the rotation.
 	var pace := smoothstep(8.0,34.0,absf(longitudinal))
 	var loose := 1.2 if road == "dirt" else (1.35 if road == "grass" else 1.0)
-	var requested_rate := -steering*longitudinal/float(spec.radius)*STEERING_GAIN
+	# Arcade arrows always turn the nose toward the vehicle's own left/right.
+	# Signed longitudinal speed inverted this during reverse and backward drift.
+	var requested_rate := -steering*absf(longitudinal)/float(spec.radius)*STEERING_GAIN
 	# Give full-lock input enough authority to rotate the car instead of
 	# converting most of the steering into lateral scrub.  The speed-dependent
 	# term still keeps high-speed corners bounded, while the small grip boost
