@@ -1,6 +1,6 @@
-# Micro Apex 0.13.1 — 单机产品候选版
+# Micro Apex 0.13.3 — 单机产品候选版
 
-0.13.1 重排六张赛道，提高地图内部道路覆盖，并加入货港中央立体交叉，详见 [地图利用率更新](compact-layouts.md)。保留 0.10.1 的 Android Gradle 清单修复与校验。
+0.13.3 修复倒车及向后侧滑时左右转向反转的问题：左右键始终控制车头向车辆自身左/右转动。保留紧凑地图和立体交叉，详见 [地图利用率更新](compact-layouts.md)。保留 0.10.1 的 Android Gradle 清单修复与校验。
 
 目标是 Android 横屏单机赛车。采用原创 Micro Apex 俱乐部品牌与俯视三维赛车形式。
 
@@ -45,8 +45,8 @@ GODOT_BIN=godot ANDROID_HOME=/path/to/android-sdk bash tools/build_android.sh
 
 在 Godot 编辑器设置中指定 Android SDK 和 Java SDK 路径。`export_presets.cfg` 含 Android 调试、Android 未签名发行和 Linux 导出预设。
 
-- `build/android/micro-apex-0.13.1-review.apk`：ARM64 调试签名安装包，用于设备验收。
-- `build/android/micro-apex-0.13.1-release-unsigned.apk`：发行构建，需要发行方使用自己保管的正式证书签名后才能安装或发布。
+- `build/android/micro-apex-0.13.3-review.apk`：ARM64 调试签名安装包，用于设备验收。
+- `build/android/micro-apex-0.13.3-release-unsigned.apk`：发行构建，需要发行方使用自己保管的正式证书签名后才能安装或发布。
 - `build/android/SHA256SUMS.txt`：构建产物校验。
 - `build/linux/`：用于云端验证导出资源与启动的 Linux 版本。
 
