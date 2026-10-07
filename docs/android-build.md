@@ -18,7 +18,7 @@
 - 导出预设名为 `Android`；应用 ID 为 `org.lseyesl.microapex`。
 - `project.godot` 启用 `rendering/textures/vram_compression/import_etc2_astc`；Android 导出要求此项，即使使用 GL Compatibility 渲染器。工作流先导入资源，再导出 APK。
 - 仅包含 **ARM64**，适合红米 K40；这是调试 APK，不是商店发布包。
-- 不需要仓库密钥或发布签名。每次运行生成临时调试签名，因此不同运行的 APK 可能需要卸载旧版后安装；卸载会清除本地游戏记录。
+- CI 从 `ANDROID_DEBUG_KEYSTORE_BASE64` 仓库 Secret 恢复固定调试密钥，不再每次生成。恢复密钥和最终 APK 都必须匹配 `config/android-debug-cert.sha256` 中的证书 SHA-256；缺少或误配密钥会停止构建。
 - 每次手动构建成功后，使用输入的 `tag` 创建预发布 Release，绑定本次构建的提交。标签须以字母或数字开头，仅包含字母、数字、点、下划线或连字符，并符合 Git 标签格式；打包前检查标签不能已存在。发布成功后再次构建需填写新标签，保留旧包。调试版不会标记为 Latest。
 - Release 附件长期保留，直到手动删除。Artifacts 中的 APK 保留 14 天，构建日志保留 7 天；不上传应用商店。
 - Release 发布使用内置 `GITHUB_TOKEN` 的 `contents: write` 权限，无需额外配置 PAT。
@@ -49,3 +49,33 @@ python3 tools/verify_android_apk.py path/to/app.apk --sdk "$ANDROID_HOME"
 ```
 
 检查覆盖 ZIP 完整性、ARM64 库、APK 签名、16 KB 对齐，以及重复 Provider authority、启动入口和 activity-alias 目标。旧 APK 被重复 authority 检查拒绝；检查通过的 APK 仍需要目标 Android 设备验证。
+
+## 固定调试签名的一次性配置
+
+旧流程每次在全新 Runner 上调用 `keytool -genkeypair`，即使别名和密码相同，也会生成不同私钥。旧 Action 没有保存私钥，APK 只包含公钥证书，无法从 APK 还原旧私钥。除非另有旧密钥备份，否则固定签名的新系列不能覆盖旧的临时签名版本。不要直接卸载需要保留进度的旧应用，先安排数据迁移。
+
+本次固定使用已有的本地测试密钥 `build/android/debug.keystore`。它与既有本地测试包同属一个签名系列，与旧 GitHub Action 的临时签名系列不同。
+
+1. 妥善备份现有 keystore；不提交、不上传至 Release 或普通 Artifact。
+2. 仓库 **Settings → Secrets and variables → Actions → New repository secret**。
+3. Name 填 `ANDROID_DEBUG_KEYSTORE_BASE64`，Secret 填已有 keystore 的完整 Base64。当前工作区已准备 `build/android/ANDROID_DEBUG_KEYSTORE_BASE64.txt`，该文件被 Git 忽略，权限为 0600。它包含私钥材料，仅用于 Secrets 安全输入，勿贴到 issue、聊天或构建日志。
+4. 保存 Secret 后，提交并推送本次工作流修复，再使用新标签运行 Action。
+5. 后续包保持应用 ID 和签名不变，并递增 Android `version/code`，才能覆盖升级。不要删除或替换该 Secret。固定调试密钥不作为商店正式发布密钥。
+
+若使用有 Secrets 写权限的本地 GitHub CLI，也可安全地从文件上传（不会在命令行参数中展开私钥）：
+
+```sh
+gh secret set ANDROID_DEBUG_KEYSTORE_BASE64 --repo lseyesl/godot_car_micro_apex < build/android/ANDROID_DEBUG_KEYSTORE_BASE64.txt
+```
+
+当前云环境的 GitHub 集成能推送代码和执行 Action，但访问 Secrets 列表及公钥接口返回 HTTP 403，因此未能自动设置 Secret；这与 Git 推送权限是两回事。
+
+校验及产物：
+
+```sh
+python3 -m unittest discover -s tests -p 'test_android_*.py'
+python3 tools/prepare_android_signing.py --check-existing
+python3 tools/verify_android_apk.py path/to/app.apk --sdk "$ANDROID_HOME" --certificate-sha256-file config/android-debug-cert.sha256
+```
+
+Release 附 `signing-certificate.sha256`（公开证书指纹，不含私钥），便于比较两次构建的签名。与 APK 文件 SHA-256 区分：APK 内容和版本变化时文件摘要应当变化，而签名证书指纹应保持一致。
