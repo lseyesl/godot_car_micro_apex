@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Verify APK integrity, signing, alignment and installable manifest components."""
-import argparse, os, pathlib, subprocess, xml.etree.ElementTree as ET, zipfile
+import argparse, re, os, pathlib, subprocess, xml.etree.ElementTree as ET, zipfile
 ANDROID = '{http://schemas.android.com/apk/res/android}'
 
 def validate_manifest(text, package='org.lseyesl.microapex'):
@@ -37,10 +37,19 @@ def validate_manifest(text, package='org.lseyesl.microapex'):
         raise ValueError('No MAIN/LAUNCHER entry point')
     return {'package': package, 'version': root.get(ANDROID+'versionName'), 'launchers': launchers, 'providers': authorities}
 
+def validate_certificate(output, expected):
+    expected = expected.strip().lower()
+    if not re.fullmatch(r'[0-9a-f]{64}', expected):
+        raise ValueError('Invalid expected signing certificate SHA-256')
+    certificates = re.findall(r'^Signer #\d+ certificate SHA-256 digest: ([0-9a-fA-F]{64})\s*$', output, re.MULTILINE)
+    if len(certificates) != 1 or certificates[0].lower() != expected:
+        raise ValueError('APK signer does not match the pinned certificate')
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('apk',type=pathlib.Path)
     parser.add_argument('--sdk',default=os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT'))
+    parser.add_argument('--certificate-sha256-file',type=pathlib.Path)
     parser.add_argument('--build-tools',default='36.0.0')
     args=parser.parse_args()
     if not args.sdk:parser.error('Set ANDROID_HOME or supply --sdk')
@@ -49,7 +58,10 @@ def main():
         if archive.testzip():raise ValueError('Corrupt APK ZIP entry')
         if not any(n.startswith('lib/arm64-v8a/') and n.endswith('.so') for n in archive.namelist()):
             raise ValueError('Missing ARM64 native libraries')
-    subprocess.run([str(build/'apksigner'),'verify','--verbose',str(apk)],check=True)
+    signing=subprocess.check_output([str(build/'apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True)
+    if args.certificate_sha256_file:
+        validate_certificate(signing,args.certificate_sha256_file.read_text())
+    print(signing)
     subprocess.run([str(build/'zipalign'),'-c','-P','16','4',str(apk)],check=True)
     manifest=subprocess.check_output([str(sdk/'cmdline-tools/latest/bin/apkanalyzer'),'manifest','print',str(apk)],text=True)
     print(validate_manifest(manifest))

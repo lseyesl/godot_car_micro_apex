@@ -71,6 +71,14 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Test persistent signing validation
+        run: python3 -m unittest discover -s tests -p test_android_signing.py
+
+      - name: Restore persistent Android debug signing
+        env:
+          ANDROID_DEBUG_KEYSTORE_BASE64: ${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}
+        run: python3 tools/prepare_android_signing.py
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
@@ -113,7 +121,7 @@ jobs:
           install -m 644 extracted/templates/android_source.zip "$template_dir/android_source.zip"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Configure SDK paths and debug signing
+      - name: Configure SDK paths
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.config/godot" build/android
@@ -124,11 +132,6 @@ jobs:
           export/android/android_sdk_path = "$ANDROID_HOME"
           export/android/java_sdk_path = "$JAVA_HOME"
           EOF
-          keytool -genkeypair -noprompt \
-            -keystore build/android/debug.keystore \
-            -storepass android -keypass android -alias androiddebugkey \
-            -dname 'CN=Android Debug,O=Android,C=US' \
-            -keyalg RSA -keysize 2048 -validity 10000
           godot --version
 
       - name: Import project resources
@@ -149,7 +152,7 @@ jobs:
           godot --headless --path . --install-android-build-template --export-debug Android build/android/micro-apex-debug.apk \
             2>&1 | tee build/android/export.log
           test -s build/android/micro-apex-debug.apk
-          python3 tools/verify_android_apk.py build/android/micro-apex-debug.apk
+          python3 tools/verify_android_apk.py build/android/micro-apex-debug.apk --certificate-sha256-file config/android-debug-cert.sha256
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging build/android/micro-apex-debug.apk \
             > build/android/apk-info.txt
           grep -F 'org.lseyesl.microapex' build/android/apk-info.txt
@@ -165,6 +168,7 @@ jobs:
             build/android/micro-apex-debug.apk
             build/android/micro-apex-debug.apk.sha256
             build/android/apk-info.txt
+            build/android/signing-certificate.sha256
           if-no-files-found: error
           retention-days: 14
 
@@ -180,7 +184,7 @@ jobs:
           Micro Apex Android ARM64 调试版。
 
           下载 micro-apex-debug.apk 安装；附 SHA-256 校验文件和包信息。
-          本包使用本次构建生成的临时调试签名，安装时可能需要卸载旧版；卸载会清除本地游戏记录。
+          本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
           Commit: $RELEASE_SHA
           Build: $RUN_URL
@@ -189,6 +193,7 @@ jobs:
             build/android/micro-apex-debug.apk \
             build/android/micro-apex-debug.apk.sha256 \
             build/android/apk-info.txt \
+            build/android/signing-certificate.sha256 \
             --target "$RELEASE_SHA" \
             --title "Micro Apex Android debug $RELEASE_TAG" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \

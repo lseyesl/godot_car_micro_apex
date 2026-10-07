@@ -8,9 +8,9 @@ engine_version="$("$godot_bin" --version)"
 [[ "$engine_version" == 4.7.stable* ]] || { echo "Godot 4.7 stable is required." >&2; exit 1; }
 mkdir -p build/android
 if [ ! -f build/android/debug.keystore ]; then
-  keytool -genkeypair -noprompt -keystore build/android/debug.keystore \
-    -storepass android -keypass android -alias androiddebugkey \
-    -dname 'CN=Android Debug,O=Android,C=US' -keyalg RSA -keysize 2048 -validity 10000
+  python3 tools/prepare_android_signing.py
+else
+  python3 tools/prepare_android_signing.py --check-existing
 fi
 import_log="$(mktemp)"
 trap 'rm -f "$import_log"' EXIT
@@ -23,6 +23,6 @@ python3 -c 'import pathlib,sys; text=pathlib.Path(sys.argv[1]).read_text(); sys.
 test -s build/android/micro-apex-0.13.3-review.apk
 test -s build/android/micro-apex-0.13.3-release-unsigned.apk
 if [ -n "${ANDROID_HOME:-}" ]; then
-  python3 tools/verify_android_apk.py build/android/micro-apex-0.13.3-review.apk --sdk "$ANDROID_HOME"
+  python3 tools/verify_android_apk.py build/android/micro-apex-0.13.3-review.apk --sdk "$ANDROID_HOME" --certificate-sha256-file config/android-debug-cert.sha256
 fi
 sha256sum build/android/micro-apex-0.13.3-*.apk > build/android/SHA256SUMS.txt
