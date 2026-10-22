@@ -135,6 +135,12 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 			wall_speed-=normal*minf(wall_speed.dot(normal),0.0)
 			if into > incoming.length()*.72:
 				wall_speed=Vector2.ZERO
+				if incoming.length() > .35:
+					# A hard stop must also discard the old turn. Otherwise fresh
+					# opposite-arrow + gas input still rotates the stopped nose
+					# the old way. Keep crawl contacts free to steer off the wall.
+					dynamics.yaw_rate=0.0
+					dynamics.steering=0.0
 		if other is CharacterBody3D and other.get("dynamics") != null:
 			var push:=Vector2(-hit.get_normal().x,-hit.get_normal().z)
 			other.dynamics.velocity+=push*minf(3.0,impact)*float(dynamics.spec.mass)/float(other.dynamics.spec.mass)

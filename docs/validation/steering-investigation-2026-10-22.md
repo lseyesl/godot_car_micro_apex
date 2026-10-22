@@ -1,58 +1,66 @@
-# 车辆相对转向排查（2026-10-22）
+# 护栏停车后重新起步的转向修复（2026-10-22）
 
-## 结论与范围
+用户描述：截图位置车头朝下，按左键并按 GAS，车头却往自身右侧转。根据原图定位并复现了护栏硬碰撞停车后的反向转动。本次修复清理碰撞停车时遗留的角速度和转向状态，保留车头相对左右的街机语义。
 
-基线及远端 main 均为 `aa687b749a8ca38c5cae11f04db0b3ce8cad8d0b`。目前未能在这份源码上复现“车头朝下时左右反向”，不能将本次工作称为完成故障修复。本次仅补充回归测试，没有更改驾驶参数、转向逻辑、输入映射或发布产物。
+## 截图位置与实际复现
 
-仓库、上级目录未发现 AGENTS.md 或项目 `.agents/skills`。已读取 README、`docs/validation.md`、现有测试和 `.codex/config.toml`。环境预装引擎为 4.6.3；验证实际改用下载到 `/tmp/godot47/` 的官方 Godot **4.7.stable.official.5b4e0cb0f**，并隔离 XDG 配置/存档到 `/tmp/apex-*`。
+已通过 Library 正常下载、验证并实际查看用户原始 JPEG（2048×921，255316 bytes）；原图保留在本地忽略的验证目录，不纳入仓库。
 
-## 控制语义与代码证据
+根据小地图、弯道、路边花盆和楼房，重建位置为海湾街区（track 0）、控制点 10→11 的左回头弯出口附近：二维 X/Z 约 `(-52, -15)`，最近路线距离 `s=688.595`、横向距离 `-4.904 m`、高度 0、沥青路。车头 yaw 约 3.55 rad；固定镜头 pitch=38°、yaw=35.54°。质量 1 的实际游戏渲染与原图的护栏、楼房和车辆朝向相符。坐标由截图估计，不声称像素级还原。
 
-- A/左方向键、D/右方向键、触摸箭头、鼠标箭头统一进入 `touch_controls.gd`，左为 -1、右为 +1，同时按左右为 0。油门、刹车使用独立状态，支持多指和键盘/触控组合。
-- `main.gd` 在比赛中直接把 `controls.driving()` 送入 `RaceCar.tick()`，没有按镜头、世界朝向或车头上下反号。
-- `vehicle_dynamics.gd` 的前向为 `(-sin(yaw), -cos(yaw))`；轨道二维位置映射到三维 X/Z；`RaceCar` 的 `rotation.y` 使用同一 yaw。八款 GLB 的前轴都在本地负 Z、后轴在正 Z，与模拟前向一致。
-- 当前请求角速度为 `-steering * abs(longitudinal) / radius * STEERING_GAIN`。正 yaw 向车身左侧转，故左键增加 yaw、右键减小 yaw；转向语义始终相对车头。屏幕朝下时按右，车头会朝屏幕左侧偏转，这是车身自身右侧。
-- 倒车采用同一街机语义：左右控制车头自身的左右，与真实车辆倒车时方向盘的轮胎语义不同。停稳时无速度不原地自转；前进中持续刹车只停车，松开再按刹车才倒车（最高 6 m/s）。已有规则测试覆盖这一状态机，新增场景测试覆盖朝下倒车转向。
-- yaw 每步 wrap 到 [-π,π)，但车辆基底通过 sin/cos 计算，未对跨接缝的原始角度差直接做转向判断。
+重现步骤：均衡车在该处已有右转满舵/角速度，以 12 m/s 向车尾方向滑向内侧护栏；发生真实碰撞后平移速度降为 0，再松开旧方向，用两个独立触点按左键 + GAS。此前运动状态为测试初始化的合理转弯状态，碰撞、停止、后续输入和运动均由实际引擎执行；静态截图不能证明用户此前的具体驾驶顺序。
 
-历史提交 `40f036e` 已将有符号 longitudinal 改为绝对值。旧公式会在倒车及向后漂移时反号；这是历史故障的确定根因，不能作为当前报告已复现的证据。临时恢复旧公式作负对照时，扩展测试当时的 7038 项中有 1250 项失败；恢复当前公式后全部通过。负对照后增加了低速/高速样本，最终为 8910 项。
+在未修复的图形游戏中，碰撞后实测：
 
-另有一项可重复现象：均衡车先以 16 m/s 右转 1 秒，再按左键，最初 9 个 60 Hz tick（0.15 秒）仍沿旧方向旋转。这来自转向状态 `move_toward(..., dt*9)` 与 yaw_rate 指数响应。朝上、π、-π+0.001 的延迟都相同。它可能造成短暂“反打后仍旧转”的观感，但尚无用户录像证明其对应本次投诉，故保留原有手感。
-
-## 验证
-
-以下均为实际运行结果，而非仅检查公式：
-
-| 检查 | 结果 |
-| --- | --- |
-| `tools/validate.py` 标准完整套件（修改前、加入新回归后各一轮） | 两轮全部通过；每轮含 3 场 expansion_flow 比赛 |
-| 扩展 `tests/steering_direction.gd` | 8910 checks，0 failures |
-| 新增 `tests/steering_input.gd` | 412 checks，0 failures |
-| Python Android 签名/清单单元测试 | 13 tests，全部通过 |
-| Xorg + Godot OpenGL 游戏，XTest 操作系统键盘事件 | 10 checks，0 failures |
-
-动力学检查覆盖八车、沥青/土路/草地、0.2/3/16/40 m/s 前进、倒车、向后侧滑、13 个角度（含 ±π 两侧及超过接缝的初值），并比较旋转同一个完整驾驶场景后的前向和速度。20 秒场景包含持续绕圈、反打、油门、松油、刹车、松开再按刹车。每种朝向都持续跨过 yaw 接缝。
-
-新增场景测试经 `Input.parse_input_event()` 和引擎事件分发，覆盖 A/D、左右方向键、触摸、模拟鼠标、独立油门手指、滑动换向、鼠标+键盘、键盘+触控反向抵消、释放和朝下倒车；在正常比赛 physics tick 中检查模型实际全局基底与动力学前向一致。12 个朝向包含 180°、±π 两侧和考虑镜头 35.54° 后的屏幕正下方。脚本模式 headless 默认窗口为 64×64，测试明确设置 1280×720，避免屏幕坐标缩放导致的测试伪失败。
-
-图形检查使用 Xorg :88 和 Mesa llvmpipe。操作系统层通过 libXtst 发送 A/D+W，在 0、π、π-0.001、-π+0.001、镜头 yaw+π 五个朝向分别左右驾驶；完整游戏输入链和模型前向的侧向点积均正确。截图显示屏幕朝下时按右和 GAS。该检查是桌面图形验证，不能替代 Android 真机多点触控和真人手感验证。
-
-本地支持证据位于 `build/validation/`（按仓库规则忽略）：`baseline-summary.log`、`final-summary.log`、`steering_direction.log`、`steering_input.log`、`steering-negative-control.log`、`steering-os-input.log`、`steering-os-screen-down.png`。临时图形验证脚本也保存在该目录。它们不属于发布产物。
-
-复跑新增测试：
-
-```sh
-# 使用项目要求的 Godot 4.7，并给 XDG 配置/缓存/数据目录提供可写路径。
-godot --headless --path . --editor --import
-godot --headless --path . --script res://tests/steering_direction.gd
-godot --headless --path . --script res://tests/steering_input.gd
-python3 -m unittest discover -s tests -p 'test_*.py'
-# 新增输入场景已接入标准入口：
-python3 tools/validate.py --godot godot
+```text
+position=(-52.1741,-15.33745), yaw=-2.7916759
+speed=0, yaw_rate=-1.741147, steering=+1
+fresh command={steer:-1, throttle:true, brake:false}
+fingers={0:left, 1:throttle}, emulated mouse=left
 ```
 
-## 尚缺的复现信息
+实际 `Main` 比赛物理循环中，左键 + GAS 后车头先向自身右侧旋转，约第 11 个 tick 达到最大 **7.79°**，屏幕投影转角约 **10.71°**。此时车头向下，自身右侧对应屏幕左侧。车辆相对原车身右侧的位移约 2.2 cm，故本次观察包含明确的车头旋转，不能仅解释为侧滑。
 
-需要出问题的安装包版本及 APK SHA-256/来源、能看清按钮点亮状态和车头的短录像，以及发生时是否倒车/漂移、自动油门设置。应先核对安装包是否含当前 main 的修复，再按录像中的输入顺序重放。现阶段没有依据新增按朝向反号的补丁，也没有依据把反打惯性直接删除。
+同样流程修复后，硬碰撞停住时旧转向状态归零，左键 + GAS 从第一个 tick 即向自身左侧转；12 个 tick 后车头左转 **1.84°**，屏幕投影左转约 **2.71°**，车身侧向位移约自身左侧 3 mm。两次起步的速度均为约 1.92 m/s，油门加速未改变。另用 libXtst 发送操作系统真实鼠标点击左按钮、键盘 W 加油，获得相同正确方向；该次手指状态为空、鼠标状态为 left，排除了只由合成触摸测试覆盖的情况。
 
-未推送、未打标签、未发布或部署；没有合并旧历史。
+## 根因与最小修改
+
+`RaceCar.tick()` 的硬护栏碰撞分支原先仅设置 `wall_speed=Vector2.ZERO`，随后把平移速度清零，却保留 `dynamics.yaw_rate` 和满舵的 `dynamics.steering`。下一次新方向输入先经过原有转向平滑及角速度响应，旧状态仍让已经停住的车头沿旧方向旋转。松开所有输入后也能继续旋转约 10°。
+
+`vehicle_dynamics.gd` 当前使用 `abs(longitudinal)`，所以这次不是朝下、倒车或 ±π 接缝的符号错误；输入也确实是左键与 GAS，未按 BRAKE。碰撞后的新起步是前进。前后两个碰撞朝向和左右反打均能触发同类残留。
+
+修改仅位于 `scripts/race_car.gd` 已有硬碰撞停车分支：当碰撞前速度大于 0.35 m/s 时，同时清零旧角速度和转向平滑状态。0.35 m/s 与既有动力学判断停车的量级一致。低速顶墙时不反复清理，允许方向持续建立而转向脱困；擦墙减速也不清理。方向公式、镜头、普通转向响应、漂移参数、加减速和倒车状态机均未改动。
+
+## 输入、坐标与原有控制语义
+
+- A/左方向键和左触屏箭头均为 -1；D/右方向键和右箭头为 +1；相反方向同时按下为 0。实际输入从 Controls 经过 Main 传至 RaceCar，不按屏幕或世界朝向反号。
+- 模拟前向为 `(-sin(yaw),-cos(yaw))`，二维坐标映射到三维 X/Z；车体 `rotation.y` 使用同一 yaw。八款 GLB 的前轴均在本地负 Z，后轴在正 Z，与模型和动力学一致。
+- 左右箭头控制车头自身左右，车头朝下时自身左侧是屏幕右侧。倒车仍采用该街机语义，区别于真实车辆倒车方向盘的轮胎语义。
+- 停车时方向键不原地旋转；前进时持续刹车只停车，松开再按刹车才倒车，倒车上限 6 m/s。既有状态机及相关测试保留。
+- yaw wrap 到 [-π,π)，车辆前向使用 sin/cos；方向不由跨接缝的原始角度差决定。
+- 普通行驶中反打仍有转向平滑及角动量，例如 16 m/s 右转后按左，旧旋转可保留约 0.15 秒；本次仅修复硬碰撞已停住后残留的转动，没有删除正常漂移惯性。
+
+## 回归与验证
+
+使用官方 **Godot 4.7.stable.official.5b4e0cb0f**。环境预装为 4.6.3，验证改用 `/tmp/godot47/` 引擎，XDG 配置/存档隔离在 `/tmp/apex-*`。图形测试为 Xorg :88、Mesa llvmpipe/OpenGL；不等同 Android 真机多点触控或真人手感验收。
+
+- 护栏专项修复前：449 checks，**8 failures**，全部为实际硬碰撞停车后的无输入转动或反打后旧方向转动；修复后这些检查全部通过。
+- 最终 `tests/steering_wall.gd` 增加了命令与正向恢复断言，**465 checks、0 failures**。432 组截图附近组合覆盖纵向 ±6m、横向 -4/-4.9/-5.8/-6.5m、三种朝向、静止/前进/向后滚动、左右、GAS/BRAKE，其中 232 组发生实际护栏接触。另覆盖车尾/车头硬碰撞、两侧反打、停车释放、持续低速顶墙脱困、两边擦墙保留原转向响应。
+- 既有扩展转向专项：8910 checks，0 failures。覆盖八车、三种路面、0.2/3/16/40 m/s、倒车、向后侧滑、13 个朝向及 ±π 两侧、持续绕圈和组合输入的旋转一致性。
+- 完整输入链专项：412 checks，0 failures。覆盖 A/D、左右方向键、触摸、模拟鼠标、双指、拖动换向、混合输入、释放和朝下倒车，比较实际车体模型基底与模拟前向。
+- 修改后的标准完整验证入口全部通过，含三场 expansion_flow 比赛，结果见 `build/validation/steering-fix-full-summary.log`。该轮护栏专项为 453 项；随后增加 12 项输入/恢复断言的最终 465 项也已单独通过。新专项已接入 `tools/validate.py`。既有 Android Python 单元测试 13 项通过，未修改 Android 文件。
+
+原先开阔路面的检查未覆盖“碰撞停住后保留旧角速度/满舵再反打”这一状态，因此在截图线索到来前未能复现。根据新证据增加回归并修复，不将投诉归因于未核实的旧安装包。
+
+复跑：
+
+```sh
+godot --headless --path . --editor --import
+godot --headless --path . --script res://tests/steering_wall.gd
+python3 tools/validate.py --godot godot
+python3 -m unittest discover -s tests -p 'test_*.py'
+```
+
+本地支持证据（均按仓库规则忽略）位于 `build/validation/`：`screenshot-place-quality1.png`、`steering-wall-before.log`、`steering-wall-after.log`、`steering-wall-visual-before.log`、`steering-wall-visual-after.log`、`steering-wall-os-click.log`，以及对应 before/after/os-click PNG 和临时验证脚本。原始 Library 图片保持本地身份元数据，未上传或写回原图。
+
+基线为核实的 main `aa687b749a8ca38c5cae11f04db0b3ce8cad8d0b`；没有合并旧历史。未推送、打标签、发布或部署。静态图无法确定此前碰撞顺序和实际触控硬件，Android 真机验证仍待完成。
