@@ -6,8 +6,8 @@
 
 1. 将工作流、`export_presets.cfg`、Godot 工程代码和运行所需资产提交到仓库。工作流须先存在于默认分支，GitHub 才会显示手动运行入口。
 2. 打开 GitHub 仓库 → **Actions** → **Build Android APK** → **Run workflow**。
-3. 选择需要构建的分支，填写必填的 **tag**（例如 `v0.9.0`），点击 **Run workflow**。这是将要创建的 Release 标签；代码仍来自所选分支的本次运行提交。
-4. 成功后，在仓库 **Releases** 页面直接下载 APK，或点击运行摘要中的 Release 链接。另附 SHA-256 校验文件和包信息；该次运行的 **Artifacts** 也保留一份。
+3. 选择需要构建的分支。普通构建保持 **publish_release** 关闭，直接运行；只有同时构建和发布时才打开它并填写未使用的 **tag**。代码来自所选分支的本次运行提交。
+4. 成功后从该 run 的 **Artifacts** 下载 APK、摘要和包信息。若打开了发布开关，也可从 **Releases** 下载。已有成功构建需要补发 Release 时，使用下方的只发布流程，不重新构建。
 
 工程和游戏代码现已落地。工作流在打包前运行规则、操控、碰撞、生涯与完整产品流程测试；代码和资源需先提交并推送到所选分支。
 
@@ -19,11 +19,37 @@
 - `project.godot` 启用 `rendering/textures/vram_compression/import_etc2_astc`；Android 导出要求此项，即使使用 GL Compatibility 渲染器。工作流先导入资源，再导出 APK。
 - 仅包含 **ARM64**，适合红米 K40；这是调试 APK，不是商店发布包。
 - CI 从 `ANDROID_DEBUG_KEYSTORE_BASE64` 仓库 Secret 恢复固定调试密钥，不再每次生成。恢复密钥和最终 APK 都必须匹配 `config/android-debug-cert.sha256` 中的证书 SHA-256；缺少或误配密钥会停止构建。
-- 每次手动构建成功后，使用输入的 `tag` 创建预发布 Release，绑定本次构建的提交。标签须以字母或数字开头，仅包含字母、数字、点、下划线或连字符，并符合 Git 标签格式；打包前检查标签不能已存在。发布成功后再次构建需填写新标签，保留旧包。调试版不会标记为 Latest。
+- 仅打开 `publish_release` 时，构建成功后才使用输入的 `tag` 创建预发布 Release，绑定本次构建的提交。标签须以字母或数字开头，仅包含字母、数字、点、下划线或连字符，并符合 Git 标签格式；打包前检查标签不能已存在。发布成功后再次构建需填写新标签，保留旧包。调试版不会标记为 Latest。
 - Release 附件长期保留，直到手动删除。Artifacts 中的 APK 保留 14 天，构建日志保留 7 天；不上传应用商店。
 - Release 发布使用内置 `GITHUB_TOKEN` 的 `contents: write` 权限，无需额外配置 PAT。
 - Godot 版本升级时，同时修改工作流中的 `GODOT_VERSION`、`GODOT_TEMPLATE_VERSION` 和编辑器设置文件名。
 - 横屏、暂停恢复等运行行为由 Godot 工程代码配置，工作流不替代这些功能。
+
+## 发布已有成功构建（不重建 APK）
+
+**本项目 APK/Release 附件必须由 GitHub Actions runner 上传。** 云端 Codex 只负责获授权的推送、触发和查询，不直接调用 `uploads.github.com` 上传附件。云端 API 可创建 Release 草稿，但这不代表上传端点的认证也可用；遇到 401 不要反复云端直传，也不要为了发布重做已成功的构建。
+
+使用 **Publish existing Android APK**（`.github/workflows/publish-android-artifact.yml`）。输入原成功 run ID、其 APK artifact ID、现有 debug prerelease 草稿 ID、标签、原构建完整 SHA 和已核验的 APK SHA-256。只有该发布 job 使用最小权限 `actions: read`（读取已有产物）和 `contents: write`（上传附件、发布及创建对应标签）；workflow 顶层权限为空。使用内置 `GITHUB_TOKEN`，不新增 PAT、签名密钥或仓库/组织安全设置。
+
+本次转向修复示例（只首次触发一次；先查看有无同一草稿的在途发布）：
+
+```sh
+gh workflow run publish-android-artifact.yml --ref main \
+  -f source_run_id=39740333461 \
+  -f source_artifact_id=12409083126 \
+  -f release_id=420423782 \
+  -f tag=v0.13.3-steering-fix \
+  -f build_sha=dde762193f346e99dc3a927dc0968f339a8af313 \
+  -f apk_sha256=665176aa9473c6bf3ba88deb823c89067ff9ea9ab831e0ba21c2b0ea1b5c9072
+```
+
+发布流程核对原 run 已成功、APK 签名/清单/对齐验证步骤已成功、artifact 未过期且属于同一 run/SHA，再校验下载的 APK ZIP、ARM64 库、批准的 SHA-256、摘要文件、固定证书指纹和包版本。证书与版本基准从**原构建提交**读取，不使用发布 workflow 的新提交代替。原构建已执行密码学签名验证，发布阶段用批准的 APK 摘要确认字节相同。
+
+附件上传后核对 GitHub 返回的每个附件大小及 SHA-256 digest，齐全后才公开草稿；保持 debug prerelease、非 Latest。标签必须指向 `build_sha`，不是新增 workflow/文档提交。应用内版本来自 APK；例如本包仍为 0.13.3/code 22，用 `v0.13.3-steering-fix` 区分修复，不覆盖旧 `v0.13.3`。发布说明应记录原 build 链接、SHA、调试性质及真机尚未验收。
+
+失败恢复：先检查发布 run、原草稿和附件状态。复用同一 artifact/草稿；脚本对已上传且摘要/大小正确的附件跳过上传，不使用 `--clobber`。不完整、未知或冲突的附件会停止，先调查，不能自动覆盖旧附件或移动旧标签。已公开且完整匹配的同一发布可验证后直接返回。只有确认不存在仍在运行的相同发布后才恢复；artifact 过期时报告并安排新的受授权构建，而不是宣称复用了旧产物。
+
+发布检查与工程入口见根目录 [AGENTS.md](../AGENTS.md)。这些是操作流程说明，不新增自定义审批规则。
 
 ## 验证范围
 

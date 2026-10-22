@@ -1,0 +1,59 @@
+name: Publish existing Android APK
+
+"on":
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: '已成功的 Build Android APK run ID（不重新构建）'
+        required: true
+        type: string
+      source_artifact_id:
+        description: '该 run 的 micro-apex-android-debug artifact ID'
+        required: true
+        type: string
+      release_id:
+        description: '已有 debug prerelease 草稿 ID（恢复时复用）'
+        required: true
+        type: string
+      tag:
+        description: '已有草稿的标签名'
+        required: true
+        type: string
+      build_sha:
+        description: '原构建的完整 commit SHA，标签必须指向这里'
+        required: true
+        type: string
+      apk_sha256:
+        description: '已核验的原 APK SHA-256'
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: publish-android-${{ inputs.release_id }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test publication guards
+        run: python3 -m unittest discover -s tests -p test_android_publish.py
+      - name: Publish verified existing APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SOURCE_ARTIFACT_ID: ${{ inputs.source_artifact_id }}
+          RELEASE_ID: ${{ inputs.release_id }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          BUILD_SHA: ${{ inputs.build_sha }}
+          APK_SHA256: ${{ inputs.apk_sha256 }}
+        run: python3 tools/publish_android_artifact.py
