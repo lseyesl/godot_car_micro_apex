@@ -4,9 +4,14 @@ name: Build Android APK
 "on":
   workflow_dispatch:
     inputs:
+      publish_release:
+        description: '创建标签和公开 Release（常规 APK 构建请保持关闭）'
+        required: false
+        type: boolean
+        default: false
       tag:
-        description: '新 Release 标签，例如 v0.10.1（不能已存在）'
-        required: true
+        description: '仅发布 Release 时填写新标签，例如 v0.10.1（不能已存在）'
+        required: false
         type: string
 
 permissions:
@@ -35,6 +40,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate release tag
+        if: inputs.publish_release
         run: |
           set -euo pipefail
           if [[ ! "$RELEASE_TAG" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] ||
@@ -173,6 +179,7 @@ jobs:
           retention-days: 14
 
       - name: Publish APK to GitHub Release
+        if: inputs.publish_release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
