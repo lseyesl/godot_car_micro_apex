@@ -209,6 +209,10 @@ jobs:
           下载 micro-apex-debug.apk 安装；附 SHA-256 校验文件和包信息。
           本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
+          本包包含可选明亮黏土资源；保留原版资源与默认 original 选择，驾驶及此前转向、平滑修复保持。
+          Android 真机外观、安装和性能尚待验收。模型风格说明：
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/model-styles.md
+
           Model style: $MICRO_APEX_MODEL_STYLE
           Commit: $RELEASE_SHA
           Build: $RUN_URL
