@@ -56,10 +56,20 @@ def validate_model_style(archive, expected):
     selected = 'assets/assets/models/' if expected == 'original' else 'assets/assets/styles/bright_clay/models/'
     excluded = 'assets/assets/styles/bright_clay/models/' if expected == 'original' else 'assets/assets/models/'
     names = set(archive.namelist())
+    suffixes = ('.glb', '.glb.remap', '.glb.import')
     for model in ids:
-        if not any(selected + model + suffix in names for suffix in ('.glb', '.glb.remap')):
+        candidates = [selected + model + suffix for suffix in suffixes]
+        if not any(name in names for name in candidates):
             raise ValueError('Missing selected model: ' + model)
-    if any(n.startswith(excluded) and (n.endswith('.glb') or n.endswith('.glb.remap')) for n in names):
+        # Godot exports imported GLBs as .import metadata plus a .godot scene.
+        for name in candidates[1:]:
+            if name not in names:
+                continue
+            metadata = archive.read(name).decode('utf-8')
+            target = re.search(r'^path="(res://[^"]+)"', metadata, re.MULTILINE)
+            if not target or 'assets/' + target[1][6:] not in names:
+                raise ValueError('Missing imported model target: ' + model)
+    if any(n.startswith(excluded) and n.endswith(suffixes) for n in names):
         raise ValueError('Unselected model style is also packaged')
     return data
 

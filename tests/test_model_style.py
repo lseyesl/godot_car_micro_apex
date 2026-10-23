@@ -33,12 +33,19 @@ class ModelStyleTests(unittest.TestCase):
   for value in ['bright_clay','bad']:
    r=subprocess.run(cmd,env=dict(os.environ,MICRO_APEX_MODEL_STYLE=value),capture_output=True)
    self.assertEqual(r.returncode,0 if value=='bright_clay' else 2)
+ def test_import_metadata_requires_existing_scene(self):
+  data=prepare.prepare(self.root,'bright_clay');path=self.root/'missing-target.apk'
+  with zipfile.ZipFile(path,'w') as z:
+   z.writestr('assets/config/model_style.json',json.dumps(data))
+   z.writestr('assets/assets/styles/bright_clay/models/car_test.glb.import','[remap]\npath="res://.godot/imported/missing.scn"\n')
+  with zipfile.ZipFile(path) as z:
+   with self.assertRaisesRegex(ValueError,'Missing imported model target'):verify.validate_model_style(z,'bright_clay')
  def test_package_config_and_only_selected_models(self):
   for style in prepare.STYLES:
    data=prepare.prepare(self.root,style);archive_path=self.root/f'{style}.apk'
    prefix='assets/assets/models/' if style=='original' else 'assets/assets/styles/bright_clay/models/'
    with zipfile.ZipFile(archive_path,'w') as z:
-    z.writestr('assets/config/model_style.json',json.dumps(data));z.writestr(prefix+'car_test.glb.remap','fixture')
+    z.writestr('assets/config/model_style.json',json.dumps(data));z.writestr(prefix+'car_test.glb.import','[remap]\npath="res://.godot/imported/car_test.scn"\n');z.writestr('assets/.godot/imported/car_test.scn','fixture')
    with zipfile.ZipFile(archive_path) as z:self.assertEqual(verify.validate_model_style(z,style),data)
    with zipfile.ZipFile(archive_path) as z:
     with self.assertRaises(ValueError):verify.validate_model_style(z,'bright_clay' if style=='original' else 'original')
