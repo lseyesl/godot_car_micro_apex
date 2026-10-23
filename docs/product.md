@@ -1,4 +1,4 @@
-未发布修复：补充碰撞后松 GAS/反向箭头的转向恢复，保留普通漂移和倒车语义，见 [复现与回归证据](collision-steering-recovery.md)。
+0.13.7：补充碰撞后松 GAS/反向箭头的转向恢复，保留普通漂移和倒车语义，见 [复现与回归证据](collision-steering-recovery.md)。
 
 # Micro Apex 0.13.4 — 单机产品候选版
 
