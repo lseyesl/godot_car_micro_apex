@@ -97,6 +97,7 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 		marker.material_override=material
 		marker.position.y=.06
 		add_child(marker)
+	reset_physics_interpolation()
 
 func tick(dt:float, controls:Dictionary, path) -> void:
 	previous=dynamics.position
@@ -152,6 +153,8 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 	for i in range(wheels.size()):
 		wheels[i].rotation=wheel_rotations[i]+Vector3(wheel_angle,(-dynamics.steering*.35 if "Front" in wheels[i].name else 0.0),0)
 	visual.rotation.z=lerpf(visual.rotation.z,-dynamics.steering*minf(dynamics.velocity.length()/45.0,1.0)*.035,dt*8)
+	if occlusion_visual!=null:
+		occlusion_visual.rotation=visual.rotation
 	reset_cooldown=maxf(0.0,reset_cooldown-dt)
 
 func reset_to_gate(path) -> void:
@@ -165,3 +168,4 @@ func reset_to_gate(path) -> void:
 	previous=dynamics.position
 	progress.invalidate_for_reset()
 	reset_cooldown=2.0
+	reset_physics_interpolation()

@@ -113,6 +113,7 @@ func _ready() -> void:
 	sun.shadow_normal_bias=2.0
 	add_child(sun)
 	camera=Camera3D.new()
+	camera.physics_interpolation_mode=Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera.projection=Camera3D.PROJECTION_PERSPECTIVE
 	camera.fov=CAMERA_FOV
 	camera.far=700
@@ -568,13 +569,15 @@ func update_camera(dt:float, snap:bool=false) -> void:
 	var zoom:=base_distance+minf(player.dynamics.velocity.length()*.09,3.0)
 	camera_distance=zoom if snap else lerpf(camera_distance,zoom,1.0-exp(-dt*2.0))
 	var ahead:Vector3=PathData.world(player.dynamics.velocity.limit_length(32.0))*.25
-	var target:Vector3=player.position+ahead
+	# Render at the same interpolated pose as the car, not its latest physics tick.
+	var player_position:Vector3=player.global_position if snap else player.get_global_transform_interpolated().origin
+	var target:Vector3=player_position+ahead
 	# Preview the vertical profile as well as horizontal motion on bridge descents.
 	if player.dynamics.velocity.length()>6:
-		var road:Dictionary=path.nearest(player.dynamics.position,player.dynamics.route_s)
+		var road:Dictionary=path.nearest(Vector2(player_position.x,player_position.z),player.dynamics.route_s)
 		var direction:=signf(player.dynamics.velocity.dot(road.tangent))
 		var preview:Dictionary=path.sample(road.s+direction*18.0)
-		target.y=lerpf(player.position.y,preview.height+.06,.6)
+		target.y=lerpf(player_position.y,preview.height+.06,.6)
 		# In compact hairpins the route turns away from current velocity; preview the bend.
 		target.x=lerpf(target.x,preview.point.x,.25)
 		target.z=lerpf(target.z,preview.point.y,.25)
@@ -587,8 +590,7 @@ func update_camera(dt:float, snap:bool=false) -> void:
 	camera.position=desired if snap else camera.position.lerp(desired,1.0-exp(-dt*5))
 	camera.rotation_degrees=Vector3(-CAMERA_PITCH,CAMERA_YAW,0)
 	if player.occlusion_visual!=null:
-		player.occlusion_visual.visible=path.overhead_cover(player.position,camera.position)
-		player.occlusion_visual.rotation=player.visual.rotation
+		player.occlusion_visual.visible=path.overhead_cover(player_position,camera.position)
 
 func ranking() -> Array:
 	var sorted:=cars.duplicate()
