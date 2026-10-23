@@ -3,6 +3,7 @@ func _initialize():call_deferred("run")
 func run():
  var Main=load("res://scripts/main.gd")
  var Style=load("res://scripts/model_style.gd")
+ var UI=load("res://scripts/clay_ui.gd")
  var Store=load("res://scripts/save_store.gd")
  var failures:=0
  var game=Main.new();game.saved=Store.new("/tmp/apex-packed-scene-%d.cfg"%OS.get_process_id());root.add_child(game)
@@ -10,6 +11,8 @@ func run():
  for track in range(6):
   game.launch_free(track,false,true);game.countdown=1000
   for frame in range(3):await process_frame
+  if game.speed_label.get_theme_color("font_color")!=(UI.ACCENT if Style.is_clay() else Color("ffd34e")):
+   failures+=1;push_error("Packaged UI theme does not match locked model style")
   var district=game.circuit.get_child(1)
   if district.get_meta("new_landmarks",[]).size()!=2 or district.get_meta("new_greenery",[]).size()<24 or district.get_meta("new_leaf_clusters",0)==0:
    failures+=1;push_error("Missing packaged scenery additions")

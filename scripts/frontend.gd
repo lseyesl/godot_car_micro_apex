@@ -1,4 +1,5 @@
 extends Control
+const ClayUI=preload("res://scripts/clay_ui.gd")
 const Catalog=preload("res://scripts/catalog.gd")
 const Career=preload("res://scripts/career.gd")
 const Track=preload("res://scripts/track_path.gd")
@@ -27,6 +28,7 @@ func open(host, destination:String="home") -> void:
 	render()
 
 func box(color:Color=Color("142339"),border:Color=Color("263b54"),radius:int=14) -> StyleBoxFlat:
+	if ClayUI.active():return ClayUI.panel()
 	var style:=StyleBoxFlat.new()
 	style.bg_color=color
 	style.border_color=border
@@ -39,7 +41,7 @@ func text(value:String,size:int=18,color:Color=Color("f2f6ff")) -> Label:
 	var label:=Label.new()
 	label.text=value
 	label.add_theme_font_size_override("font_size",size)
-	label.add_theme_color_override("font_color",color)
+	label.add_theme_color_override("font_color",ClayUI.text_color(color) if ClayUI.active() else color)
 	return label
 
 func action(value:String,callback:Callable,primary:bool=false) -> Button:
@@ -60,6 +62,7 @@ func action(value:String,callback:Callable,primary:bool=false) -> Button:
 		var style:=button.get_theme_stylebox(state)
 		style.content_margin_top=10
 		style.content_margin_bottom=10
+	if ClayUI.active():ClayUI.apply_button(button,primary)
 	button.pressed.connect(func():game.play_cue("click");callback.call())
 	return button
 
@@ -94,7 +97,7 @@ func change(destination:String) -> void:
 func render() -> void:
 	for child in get_children():remove_child(child);child.queue_free()
 	var background:=ColorRect.new()
-	background.color=INK
+	background.color=ClayUI.CREAM if ClayUI.active() else INK
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 	var margin:=MarginContainer.new()
@@ -378,9 +381,9 @@ class RoutePreview extends Control:
 		var line:=PackedVector2Array()
 		for point in path.points:line.append(point*scale_factor+size*.5)
 		line.append(line[0])
-		draw_polyline(line,Color("2b4259"),9,true)
-		draw_polyline(line,Color("68dec5"),3,true)
-		draw_circle(line[0],5,Color("ffc857"))
+		draw_polyline(line,ClayUI.EDGE if ClayUI.active() else Color("2b4259"),9,true)
+		draw_polyline(line,ClayUI.INK if ClayUI.active() else Color("68dec5"),3,true)
+		draw_circle(line[0],5,ClayUI.ACCENT if ClayUI.active() else Color("ffc857"))
 
 func recovery_options() -> void:
 	var column=game.modal("新建存档？","金币、车辆与生涯将从初始状态开始。旧文件会另存为 .damaged 备份。")

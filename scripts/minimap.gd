@@ -1,4 +1,5 @@
 extends Control
+const ClayUI=preload("res://scripts/clay_ui.gd")
 
 var path
 var cars:Array=[]
@@ -16,7 +17,7 @@ func _draw() -> void:
 	if path==null:
 		return
 	draw_style_box(panel(),Rect2(Vector2.ZERO,size))
-	draw_rect(Rect2(project(bounds.position),project(bounds.end)-project(bounds.position)),Color("35516d"),false,1)
+	draw_rect(Rect2(project(bounds.position),project(bounds.end)-project(bounds.position)),ClayUI.EDGE if ClayUI.active() else Color("35516d"),false,1)
 	# Draw upper decks last, masking the lower road at crossings.
 	for elevated in [false,true]:
 		for i in range(path.points.size()):
@@ -26,13 +27,14 @@ func _draw() -> void:
 			var b:=project(path.points[(i+1)%path.points.size()])
 			var road:String=path.surface_at(path.distances[i])
 			if elevated:
-				draw_line(a,b,Color("172932"),7,true)
-			draw_line(a,b,Color("f0cc78") if elevated else (Color("bb9567") if road=="dirt" else Color("a4b6be")),3,true)
+				draw_line(a,b,ClayUI.PAPER if ClayUI.active() else Color("172932"),7,true)
+			draw_line(a,b,(ClayUI.ACCENT if elevated else ClayUI.MUTED) if ClayUI.active() else (Color("f0cc78") if elevated else (Color("bb9567") if road=="dirt" else Color("a4b6be"))),3,true)
 	for car in cars:
 		if is_instance_valid(car):
-			draw_circle(project(car.dynamics.position),4.5 if car.player else 3.0,Color("ffd34e") if car.player else car.dynamics.spec.color)
+			draw_circle(project(car.dynamics.position),4.5 if car.player else 3.0,(ClayUI.ACCENT if ClayUI.active() else Color("ffd34e")) if car.player else car.dynamics.spec.color)
 
 func panel() -> StyleBoxFlat:
+	if ClayUI.active():return ClayUI.box()
 	var s:=StyleBoxFlat.new()
 	s.bg_color=Color(.055,.12,.21,.85)
 	s.set_corner_radius_all(14)

@@ -1,4 +1,5 @@
 extends Control
+const ClayUI=preload("res://scripts/clay_ui.gd")
 
 var fingers:Dictionary={}
 var mouse_action:=""
@@ -78,18 +79,18 @@ func _draw() -> void:
 		var fill:=Color(.06,.14,.24,.78)
 		if active:
 			fill=Color("ffd34e")
-		draw_style_box(style(fill,Color("6d9cbb") if not active else Color("fff0a3")),rect)
+		draw_style_box(ClayUI.touch_box(key,active) if ClayUI.active() else style(fill,Color("6d9cbb") if not active else Color("fff0a3")),rect)
 		var text:String={"left":"◀","right":"▶","brake":"BRAKE","throttle":"GAS","reset":"RESET"}[key]
 		if key in ["left","right"]:
 			var center:=rect.get_center()
 			var direction:=1.0 if key=="right" else -1.0
-			draw_colored_polygon(PackedVector2Array([center+Vector2(12*direction,0),center+Vector2(-9*direction,-13),center+Vector2(-9*direction,13)]),Color("122015") if active else Color("f0eee6"))
+			draw_colored_polygon(PackedVector2Array([center+Vector2(12*direction,0),center+Vector2(-9*direction,-13),center+Vector2(-9*direction,13)]),ClayUI.INK if ClayUI.active() else (Color("122015") if active else Color("f0eee6")))
 			continue
 		var font_size:=20 if key in ["brake","reset"] else 27
 		var width:=font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x
-		draw_string(font,rect.get_center()+Vector2(-width*.5,font_size*.35),text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,Color("122015") if active else Color("f0eee6"))
+		draw_string(font,rect.get_center()+Vector2(-width*.5,font_size*.35),text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,ClayUI.INK if ClayUI.active() else (Color("122015") if active else Color("f0eee6")))
 		if key=="reset" and reset_held>0:
-			draw_rect(Rect2(rect.position+Vector2(0,rect.size.y-4),Vector2(rect.size.x*minf(reset_held/1.2,1),4)),Color("ffd34e"))
+			draw_rect(Rect2(rect.position+Vector2(0,rect.size.y-4),Vector2(rect.size.x*minf(reset_held/1.2,1),4)),ClayUI.ACCENT if ClayUI.active() else Color("ffd34e"))
 
 func style(fill:Color,border:Color) -> StyleBoxFlat:
 	var s:=StyleBoxFlat.new()

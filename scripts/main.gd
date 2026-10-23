@@ -1,5 +1,7 @@
 extends Node3D
 
+const ClayUI=preload("res://scripts/clay_ui.gd")
+
 const ModelStyle=preload("res://scripts/model_style.gd")
 
 const Catalog = preload("res://scripts/catalog.gd")
@@ -136,7 +138,7 @@ func _ready() -> void:
 	var theme:=Theme.new()
 	theme.default_font=title_font
 	theme.default_font_size=18
-	ui.theme=theme
+	ui.theme=ClayUI.theme(title_font) if ClayUI.active() else theme
 	engine_audio=audio("engine",true)
 	dirt_audio=audio("dirt",true)
 	impact_audio=audio("impact",false)
@@ -176,6 +178,7 @@ func audio(id:String, loop:bool) -> AudioStreamPlayer:
 	return p
 
 func panel(fill:Color=Color("142b46"), border:Color=Color("35516d"), radius:int=10) -> StyleBoxFlat:
+	if ClayUI.active():return ClayUI.panel()
 	var style:=StyleBoxFlat.new()
 	style.bg_color=fill
 	style.border_color=border
@@ -194,7 +197,7 @@ func label(text:String,font_size:int=20,color:Color=Color("edf1e8")) -> Label:
 	var l:=Label.new()
 	l.text=text
 	l.add_theme_font_size_override("font_size",font_size)
-	l.add_theme_color_override("font_color",color)
+	l.add_theme_color_override("font_color",ClayUI.text_color(color) if ClayUI.active() else color)
 	return l
 
 func button(text:String, callback:Callable, accent:bool=false) -> Button:
@@ -207,6 +210,7 @@ func button(text:String, callback:Callable, accent:bool=false) -> Button:
 	b.add_theme_stylebox_override("pressed",panel(Color("efb82d") if accent else Color("3a6486")))
 	b.add_theme_color_override("font_color",Color("162521") if accent else Color("edf1e8"))
 	b.add_theme_color_override("font_hover_color",Color("162521") if accent else Color.WHITE)
+	if ClayUI.active():ClayUI.apply_button(b,accent)
 	b.pressed.connect(callback)
 	return b
 
@@ -439,7 +443,7 @@ func build_hud() -> void:
 	help_label.offset_bottom=85
 	help_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	center_label=label("3",100,Color("ffd34e"))
-	center_label.add_theme_color_override("font_shadow_color",Color("142b46"))
+	center_label.add_theme_color_override("font_shadow_color",ClayUI.CREAM if ClayUI.active() else Color("142b46"))
 	center_label.add_theme_constant_override("shadow_offset_y",5)
 	center_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	center_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
@@ -658,7 +662,7 @@ func modal(title:String,subtitle:String) -> VBoxContainer:
 	if is_instance_valid(overlay):
 		overlay.queue_free()
 	overlay=ColorRect.new()
-	overlay.color=Color(.02,.035,.05,.94)
+	overlay.color=Color(.88,.92,.83,.94) if ClayUI.active() else Color(.02,.035,.05,.94)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ui.add_child(overlay)
 	var center:=CenterContainer.new()

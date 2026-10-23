@@ -1,6 +1,6 @@
 # 模型风格：original / bright_clay
 
-默认保持 `original`。新增 `bright_clay` 为独立的明亮哑光黏土资源版本，应用和玩法仍为同一套，不增加风格切换 UI。旧 GLB、既有发布和标签不改动。
+默认保持 `original`。新增 `bright_clay` 为独立的明亮哑光黏土资源版本，应用和玩法仍为同一套，不增加风格切换 UI。bright_clay 的界面主题见 [黏土 UI](clay-ui.md)。旧 GLB、既有发布和标签不改动。
 
 | 原版 | 明亮黏土 |
 | --- | --- |
