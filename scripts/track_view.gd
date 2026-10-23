@@ -1,5 +1,7 @@
 extends Node3D
 
+const ModelStyle=preload("res://scripts/model_style.gd")
+
 const Structures=preload("res://scripts/track_structures.gd")
 const District = preload("res://scripts/track_district.gd")
 const PathData = preload("res://scripts/track_path.gd")
@@ -15,11 +17,14 @@ func material(color: Color) -> StandardMaterial3D:
 		return cached_materials[color]
 	var m := StandardMaterial3D.new()
 	cached_materials[color]=m
-	m.albedo_color=color.srgb_to_linear().lerp(color,.15)
+	var tint:Color=ModelStyle.clay_color(color) if ModelStyle.is_clay() else color
+	m.albedo_color=tint.srgb_to_linear().lerp(tint,.15)
+	if ModelStyle.is_clay():m.metallic_specular=.1
 	m.roughness=1.0
 	return m
 
-func textured_material(asset:String,scale_factor:float=1.0,tint:Color=Color.WHITE) -> StandardMaterial3D:
+func textured_material(asset:String,scale_factor:float=1.0,tint:Color=Color.WHITE) -> Material:
+	if ModelStyle.is_clay():return miniature_material(asset,scale_factor,tint)
 	var key:=asset+str(scale_factor)+str(tint)
 	if surface_cache.has(key):return surface_cache[key]
 	var m:=StandardMaterial3D.new()
@@ -46,6 +51,15 @@ func miniature_material(asset:String,scale_factor:float,tint:Color,strength:floa
 	var key:="miniature_"+asset+str(scale_factor)+str(tint)+str(strength)
 	if surface_cache.has(key):return surface_cache[key]
 	var m:=ShaderMaterial.new()
+	if ModelStyle.is_clay():
+		m.shader=load("res://assets/styles/bright_clay/clay_surface.gdshader")
+		var clay:Color=ModelStyle.clay_color(tint)
+		if asset=="clean_asphalt":clay=Color("71818b")
+		elif asset=="brown_mud_dry":clay=Color("dbb28b")
+		elif asset in ["grass_ground","grass_path_3"]:clay=Color("b2cd91")
+		m.set_shader_parameter("tint",clay.srgb_to_linear().lerp(clay,.15))
+		surface_cache[key]=m
+		return m
 	m.shader=load("res://assets/shaders/miniature_surface.gdshader")
 	m.set_shader_parameter("detail_texture",load("res://assets/textures/surfaces/"+asset+"_albedo.jpg"))
 	m.set_shader_parameter("tile_scale",scale_factor)
@@ -69,7 +83,7 @@ func add_box(at: Vector3, size: Vector3, color: Color, parent: Node3D = self) ->
 
 func model(id: String, at: Vector3, angle: float = 0.0, parent: Node3D = self) -> Node3D:
 	if not cached_models.has(id):
-		cached_models[id]=load("res://assets/models/"+id+".glb")
+		cached_models[id]=load(ModelStyle.model_path(id))
 	var node: Node3D = cached_models[id].instantiate()
 	parent.add_child(node)
 	node.position=at
@@ -93,7 +107,8 @@ func add_curb(st: SurfaceTool, body: StaticBody3D, a: Vector2, b: Vector2,
 		PathData.world(outer_b,hb+.85),PathData.world(outer_a,ha+.85)])
 	for face in [[0,4,5,1],[3,2,6,7],[4,7,6,5],[0,3,7,4],[1,5,6,2],[0,1,2,3]]:
 		for index in [face[0],face[1],face[2],face[0],face[2],face[3]]:
-			st.set_color(color.srgb_to_linear().lerp(color,.15))
+			var tint:Color=ModelStyle.clay_color(color) if ModelStyle.is_clay() else color
+			st.set_color(tint.srgb_to_linear().lerp(tint,.15))
 			st.add_vertex(vertices[index])
 	var shape:=ConvexPolygonShape3D.new()
 	shape.points=vertices

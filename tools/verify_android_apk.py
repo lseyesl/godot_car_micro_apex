@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Verify APK integrity, signing, alignment and installable manifest components."""
-import argparse, re, os, pathlib, subprocess, xml.etree.ElementTree as ET, zipfile
+import argparse, json, re, os, pathlib, subprocess, xml.etree.ElementTree as ET, zipfile
 ANDROID = '{http://schemas.android.com/apk/res/android}'
 
 def validate_manifest(text, package='org.lseyesl.microapex'):
@@ -45,17 +45,38 @@ def validate_certificate(output, expected):
     if len(certificates) != 1 or certificates[0].lower() != expected:
         raise ValueError('APK signer does not match the pinned certificate')
 
+
+def validate_model_style(archive, expected):
+    data = json.loads(archive.read('assets/config/model_style.json'))
+    if data.get('format') != 1 or data.get('locked') is not True or data.get('model_style') != expected or expected not in ('original', 'bright_clay'):
+        raise ValueError('APK model style is not the expected sealed build style')
+    ids = data.get('model_ids', [])
+    if not ids or len(set(ids)) != len(ids) or any(not re.fullmatch(r'[a-z0-9_]+', x) for x in ids):
+        raise ValueError('Invalid model catalog in package')
+    selected = 'assets/assets/models/' if expected == 'original' else 'assets/assets/styles/bright_clay/models/'
+    excluded = 'assets/assets/styles/bright_clay/models/' if expected == 'original' else 'assets/assets/models/'
+    names = set(archive.namelist())
+    for model in ids:
+        if not any(selected + model + suffix in names for suffix in ('.glb', '.glb.remap')):
+            raise ValueError('Missing selected model: ' + model)
+    if any(n.startswith(excluded) and (n.endswith('.glb') or n.endswith('.glb.remap')) for n in names):
+        raise ValueError('Unselected model style is also packaged')
+    return data
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('apk',type=pathlib.Path)
     parser.add_argument('--sdk',default=os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT'))
     parser.add_argument('--certificate-sha256-file',type=pathlib.Path)
     parser.add_argument('--build-tools',default='36.0.0')
+    parser.add_argument('--expected-model-style', choices=('original','bright_clay'))
     args=parser.parse_args()
     if not args.sdk:parser.error('Set ANDROID_HOME or supply --sdk')
     sdk=pathlib.Path(args.sdk); apk=args.apk.resolve(); build=sdk/'build-tools'/args.build_tools
     with zipfile.ZipFile(apk) as archive:
         if archive.testzip():raise ValueError('Corrupt APK ZIP entry')
+        if args.expected_model_style:
+            print('MODEL_STYLE_VALIDATION_OK', validate_model_style(archive, args.expected_model_style))
         if not any(n.startswith('lib/arm64-v8a/') and n.endswith('.so') for n in archive.namelist()):
             raise ValueError('Missing ARM64 native libraries')
     signing=subprocess.check_output([str(build/'apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True)

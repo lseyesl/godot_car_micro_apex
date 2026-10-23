@@ -4,6 +4,14 @@ name: Build Android APK
 "on":
   workflow_dispatch:
     inputs:
+      model_style:
+        description: '模型资源风格（默认保持原版）'
+        required: false
+        type: choice
+        default: original
+        options:
+          - original
+          - bright_clay
       publish_release:
         description: '创建标签和公开 Release（常规 APK 构建请保持关闭）'
         required: false
@@ -25,6 +33,7 @@ env:
   GODOT_VERSION: 4.7-stable
   GODOT_TEMPLATE_VERSION: 4.7.stable
   RELEASE_TAG: ${{ inputs.tag }}
+  MICRO_APEX_MODEL_STYLE: ${{ inputs.model_style || 'original' }}
 
 jobs:
   android:
@@ -67,6 +76,12 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Seal selected model style into the package
+        run: python3 tools/prepare_model_style.py --from-environment
+
+      - name: Test model style build validation
+        run: python3 -m unittest discover -s tests -p test_model_style.py
 
       - name: Test Android manifest validation
         run: python3 -m unittest discover -s tests -p test_android_manifest.py
@@ -158,7 +173,7 @@ jobs:
           godot --headless --path . --install-android-build-template --export-debug Android build/android/micro-apex-debug.apk \
             2>&1 | tee build/android/export.log
           test -s build/android/micro-apex-debug.apk
-          python3 tools/verify_android_apk.py build/android/micro-apex-debug.apk --certificate-sha256-file config/android-debug-cert.sha256
+          python3 tools/verify_android_apk.py build/android/micro-apex-debug.apk --certificate-sha256-file config/android-debug-cert.sha256 --expected-model-style "$MICRO_APEX_MODEL_STYLE"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging build/android/micro-apex-debug.apk \
             > build/android/apk-info.txt
           grep -F 'org.lseyesl.microapex' build/android/apk-info.txt
@@ -175,6 +190,7 @@ jobs:
             build/android/micro-apex-debug.apk.sha256
             build/android/apk-info.txt
             build/android/signing-certificate.sha256
+            build/android/model-style.json
           if-no-files-found: error
           retention-days: 14
 
@@ -193,6 +209,7 @@ jobs:
           下载 micro-apex-debug.apk 安装；附 SHA-256 校验文件和包信息。
           本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
+          Model style: $MICRO_APEX_MODEL_STYLE
           Commit: $RELEASE_SHA
           Build: $RUN_URL
           EOF
@@ -201,6 +218,7 @@ jobs:
             build/android/micro-apex-debug.apk.sha256 \
             build/android/apk-info.txt \
             build/android/signing-certificate.sha256 \
+            build/android/model-style.json \
             --target "$RELEASE_SHA" \
             --title "Micro Apex Android debug $RELEASE_TAG" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \

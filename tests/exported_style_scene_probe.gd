@@ -1,0 +1,15 @@
+extends SceneTree
+func _initialize():call_deferred("run")
+func run():
+ var Main=load("res://scripts/main.gd")
+ var Style=load("res://scripts/model_style.gd")
+ var Store=load("res://scripts/save_store.gd")
+ var game=Main.new();game.saved=Store.new("/tmp/apex-packed-scene-%d.cfg"%OS.get_process_id());root.add_child(game)
+ game.set_process(false);game.quality=1
+ for track in range(6):
+  game.launch_free(track,false,true);game.countdown=1000
+  for frame in range(3):await process_frame
+  print("PACKED_STYLE_SCENE style=%s track=%d cars=%d"%[Style.selected(),track,game.cars.size()])
+ game.queue_free()
+ for frame in range(4):await process_frame
+ quit()

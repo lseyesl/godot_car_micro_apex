@@ -17,6 +17,10 @@ godot --editor --path .
 
 云环境已准备的引擎在 `/workspace/.cloud-tools/bin/godot`；先将该目录加到 PATH，避免使用预装的旧版本。
 
+## 模型风格
+
+默认保留原版。可在开发环境或 Actions 打包时选择独立的 `bright_clay` 黏土资源版本；Android 使用包内固化配置。小样、使用方法和验证范围见 [模型风格说明](docs/model-styles.md)。
+
 ## 游玩
 
 先完成驾驶训练，再参加生涯，赢得星级和金币，解锁杯赛、车辆并升级性能。自由比赛和练习可以随时重玩已拥有车辆。

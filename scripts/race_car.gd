@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+const ModelStyle=preload("res://scripts/model_style.gd")
+
 const Dynamics = preload("res://scripts/vehicle_dynamics.gd")
 const Progress = preload("res://scripts/race_progress.gd")
 const Driver = preload("res://scripts/ai_driver.gd")
@@ -37,7 +39,7 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 	collision.position.y=.65
 	add_child(collision)
 	motion_mode=CharacterBody3D.MOTION_MODE_FLOATING
-	visual=load("res://assets/models/"+str(spec.id)+".glb").instantiate()
+	visual=load(ModelStyle.model_path(str(spec.id))).instantiate()
 	add_child(visual)
 	for node in visual.find_children("Wheel_*","Node3D",true,false):
 		wheels.append(node)

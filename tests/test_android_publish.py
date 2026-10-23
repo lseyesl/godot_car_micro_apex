@@ -21,7 +21,7 @@ class PublishValidationTests(unittest.TestCase):
         (self.path / publisher.FILES[3]).write_text(self.pin + '\n')
 
     def assets(self):
-        return [dict(name=n, state='uploaded', size=(self.path / n).stat().st_size, digest='sha256:' + publisher.digest(self.path / n)) for n in publisher.FILES]
+        return [dict(name=n, state='uploaded', size=(self.path / n).stat().st_size, digest='sha256:' + publisher.digest(self.path / n)) for n in publisher.artifact_files(self.path)]
 
     def test_valid_artifact_and_already_uploaded_assets(self):
         self.assertEqual(publisher.validate_files(self.path, self.sha, self.pin), ('22', '0.13.3'))
@@ -65,6 +65,24 @@ class PublishValidationTests(unittest.TestCase):
         assets[0]['name'] = 'unknown.apk'
         with self.assertRaisesRegex(ValueError, 'Unexpected'):
             publisher.verify_assets(assets, self.path)
+
+    def test_sealed_style_metadata_is_preserved_and_must_match_apk(self):
+        data = dict(format=1, model_style='bright_clay', locked=True, model_ids=['car_test'])
+        import json
+        with zipfile.ZipFile(self.path / publisher.FILES[0], 'a') as apk:
+            apk.writestr('assets/config/model_style.json', json.dumps(data))
+        self.sha = publisher.digest(self.path / publisher.FILES[0])
+        (self.path / publisher.FILES[1]).write_text(self.sha + '  micro-apex-debug.apk\n')
+        (self.path / 'model-style.json').write_text(json.dumps(data))
+        self.assertEqual(publisher.validate_files(self.path, self.sha, self.pin), ('22', '0.13.3'))
+        publisher.verify_assets(self.assets(), self.path)
+        (self.path / 'model-style.json').unlink()
+        with self.assertRaisesRegex(ValueError, 'Missing model style'):
+            publisher.validate_files(self.path, self.sha, self.pin)
+        data['model_style'] = 'original'
+        (self.path / 'model-style.json').write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError, 'style metadata'):
+            publisher.validate_files(self.path, self.sha, self.pin)
 
     def test_cloud_upload_is_refused_before_network(self):
         with mock.patch.dict(os.environ, {'GITHUB_ACTIONS': 'false'}), mock.patch.object(publisher, 'gh') as gh:

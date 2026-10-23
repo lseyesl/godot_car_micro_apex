@@ -1,5 +1,7 @@
 extends Node3D
 
+const ModelStyle=preload("res://scripts/model_style.gd")
+
 const Catalog = preload("res://scripts/catalog.gd")
 const PathData = preload("res://scripts/track_path.gd")
 const TrackView = preload("res://scripts/track_view.gd")
@@ -73,6 +75,8 @@ const CAMERA_YAW := 35.54
 const CAMERA_FOV := 34.0
 
 func _ready() -> void:
+	if ModelStyle.selected() not in ModelStyle.STYLES:
+		set_process(false);set_physics_process(false);get_tree().quit(2);return
 	process_mode=Node.PROCESS_MODE_ALWAYS
 	title_font=load("res://assets/fonts/NotoSansCJK-Regular.ttc")
 	selected_car=clampi(int(saved.setting("car",3)),0,Catalog.CARS.size()-1)
@@ -91,6 +95,9 @@ func _ready() -> void:
 	settings.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
 	settings.ambient_light_color=Color("c4d6e3")
 	settings.ambient_light_energy=.42
+	if ModelStyle.is_clay():
+		settings.ambient_light_color=Color("f5f3ed")
+		settings.ambient_light_energy=.46
 	settings.tonemap_mode=Environment.TONE_MAPPER_LINEAR
 	var sky:=Sky.new()
 	var sky_material:=ProceduralSkyMaterial.new()
@@ -244,7 +251,7 @@ func car_preview(id:String) -> SubViewportContainer:
 	viewport.own_world_3d=true
 	viewport.render_target_update_mode=SubViewport.UPDATE_ONCE
 	container.add_child(viewport)
-	var car:Node3D=load("res://assets/models/"+id+".glb").instantiate()
+	var car:Node3D=load(ModelStyle.model_path(id)).instantiate()
 	car.rotation.y=-.55
 	viewport.add_child(car)
 	var light:=DirectionalLight3D.new()

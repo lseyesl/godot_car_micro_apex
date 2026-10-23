@@ -18,8 +18,11 @@ def require(condition, message):
     if not condition:
         raise ValueError(message)
 
+def artifact_files(directory):
+    return FILES + (('model-style.json',) if (directory / 'model-style.json').exists() else ())
+
 def validate_files(directory, expected_sha, certificate):
-    require(sorted(p.name for p in directory.iterdir()) == sorted(FILES), 'Unexpected artifact contents')
+    require(sorted(p.name for p in directory.iterdir()) == sorted(artifact_files(directory)), 'Unexpected artifact contents')
     apk = directory / FILES[0]
     require(digest(apk) == expected_sha, 'APK differs from the approved build SHA-256')
     require((directory / FILES[1]).read_text().split() == [expected_sha, FILES[0]], 'APK checksum file mismatch')
@@ -31,11 +34,16 @@ def validate_files(directory, expected_sha, certificate):
         require(archive.testzip() is None, 'Corrupt APK ZIP entry')
         architectures = {n.split('/')[1] for n in archive.namelist() if n.startswith('lib/') and n.endswith('.so')}
         require(architectures == {'arm64-v8a'}, 'APK must contain only ARM64 native libraries')
+        require(('assets/config/model_style.json' in archive.namelist()) == (directory / 'model-style.json').exists(), 'Missing model style metadata or packaged config')
+        if (directory / 'model-style.json').exists():
+            report = json.loads((directory / 'model-style.json').read_text())
+            packaged = json.loads(archive.read('assets/config/model_style.json'))
+            require(report == packaged and report.get('locked') is True and report.get('format') == 1 and report.get('model_style') in ('original','bright_clay'), 'Model style metadata differs from the sealed APK config')
     return match.groups()
 
 def verify_assets(assets, directory):
     require(len({a['name'] for a in assets}) == len(assets), 'Duplicate Release assets')
-    require(all(a['name'] in FILES for a in assets), 'Unexpected Release asset; inspect draft before retrying')
+    require(all(a['name'] in artifact_files(directory) for a in assets), 'Unexpected Release asset; inspect draft before retrying')
     for asset in assets:
         path = directory / asset['name']
         require(asset['state'] == 'uploaded' and asset['size'] == path.stat().st_size, 'Existing asset is incomplete or has a different size')
@@ -87,14 +95,17 @@ def publish(repo, run_id, artifact_id, release_id, tag, build_sha, apk_sha):
         code, version = validate_files(directory, apk_sha, certificate)
         require(f'version/code={code}\n' in preset_text and f'version/name="{version}"' in preset_text, 'Artifact version differs from the source-build export preset')
         verify_assets(release['assets'], directory)
+        model_style = json.loads((directory / 'model-style.json').read_text())['model_style'] if (directory / 'model-style.json').exists() else 'original (legacy)'
+        if (directory / 'model-style.json').exists():
+            require(model_style in release['body'], 'Release notes must identify the packaged model style')
         existing_names = {a['name'] for a in release['assets']}
-        missing = [n for n in FILES if n not in existing_names]
+        missing = [n for n in artifact_files(directory) if n not in existing_names]
         require(release['draft'] or not missing, 'Published Release is incomplete; inspect it instead of changing it automatically')
         for name in missing:
             # No clobber: a failed/interrupted run is resumed only after checking assets above.
             gh('release', 'upload', tag, str(directory / name), '--repo', repo)
         release = api(repo, 'releases/' + release_id)
-        require(len(release['assets']) == len(FILES), 'Missing uploaded Release assets')
+        require(len(release['assets']) == len(artifact_files(directory)), 'Missing uploaded Release assets')
         verify_assets(release['assets'], directory)
         if release['draft']:
             gh('release', 'edit', tag, '--repo', repo, '--draft=false', '--prerelease', '--latest=false')
@@ -102,7 +113,7 @@ def publish(repo, run_id, artifact_id, release_id, tag, build_sha, apk_sha):
         require(not release['draft'] and release['prerelease'], 'Release is not a public debug prerelease')
         require(tag_sha(repo, tag) == build_sha, 'Published tag differs from the actual source build')
         verify_assets(release['assets'], directory)
-        summary = f"## Android debug prerelease\n\n{release['html_url']}\n\nBuild: {build_sha}\n\nAPK: {version} ({code}), ARM64\n\nSHA-256: {apk_sha}\n\nAndroid device acceptance remains unverified.\n\n"
+        summary = f"## Android debug prerelease\n\n{release['html_url']}\n\nBuild: {build_sha}\n\nAPK: {version} ({code}), ARM64\n\nModel style: {model_style}\n\nSHA-256: {apk_sha}\n\nAndroid device acceptance remains unverified.\n\n"
         for asset in release['assets']:
             summary += f"- [{asset['name']}]({asset['browser_download_url']}), {asset['size']} bytes, {asset['digest']}\n"
         print(summary)
