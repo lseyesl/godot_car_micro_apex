@@ -16,6 +16,10 @@ class ModelStyleTests(unittest.TestCase):
    r=prepare.prepare(self.root,style);self.assertTrue(r['locked']);self.assertEqual(r['model_style'],style)
    self.assertEqual(r['model_ids'],['car_test']);self.assertIn(excluded,(self.root/'export_presets.cfg').read_text())
    self.assertEqual(r,json.loads((self.root/'build/android/model-style.json').read_text()))
+ def test_style_catalogs_must_match_for_both_builds(self):
+  (self.root/'assets/styles/bright_clay/models/extra.glb').write_bytes(b'extra')
+  for style in prepare.STYLES:
+   with self.assertRaisesRegex(ValueError,'catalogs must match'):prepare.prepare(self.root,style)
  def test_invalid_style_cannot_mutate_project(self):
   before=(self.root/'export_presets.cfg').read_bytes()
   with self.assertRaises(ValueError):prepare.prepare(self.root,'unknown')

@@ -187,6 +187,78 @@
       "variant_bytes": 167876
     },
     {
+      "id": "foliage_grass_dry",
+      "source_sha256": "4fca8892270478bc5ad567e19b5d3bf0206a3cb58435566975e351afb5dbc717",
+      "variant_sha256": "dcf7a92da9fc6ed2d4da4aee4da8c2ee010a5ed06dac6ac170ca721dde569b41",
+      "geometry_chunk_sha256": "2ce0c5a87e837291c37544c39d6d6d581d29f4a318b29c673c2c5a0e0d5402f2",
+      "source_bytes": 6204,
+      "variant_bytes": 6336
+    },
+    {
+      "id": "foliage_grass_green",
+      "source_sha256": "78f2a6cdf4a91d1f0ccdd3f7fd4ee0f06c95391e7b39117580f4a120b1e69299",
+      "variant_sha256": "911d1e66e43633b55c554c64ee3b26e9e6b40497640884d7e1d664cb83dceaef",
+      "geometry_chunk_sha256": "2ce0c5a87e837291c37544c39d6d6d581d29f4a318b29c673c2c5a0e0d5402f2",
+      "source_bytes": 6224,
+      "variant_bytes": 6352
+    },
+    {
+      "id": "foliage_leaf_cluster",
+      "source_sha256": "c8c9a7abce687b7a3779781e277c89b813866d09f48f642cc2bb4aec93ad94b0",
+      "variant_sha256": "21f4291e176529e5b5fe651d2ebddabd417560fcea50547d2bcd93038661a431",
+      "geometry_chunk_sha256": "ef94b7e4ddf3f95580961a62cde777267cf02a59e283b53724bfcbbef712f3f6",
+      "source_bytes": 7056,
+      "variant_bytes": 7184
+    },
+    {
+      "id": "foliage_shrub_flower",
+      "source_sha256": "c8175d4dfb452785de4ba06f09142357294e8eb12d6f6f49242a35a13d60fc0e",
+      "variant_sha256": "25de30c05c9b0686d5aa3e88ceb8a01af6a01e4b0f03cc1a685b1ad4a951f368",
+      "geometry_chunk_sha256": "e3aec117bc42de3ba5e356cacf6d120dbf9a509ba6ea2f6db130afc9cc4ee1a5",
+      "source_bytes": 12244,
+      "variant_bytes": 12424
+    },
+    {
+      "id": "foliage_shrub_round",
+      "source_sha256": "675b02215136ef09357950fbf97f8d68b7476dd98733b9ea36fe9f3f1e23f6ed",
+      "variant_sha256": "5c42d43c4b69e5ff0a2ab6d2ab08a47eb99aa4f3855c2615c1248486f439b631",
+      "geometry_chunk_sha256": "fefde62044c3c557973e1e89269c44571a8a42a849eb18c9b556c43b66e43283",
+      "source_bytes": 5428,
+      "variant_bytes": 5556
+    },
+    {
+      "id": "prop_clock_tower",
+      "source_sha256": "41de438733e1738a2d8d71c92c5c1563faca806bb16a8fba309664f9cc5aa833",
+      "variant_sha256": "98749f7da4160a14eb686ecf8b774e17ecd48e49c6798595f33f33ad69569186",
+      "geometry_chunk_sha256": "5be33de8c1d18cefa0fb5d6156cf5b3c6daa51b994229c1e1dc1145529e3a4e0",
+      "source_bytes": 116596,
+      "variant_bytes": 116828
+    },
+    {
+      "id": "prop_ferris_wheel",
+      "source_sha256": "46b473f4299d969fe46281be46986f52f054d465fa03a200e39368a12645f7c5",
+      "variant_sha256": "958687208f28100938f6fe8ffde60228985f80545c16362f244d72b85f66a563",
+      "geometry_chunk_sha256": "92d506ef3a565a8e89854be391330b58c305d3dc3e9b289ca1b8d9ce12bd7e3e",
+      "source_bytes": 363728,
+      "variant_bytes": 363956
+    },
+    {
+      "id": "prop_market_hall",
+      "source_sha256": "90671ad404532f85e910e43cda14aaa1253bc3edac9080637cd41364ba82047c",
+      "variant_sha256": "38956a064905b2b856057df4b8503f00fe1e1db683602027bb475657ed68402f",
+      "geometry_chunk_sha256": "db763f26b0bbc7fd8d5a0cf53c35beabdfea46070f8a2fdfbb3f08fe2cf05b2b",
+      "source_bytes": 87488,
+      "variant_bytes": 87768
+    },
+    {
+      "id": "prop_pavilion",
+      "source_sha256": "b07a7a200ae2c3f5512c3a0e17ea95538c2e8141ed00efda8abb4e69da710b12",
+      "variant_sha256": "600f6c7183d46c1da81ebd57045b8c6f0d162a4bb94626d4e05c177316e2301b",
+      "geometry_chunk_sha256": "bc25cd732a88f23c33e7604b4e33236e24daee5d7a1130079a724d8d40affa4c",
+      "source_bytes": 26276,
+      "variant_bytes": 26508
+    },
+    {
       "id": "rock",
       "source_sha256": "0fe6aa61afe8a183ed1084748281b388343891ca3e7c16595614ce374d987d7c",
       "variant_sha256": "d8caab399484fc27ccc73eebc71a22d9d2bed2e0f300f2e66fd82d585071346c",

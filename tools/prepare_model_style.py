@@ -12,6 +12,9 @@ def prepare(root, style):
     models = sorted((root / 'assets/models').glob('*.glb'))
     if not models:
         raise ValueError('No original model catalog found')
+    clay_models = sorted((root / 'assets/styles/bright_clay/models').glob('*.glb'))
+    if {p.name for p in clay_models} != {p.name for p in models}:
+        raise ValueError('Missing or unmatched clay variants; both style catalogs must match')
     if style == 'bright_clay':
         missing = [p.name for p in models if not (root / 'assets/styles/bright_clay/models' / p.name).is_file()]
         if missing:

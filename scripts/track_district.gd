@@ -1,5 +1,7 @@
 extends Node3D
 
+const Additions=preload("res://scripts/scenery_additions.gd")
+
 const ModelStyle=preload("res://scripts/model_style.gd")
 
 # Original, deterministic miniature districts. Building plots are fitted to the road,
@@ -73,6 +75,7 @@ func build_ground(owner_view) -> void:
 			var angle:=i*TAU/22.0
 			var p:=Vector2(cos(angle),sin(angle))*rng.randf_range(156,190)
 			if path.theme==1:
+				if not Additions.skyline_clear(p):continue
 				var hill:Node3D=view.model("district_outcrop",PathData.world(p,-1),rng.randf()*TAU,props)
 				hill.scale=Vector3(23,9,23)
 				apply_surface(hill,view.textured_material("grass_ground",.13,Color("b0bb9e")))
@@ -93,6 +96,7 @@ func marina(z:float) -> void:
 func build_details(owner_view) -> void:
 	view=owner_view
 	race_control()
+	Additions.landmarks(self)
 	landscape_pockets()
 	# Larger scene anchors occupy explicitly chosen outer parcels.
 	if path.theme==0:
@@ -123,6 +127,7 @@ func build_details(owner_view) -> void:
 			elif path.theme==0:art_building(p,angle,i%2)
 			elif path.theme==1:art_building(p,angle,2+i%2)
 			else:art_building(p,angle,4+i%2)
+	Additions.greenery(self)
 	Scenery.new(self).build()
 	if path.index==5:snow_cover()
 	street_furniture()
@@ -494,6 +499,7 @@ func art_tree(p:Vector2,size:float,pine:bool) -> void:
 	var tree:Node3D=view.model("district_pine" if pine else "district_oak",PathData.world(p),rng.randf()*TAU,props)
 	tree.scale=Vector3.ONE*size
 	finish_foliage(tree)
+	Additions.leaf_clusters(self,tree)
 
 func finish_foliage(node:Node) -> void:
 	if ModelStyle.is_clay():return
