@@ -19,13 +19,17 @@ def require(condition, message):
         raise ValueError(message)
 
 def artifact_files(directory):
-    return FILES + (('model-style.json',) if (directory / 'model-style.json').exists() else ())
+    candidates = [name for name in (FILES[0], 'micro-apex-original-debug-arm64.apk', 'micro-apex-bright_clay-debug-arm64.apk') if (directory / name).exists()]
+    require(len(candidates) <= 1, 'Multiple APK variants in artifact')
+    name = candidates[0] if candidates else FILES[0]
+    return (name, name + '.sha256', *FILES[2:]) + (('model-style.json',) if (directory / 'model-style.json').exists() else ())
 
 def validate_files(directory, expected_sha, certificate):
     require(sorted(p.name for p in directory.iterdir()) == sorted(artifact_files(directory)), 'Unexpected artifact contents')
-    apk = directory / FILES[0]
+    names = artifact_files(directory)
+    apk = directory / names[0]
     require(digest(apk) == expected_sha, 'APK differs from the approved build SHA-256')
-    require((directory / FILES[1]).read_text().split() == [expected_sha, FILES[0]], 'APK checksum file mismatch')
+    require((directory / names[1]).read_text().split() == [expected_sha, names[0]], 'APK checksum file mismatch')
     require((directory / FILES[3]).read_text().strip() == certificate, 'Pinned debug certificate mismatch')
     info = (directory / FILES[2]).read_text()
     match = re.search(r"package: name='org.lseyesl.microapex' versionCode='(\d+)' versionName='([^']+)'", info)
@@ -39,6 +43,9 @@ def validate_files(directory, expected_sha, certificate):
             report = json.loads((directory / 'model-style.json').read_text())
             packaged = json.loads(archive.read('assets/config/model_style.json'))
             require(report == packaged and report.get('locked') is True and report.get('format') == 1 and report.get('model_style') in ('original','bright_clay'), 'Model style metadata differs from the sealed APK config')
+    if apk.name != FILES[0]:
+        require((directory / 'model-style.json').exists(), 'Named variant requires model style metadata')
+        require(apk.name == f"micro-apex-{report['model_style']}-debug-arm64.apk", 'APK filename and packaged style differ')
     return match.groups()
 
 def verify_assets(assets, directory):

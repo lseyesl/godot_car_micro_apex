@@ -27,6 +27,32 @@ class PublishValidationTests(unittest.TestCase):
         self.assertEqual(publisher.validate_files(self.path, self.sha, self.pin), ('22', '0.13.3'))
         publisher.verify_assets(self.assets(), self.path)
 
+    def test_named_variant_artifacts_and_style_mismatch(self):
+        import json
+        for style in ('original', 'bright_clay'):
+            with self.subTest(style=style):
+                data = dict(format=1, model_style=style, locked=True, model_ids=['car_test'])
+                self.make_files()
+                with zipfile.ZipFile(self.path / publisher.FILES[0], 'a') as archive:
+                    archive.writestr('assets/config/model_style.json', json.dumps(data))
+                name = f'micro-apex-{style}-debug-arm64.apk'
+                (self.path / publisher.FILES[0]).rename(self.path / name)
+                sha = publisher.digest(self.path / name)
+                (self.path / publisher.FILES[1]).unlink()
+                (self.path / (name + '.sha256')).write_text(sha + '  ' + name + '\n')
+                (self.path / 'model-style.json').write_text(json.dumps(data))
+                self.assertEqual(publisher.validate_files(self.path, sha, self.pin), ('22', '0.13.3'))
+                publisher.verify_assets(self.assets(), self.path)
+                wrong = f"micro-apex-{'bright_clay' if style == 'original' else 'original'}-debug-arm64.apk"
+                (self.path / name).rename(self.path / wrong)
+                (self.path / (name + '.sha256')).unlink()
+                (self.path / (wrong + '.sha256')).write_text(sha + '  ' + wrong + '\n')
+                with self.assertRaisesRegex(ValueError, 'filename and packaged style'):
+                    publisher.validate_files(self.path, sha, self.pin)
+                (self.path / wrong).unlink()
+                (self.path / (wrong + '.sha256')).unlink()
+                (self.path / 'model-style.json').unlink()
+
     def test_changed_apk_rejected(self):
         with self.assertRaisesRegex(ValueError, 'approved build'):
             publisher.validate_files(self.path, 'b' * 64, self.pin)

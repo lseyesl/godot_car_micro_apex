@@ -13,7 +13,7 @@
 
 ## 模型风格选择
 
-`model_style` 默认 `original`，也可选 `bright_clay`。工作流显式设置环境变量并把风格固化到包内配置，APK 不依赖设备环境变量。风格元数据随 artifact/Release 保留；本地验证、资源过滤及旧产物兼容见 [模型风格说明](model-styles.md)。
+`model_style` 默认 `original`，也可选 `bright_clay`。两风格附件分别为 `micro-apex-original-debug-arm64.apk` 与 `micro-apex-bright_clay-debug-arm64.apk`，须使用不同 Release 标签。两者使用同一包名、版本码及固定签名，只能覆盖切换，不能并存；发布已有产物流程兼容新文件名和历史通用文件名。工作流显式设置环境变量并把风格固化到包内配置，APK 不依赖设备环境变量。风格元数据随 artifact/Release 保留；本地验证、资源过滤及旧产物兼容见 [模型风格说明](model-styles.md)。
 
 ## 配置
 
