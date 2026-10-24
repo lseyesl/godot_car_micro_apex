@@ -1,6 +1,6 @@
 extends RefCounted
 # Export preparation seals this config. Device environment variables cannot alter a package.
-const STYLES=["original","bright_clay"]
+const STYLES=["original","bright_clay","paper_craft"]
 const ENVIRONMENT_VARIABLE="MICRO_APEX_MODEL_STYLE"
 const CONFIG_PATH="res://config/model_style.json"
 static var _cached_style:=""
@@ -14,17 +14,19 @@ static func selected() -> String:
 	if not data.locked and OS.has_feature("editor") and not OS.has_feature("android") and OS.has_environment(ENVIRONMENT_VARIABLE):
 		value=OS.get_environment(ENVIRONMENT_VARIABLE).strip_edges()
 	if value not in STYLES:
-		push_error("Unsupported model style: %s. Expected original or bright_clay."%value)
+		push_error("Unsupported model style: %s. Expected original, bright_clay or paper_craft."%value)
 		_cached_style="invalid";return _cached_style
 	_cached_style=value
 	return value
 static func is_clay() -> bool:return selected()=="bright_clay"
+static func is_paper() -> bool:return selected()=="paper_craft"
+static func is_crafted() -> bool:return selected() in ["bright_clay","paper_craft"]
 static func model_path(id:String) -> String:
 	return model_path_for(selected(),id)
 static func model_path_for(style:String,id:String) -> String:
 	assert(style in STYLES,"Invalid model style")
-	return ("res://assets/styles/bright_clay/models/" if style=="bright_clay" else "res://assets/models/")+id+".glb"
+	return ("res://assets/models/" if style=="original" else "res://assets/styles/"+style+"/models/")+id+".glb"
 static func clay_color(color:Color) -> Color:
 	# Keep wheels, signs and road markings readable against a high-key environment.
 	if color.get_luminance()<.10:return color.lerp(Color("526674"),.45)
-	return color.lerp(Color("f4f2eb"),.18)
+	return color.lerp(Color("f1dfb9") if is_paper() else Color("f4f2eb"),.18)

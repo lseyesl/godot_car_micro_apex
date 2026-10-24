@@ -41,6 +41,8 @@ func run():
  check(game.controls.areas.left==Rect2(28,594,100,100),"Left target geometry unchanged")
  root.size=Vector2i(960,540)
  for frame in range(2):await process_frame
+ var mini=preload("res://scripts/minimap.gd").new()
+ check(mini.panel() is StyleBox,"Minimap accepts the selected crafted style box");mini.free()
  game.controls.layout()
  check(not game.controls.areas.right.intersects(game.controls.areas.brake),"Small landscape driving targets do not overlap")
  check(Rect2(Vector2.ZERO,game.controls.size).encloses(game.controls.areas.throttle),"Small landscape GAS target stays within viewport")
@@ -58,7 +60,8 @@ func run():
  await click("返回俱乐部");check(game.state==Main.State.MENU,"Results return button works")
  var test_button=game.frontend.action("Test",func():pass)
  if Clay.active():
-  check(test_button.get_theme_stylebox("normal").corner_radius_top_left>=18,"Rounded clay button")
+  check(test_button.get_theme_stylebox("normal").paper==preload("res://scripts/model_style.gd").is_paper(),"Pack-specific handcrafted shape")
+  check(test_button.get_theme_stylebox("normal").corner_radius_top_left==(0 if preload("res://scripts/model_style.gd").is_paper() else 22),"Folded paper versus kneaded round silhouette")
   check(test_button.get_theme_stylebox("normal").border_width_bottom>test_button.get_theme_stylebox("pressed").border_width_bottom,"Pressed state has visible depth change")
   check(Clay.box("touch")==Clay.box("touch"),"Drawing reuses cached style resources")
  else:

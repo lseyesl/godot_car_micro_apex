@@ -99,7 +99,7 @@ func _ready() -> void:
 	settings.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
 	settings.ambient_light_color=Color("c4d6e3")
 	settings.ambient_light_energy=.42
-	if ModelStyle.is_clay():
+	if ModelStyle.is_crafted():
 		settings.ambient_light_color=Color("f5f3ed")
 		settings.ambient_light_energy=.46
 	settings.tonemap_mode=Environment.TONE_MAPPER_LINEAR
@@ -133,7 +133,7 @@ func _ready() -> void:
 	var canvas:=CanvasLayer.new()
 	add_child(canvas)
 	menu_backdrop=ColorRect.new()
-	menu_backdrop.color=ClayUI.CREAM if ClayUI.active() else Color("0b1423")
+	menu_backdrop.color=ClayUI.background() if ClayUI.active() else Color("0b1423")
 	menu_backdrop.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	menu_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	canvas.add_child(menu_backdrop)
@@ -185,7 +185,7 @@ func audio(id:String, loop:bool) -> AudioStreamPlayer:
 		p.play()
 	return p
 
-func panel(fill:Color=Color("142b46"), border:Color=Color("35516d"), radius:int=10) -> StyleBoxFlat:
+func panel(fill:Color=Color("142b46"), border:Color=Color("35516d"), radius:int=10) -> StyleBox:
 	if ClayUI.active():return ClayUI.panel()
 	var style:=StyleBoxFlat.new()
 	style.bg_color=fill
@@ -454,7 +454,7 @@ func build_hud() -> void:
 	help_label.offset_bottom=85
 	help_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	center_label=label("3",100,Color("ffd34e"))
-	center_label.add_theme_color_override("font_shadow_color",ClayUI.CREAM if ClayUI.active() else Color("142b46"))
+	center_label.add_theme_color_override("font_shadow_color",ClayUI.background() if ClayUI.active() else Color("142b46"))
 	center_label.add_theme_constant_override("shadow_offset_y",5)
 	center_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	center_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
@@ -677,7 +677,7 @@ func modal(title:String,subtitle:String) -> VBoxContainer:
 	if is_instance_valid(overlay):
 		overlay.queue_free()
 	overlay=ColorRect.new()
-	overlay.color=Color(.88,.92,.83,.94) if ClayUI.active() else Color(.02,.035,.05,.94)
+	overlay.color=ClayUI.overlay_color() if ClayUI.active() else Color(.02,.035,.05,.94)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ui.add_child(overlay)
 	var scroll:=ScrollContainer.new()

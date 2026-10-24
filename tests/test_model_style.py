@@ -6,13 +6,14 @@ prepare=module('prepare_model_style');verify=module('verify_android_apk')
 class ModelStyleTests(unittest.TestCase):
  def setUp(self):
   self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=pathlib.Path(self.temp.name)
-  for folder in ['config','assets/models','assets/styles/bright_clay/models']:(self.root/folder).mkdir(parents=True)
+  for folder in ['config','assets/models','assets/styles/bright_clay/models','assets/styles/paper_craft/models']:(self.root/folder).mkdir(parents=True)
   (self.root/'assets/models/car_test.glb').write_bytes(b'original')
-  (self.root/'assets/styles/bright_clay/models/car_test.glb').write_bytes(b'clay')
+  for style in prepare.STYLES[1:]:(self.root/f'assets/styles/{style}/models/car_test.glb').write_bytes(style.encode())
   (self.root/'config/model_style.json').write_text('{"format":1,"model_style":"original","locked":false}')
   (self.root/'export_presets.cfg').write_text('[preset.0]\ninclude_filter="assets/legal/*.txt"\nexclude_filter="tests/*,build/*"\n')
  def test_seals_and_excludes_other_variant(self):
-  for style,excluded in [('bright_clay','assets/models/*'),('original','assets/styles/bright_clay/*')]:
+  for style in prepare.STYLES:
+   excluded='assets/styles/paper_craft/*' if style=='original' else 'assets/models/*'
    r=prepare.prepare(self.root,style);self.assertTrue(r['locked']);self.assertEqual(r['model_style'],style)
    self.assertEqual(r['model_ids'],['car_test']);self.assertIn(excluded,(self.root/'export_presets.cfg').read_text())
    self.assertEqual(r,json.loads((self.root/'build/android/model-style.json').read_text()))
@@ -20,6 +21,17 @@ class ModelStyleTests(unittest.TestCase):
   (self.root/'assets/styles/bright_clay/models/extra.glb').write_bytes(b'extra')
   for style in prepare.STYLES:
    with self.assertRaisesRegex(ValueError,'catalogs must match'):prepare.prepare(self.root,style)
+ def test_partial_generation_cannot_be_packaged(self):
+  (self.root/'assets/styles/paper_craft/manifest.json').write_text('{"complete":false}')
+  for style in prepare.STYLES:
+   with self.assertRaisesRegex(ValueError,'Incomplete'):prepare.prepare(self.root,style)
+ def test_every_other_style_is_excluded_and_stale_filters_removed(self):
+  for style in prepare.STYLES:
+   prepare.prepare(self.root,style)
+   text=(self.root/'export_presets.cfg').read_text()
+   for other in prepare.STYLES:
+    marker='assets/models/*' if other=='original' else f'assets/styles/{other}/*'
+    self.assertEqual(marker in text,other!=style)
  def test_invalid_style_cannot_mutate_project(self):
   before=(self.root/'export_presets.cfg').read_bytes()
   with self.assertRaises(ValueError):prepare.prepare(self.root,'unknown')
@@ -34,9 +46,9 @@ class ModelStyleTests(unittest.TestCase):
   self.assertEqual(json.loads((self.root/'config/model_style.json').read_text())['model_style'],'original')
  def test_explicit_environment_and_invalid_values(self):
   cmd=[sys.executable,str(ROOT/'tools/prepare_model_style.py'),'--from-environment','--project',str(self.root)]
-  for value in ['bright_clay','bad']:
+  for value in ['bright_clay','paper_craft','bad']:
    r=subprocess.run(cmd,env=dict(os.environ,MICRO_APEX_MODEL_STYLE=value),capture_output=True)
-   self.assertEqual(r.returncode,0 if value=='bright_clay' else 2)
+   self.assertEqual(r.returncode,0 if value in prepare.STYLES else 2)
  def test_import_metadata_requires_existing_scene(self):
   data=prepare.prepare(self.root,'bright_clay');path=self.root/'missing-target.apk'
   with zipfile.ZipFile(path,'w') as z:
@@ -47,7 +59,7 @@ class ModelStyleTests(unittest.TestCase):
  def test_package_config_and_only_selected_models(self):
   for style in prepare.STYLES:
    data=prepare.prepare(self.root,style);archive_path=self.root/f'{style}.apk'
-   prefix='assets/assets/models/' if style=='original' else 'assets/assets/styles/bright_clay/models/'
+   prefix='assets/assets/models/' if style=='original' else f'assets/assets/styles/{style}/models/'
    with zipfile.ZipFile(archive_path,'w') as z:
     z.writestr('assets/config/model_style.json',json.dumps(data));z.writestr(prefix+'car_test.glb.import','[remap]\npath="res://.godot/imported/car_test.scn"\n');z.writestr('assets/.godot/imported/car_test.scn','fixture')
    with zipfile.ZipFile(archive_path) as z:self.assertEqual(verify.validate_model_style(z,style),data)

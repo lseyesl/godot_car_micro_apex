@@ -33,7 +33,7 @@ func _draw() -> void:
 		if is_instance_valid(car):
 			draw_circle(project(car.dynamics.position),4.5 if car.player else 3.0,(ClayUI.ACCENT if ClayUI.active() else Color("ffd34e")) if car.player else car.dynamics.spec.color)
 
-func panel() -> StyleBoxFlat:
+func panel() -> StyleBox:
 	if ClayUI.active():return ClayUI.box()
 	var s:=StyleBoxFlat.new()
 	s.bg_color=Color(.055,.12,.21,.85)

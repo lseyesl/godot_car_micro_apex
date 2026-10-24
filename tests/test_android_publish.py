@@ -29,7 +29,7 @@ class PublishValidationTests(unittest.TestCase):
 
     def test_named_variant_artifacts_and_style_mismatch(self):
         import json
-        for style in ('original', 'bright_clay'):
+        for style in ('original', 'bright_clay', 'paper_craft'):
             with self.subTest(style=style):
                 data = dict(format=1, model_style=style, locked=True, model_ids=['car_test'])
                 self.make_files()

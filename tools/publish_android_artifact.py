@@ -19,7 +19,7 @@ def require(condition, message):
         raise ValueError(message)
 
 def artifact_files(directory):
-    candidates = [name for name in (FILES[0], 'micro-apex-original-debug-arm64.apk', 'micro-apex-bright_clay-debug-arm64.apk') if (directory / name).exists()]
+    candidates = [name for name in (FILES[0], 'micro-apex-original-debug-arm64.apk', 'micro-apex-bright_clay-debug-arm64.apk', 'micro-apex-paper_craft-debug-arm64.apk') if (directory / name).exists()]
     require(len(candidates) <= 1, 'Multiple APK variants in artifact')
     name = candidates[0] if candidates else FILES[0]
     return (name, name + '.sha256', *FILES[2:]) + (('model-style.json',) if (directory / 'model-style.json').exists() else ())
@@ -42,7 +42,7 @@ def validate_files(directory, expected_sha, certificate):
         if (directory / 'model-style.json').exists():
             report = json.loads((directory / 'model-style.json').read_text())
             packaged = json.loads(archive.read('assets/config/model_style.json'))
-            require(report == packaged and report.get('locked') is True and report.get('format') == 1 and report.get('model_style') in ('original','bright_clay'), 'Model style metadata differs from the sealed APK config')
+            require(report == packaged and report.get('locked') is True and report.get('format') == 1 and report.get('model_style') in ('original','bright_clay','paper_craft'), 'Model style metadata differs from the sealed APK config')
     if apk.name != FILES[0]:
         require((directory / 'model-style.json').exists(), 'Named variant requires model style metadata')
         require(apk.name == f"micro-apex-{report['model_style']}-debug-arm64.apk", 'APK filename and packaged style differ')

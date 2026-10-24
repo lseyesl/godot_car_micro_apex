@@ -61,7 +61,7 @@ func build_ground(owner_view) -> void:
 		var sea:MeshInstance3D=view.add_box(Vector3(-330,-2.3,0),Vector3(412,.3,640),Color("639c9d"))
 		var water:=ShaderMaterial.new()
 		water.shader=load("res://assets/shaders/coastal_water.gdshader")
-		sea.material_override=view.material(Color("8acdd4")) if ModelStyle.is_clay() else water
+		sea.material_override=view.material(Color("8acdd4")) if ModelStyle.is_crafted() else water
 		# Retaining wall, continuous esplanade and marina, rather than concentric islands.
 		view.add_box(Vector3(-123,-.9,0),Vector3(3,3,560),Color("a6a391"))
 		view.add_box(Vector3(-120,.02,0),Vector3(6,.15,560),Color("d1c6ae"))
@@ -448,7 +448,7 @@ func race_control() -> void:
 	group.add_child(back)
 
 func facade(at:Vector3,size:Vector3,tint:String,parent:Node3D,kind:int) -> void:
-	if ModelStyle.is_clay():
+	if ModelStyle.is_crafted():
 		box(at,size,tint,parent);return
 	var key:=tint+str(kind)
 	if not finishes.has(key):
@@ -478,7 +478,7 @@ func art_building(p:Vector2,angle:float,variant:int) -> void:
 	art_tree(p+Vector2(5.4,4.8).rotated(-angle),.3,false)
 
 func finish_model(node:Node,variant:int) -> void:
-	if ModelStyle.is_clay():return
+	if ModelStyle.is_crafted():return
 	if node is MeshInstance3D:
 		var key:=String(node.name)
 		var asset:=""
@@ -502,14 +502,14 @@ func art_tree(p:Vector2,size:float,pine:bool) -> void:
 	Additions.leaf_clusters(self,tree)
 
 func finish_foliage(node:Node) -> void:
-	if ModelStyle.is_clay():return
+	if ModelStyle.is_crafted():return
 	if node is MeshInstance3D and String(node.name).begins_with("leaf"):
 		node.material_override=view.miniature_material("grass_ground",.5,Color(["5b815d","6d9265","83a571","96ae78"][int(String(node.name).trim_prefix("leaf"))%4]),.13)
 	for child in node.get_children():finish_foliage(child)
 
 func landscape_pockets() -> void:
 	var terrain:Material
-	if ModelStyle.is_clay():terrain=view.material(Color("b4cd94"))
+	if ModelStyle.is_crafted():terrain=view.material(Color("b4cd94"))
 	else:
 		var textured:=ShaderMaterial.new()
 		textured.shader=load("res://assets/shaders/terrain_bank.gdshader")
@@ -524,7 +524,7 @@ func landscape_pockets() -> void:
 		reserve(p,10)
 		var bank:Node3D=view.model("district_outcrop",PathData.world(p,-.1),rng.randf()*TAU,props)
 		bank.scale=Vector3(7.5,4.5,7.5)
-		apply_surface(bank,view.material(Color("b4cd94")) if ModelStyle.is_clay() else (terrain if path.theme!=2 else view.textured_material("marble_cliff_02",.17,Color("c5ac92"))))
+		apply_surface(bank,view.material(Color("b4cd94")) if ModelStyle.is_crafted() else (terrain if path.theme!=2 else view.textured_material("marble_cliff_02",.17,Color("c5ac92"))))
 		for side in [-1,1]:
 			var boulder:Node3D=view.model("district_outcrop",PathData.world(p+Vector2(side*5,3),-.1),rng.randf()*TAU,props)
 			boulder.scale=Vector3(2.2,1.6,2.5)
@@ -583,7 +583,7 @@ func expansion_plot(p:Vector2,angle:float,variant:int) -> void:
 
 func snow_cover() -> void:
 	var snow:Material
-	if ModelStyle.is_clay():snow=view.material(Color("edf3ed"))
+	if ModelStyle.is_crafted():snow=view.material(Color("edf3ed"))
 	else:
 		var textured:=ShaderMaterial.new()
 		textured.shader=load("res://assets/shaders/district_plaster.gdshader")
@@ -593,4 +593,4 @@ func snow_cover() -> void:
 	# Ground is structural scenery and remains visible in low quality mode.
 	for child in view.get_children():
 		if child is MeshInstance3D and child.mesh is BoxMesh and child.mesh.size.x>400:
-			child.material_override=view.material(Color("edf3ed")) if ModelStyle.is_clay() else snow
+			child.material_override=view.material(Color("edf3ed")) if ModelStyle.is_crafted() else snow

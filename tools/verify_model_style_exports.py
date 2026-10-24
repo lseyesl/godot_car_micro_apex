@@ -29,7 +29,7 @@ def run(godot):
                 env[key] = str(path)
             empty = workspace / 'empty'
             empty.mkdir()
-            for style in ('original', 'bright_clay'):
+            for style in ('original', 'bright_clay', 'paper_craft'):
                 prepare(ROOT, style)
                 pack = output / f'{style}.pck'
                 with (output / f'export-{style}.log').open('w') as log:
@@ -38,7 +38,7 @@ def run(godot):
                         cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
                     if result.returncode:
                         raise RuntimeError(f'Export failed; see {log.name}')
-                for ambient in ('original', 'bright_clay', 'invalid_ambient'):
+                for ambient in ('original', 'bright_clay', 'paper_craft', 'invalid_ambient'):
                     result = subprocess.run(
                         [godot, '--headless', '--path', str(empty), '--main-pack', str(pack),
                          '--script', str(ROOT / 'tests/exported_model_style_probe.gd'), '--', style],

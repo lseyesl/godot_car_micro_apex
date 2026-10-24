@@ -106,7 +106,9 @@ func _draw() -> void:
 		if key in ["left","right"]:
 			var center:=rect.get_center()
 			var direction:=1.0 if key=="right" else -1.0
-			draw_colored_polygon(PackedVector2Array([center+Vector2(12*direction,0),center+Vector2(-9*direction,-13),center+Vector2(-9*direction,13)]),ClayUI.INK if ClayUI.active() else (Color("122015") if active else Color("f0eee6")))
+			var points:=PackedVector2Array([center+Vector2(12*direction,0),center+Vector2(-9*direction,-13),center+Vector2(-9*direction,13)])
+			if ClayUI.active():ClayUI.draw_arrow(self,points,active)
+			else:draw_colored_polygon(points,Color("122015") if active else Color("f0eee6"))
 			continue
 		var font_size:=20 if key in ["brake","reset"] else 27
 		var width:=font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x

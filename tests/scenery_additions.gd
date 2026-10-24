@@ -25,10 +25,13 @@ func run():
  var ids:Array[String]=[]
  for file in DirAccess.get_files_at("res://assets/models"):
   if file.ends_with(".glb"):ids.append(file.trim_suffix(".glb"))
- var clay:Array[String]=[]
- for file in DirAccess.get_files_at("res://assets/styles/bright_clay/models"):
-  if file.ends_with(".glb"):clay.append(file.trim_suffix(".glb"))
- ids.sort();clay.sort();check(ids==clay,"Both model catalogs must be synchronized")
+ ids.sort()
+ for style in Style.STYLES:
+  var variants:Array[String]=[]
+  var folder="res://assets/models" if style=="original" else "res://assets/styles/"+style+"/models"
+  for file in DirAccess.get_files_at(folder):
+   if file.ends_with(".glb"):variants.append(file.trim_suffix(".glb"))
+  variants.sort();check(ids==variants,"All model catalogs must be synchronized: "+style)
  for id in ids:
   if not (id.begins_with("prop_") or id.begins_with("foliage_")):continue
   var node=load(Style.model_path(id)).instantiate()

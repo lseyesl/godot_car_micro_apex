@@ -1,5 +1,7 @@
 # bright_clay UI
 
+> 本页记录初版明亮主题。当前候选的手捏 A / 折纸 C 几何化 UI 与真实样板见 [A/C 改造](crafted-styles.md)，交互仍沿用本页同一逻辑。
+
 `bright_clay` 使用与模型对应的明亮黏土界面；`original` 沿用原界面。没有增加游戏内风格开关，Android 仍从打包锁定的 ModelStyle 配置读取，桌面开发沿用同名环境变量。
 
 样式集中在 `scripts/clay_ui.gd`，主界面、Frontend、触控绘制和小地图使用同一组颜色与 StyleBox。导航、按钮回调、输入动作和驾驶代码继续共享，场景资源扩充另见 [同步布景](scenery-additions.md)。

@@ -17,14 +17,14 @@ func material(color: Color) -> StandardMaterial3D:
 		return cached_materials[color]
 	var m := StandardMaterial3D.new()
 	cached_materials[color]=m
-	var tint:Color=ModelStyle.clay_color(color) if ModelStyle.is_clay() else color
+	var tint:Color=ModelStyle.clay_color(color) if ModelStyle.is_crafted() else color
 	m.albedo_color=tint.srgb_to_linear().lerp(tint,.15)
-	if ModelStyle.is_clay():m.metallic_specular=.1
+	if ModelStyle.is_crafted():m.metallic_specular=.1
 	m.roughness=1.0
 	return m
 
 func textured_material(asset:String,scale_factor:float=1.0,tint:Color=Color.WHITE) -> Material:
-	if ModelStyle.is_clay():return miniature_material(asset,scale_factor,tint)
+	if ModelStyle.is_crafted():return miniature_material(asset,scale_factor,tint)
 	var key:=asset+str(scale_factor)+str(tint)
 	if surface_cache.has(key):return surface_cache[key]
 	var m:=StandardMaterial3D.new()
@@ -51,13 +51,14 @@ func miniature_material(asset:String,scale_factor:float,tint:Color,strength:floa
 	var key:="miniature_"+asset+str(scale_factor)+str(tint)+str(strength)
 	if surface_cache.has(key):return surface_cache[key]
 	var m:=ShaderMaterial.new()
-	if ModelStyle.is_clay():
-		m.shader=load("res://assets/styles/bright_clay/clay_surface.gdshader")
+	if ModelStyle.is_crafted():
+		m.shader=load("res://assets/styles/"+ModelStyle.selected()+"/craft_surface.gdshader")
 		var clay:Color=ModelStyle.clay_color(tint)
 		if asset=="clean_asphalt":clay=Color("71818b")
 		elif asset=="brown_mud_dry":clay=Color("dbb28b")
 		elif asset in ["grass_ground","grass_path_3"]:clay=Color("b2cd91")
 		m.set_shader_parameter("tint",clay.srgb_to_linear().lerp(clay,.15))
+		m.set_shader_parameter("surface_normal",load("res://assets/styles/"+ModelStyle.selected()+"/textures/surface_normal.png"))
 		surface_cache[key]=m
 		return m
 	m.shader=load("res://assets/shaders/miniature_surface.gdshader")
@@ -107,7 +108,7 @@ func add_curb(st: SurfaceTool, body: StaticBody3D, a: Vector2, b: Vector2,
 		PathData.world(outer_b,hb+.85),PathData.world(outer_a,ha+.85)])
 	for face in [[0,4,5,1],[3,2,6,7],[4,7,6,5],[0,3,7,4],[1,5,6,2],[0,1,2,3]]:
 		for index in [face[0],face[1],face[2],face[0],face[2],face[3]]:
-			var tint:Color=ModelStyle.clay_color(color) if ModelStyle.is_clay() else color
+			var tint:Color=ModelStyle.clay_color(color) if ModelStyle.is_crafted() else color
 			st.set_color(tint.srgb_to_linear().lerp(tint,.15))
 			st.add_vertex(vertices[index])
 	var shape:=ConvexPolygonShape3D.new()

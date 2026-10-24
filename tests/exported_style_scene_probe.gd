@@ -11,8 +11,11 @@ func run():
  for track in range(6):
   game.launch_free(track,false,true);game.countdown=1000
   for frame in range(3):await process_frame
-  if game.speed_label.get_theme_color("font_color")!=(UI.ACCENT if Style.is_clay() else Color("ffd34e")):
+  if game.speed_label.get_theme_color("font_color")!=(UI.ACCENT if Style.is_crafted() else Color("ffd34e")):
    failures+=1;push_error("Packaged UI theme does not match locked model style")
+  if Style.is_crafted():
+   var box=game.controls.get_theme_stylebox("normal") if game.controls.has_theme_stylebox("normal") else UI.box("touch")
+   if box.paper!=Style.is_paper():failures+=1;push_error("Packaged UI shape does not match style")
   var district=game.circuit.get_child(1)
   if district.get_meta("new_landmarks",[]).size()!=2 or district.get_meta("new_greenery",[]).size()<24 or district.get_meta("new_leaf_clusters",0)==0:
    failures+=1;push_error("Missing packaged scenery additions")

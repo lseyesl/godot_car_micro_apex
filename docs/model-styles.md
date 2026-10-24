@@ -1,61 +1,47 @@
-# 模型风格：original / bright_clay
+# 模型与 UI 风格
 
-默认保持 `original`。新增 `bright_clay` 为独立的明亮哑光黏土资源版本，应用和玩法仍为同一套，不增加风格切换 UI。bright_clay 的界面主题见 [黏土 UI](clay-ui.md)。旧 GLB、既有发布和标签不改动。
+默认是 `original`，另有 `bright_clay` 手捏黏土 A 和 `paper_craft` 折纸纸模 C。三套均对应同一组 37 个模型、同一布景和玩法，不提供游戏内切换。`bright_clay` 保留旧选择值兼容，但已替换最初仅改材质的美术方案；新的几何与 UI、真实 Godot 样板见 [A/C 改造](crafted-styles.md)。
 
-| 原版 | 明亮黏土 |
-| --- | --- |
-| ![Original](screenshots/model-style-original.png) | ![Bright clay](screenshots/model-style-bright-clay.png) |
+| 选择值 | 模型 | UI |
+| --- | --- | --- |
+| `original` | 原始 GLB，保持不动 | 原有深色主题 |
+| `bright_clay` | 圆润不规则几何、压痕法线、哑光颜料 | 厚实捏塑边缘、压印箭头、按压层次 |
+| `paper_craft` | 折面、纸边厚度、折线和纸纤维 | 叠纸卡片、折角按钮、裁切箭头 |
 
-两图为 Godot 4.7 同位置、同相机实际渲染，已逐张查看。这两张是初版 28 模型阶段的截图；当时原版与基线逐像素相同。后续两风格同步新增场景，见 [新增布景](scenery-additions.md)。黏土版降低金属/高光、提高粗糙度，保留车色、深色路面、轮胎与玻璃辨识度；道路/建筑/植被使用简洁的柔和材质。它沿用已有圆角轮廓，没有新增圆角拓扑或更改比例。
-
-## 资源及节点契约
-
-- 原版仍在 `assets/models/`；新 GLB 位于 `assets/styles/bright_clay/models/`，对应全部 37 个原始 GLB：原有 28 个，加上两风格同步新增的 9 个地标与植被模型。
-- 新 GLB 是独立文件，材质/配色确实写入文件，不是改文案或运行时统一覆盖旧资产。原版所有文件内容不变。
-- `tools/build_bright_clay.py` 可重建黏土 GLB 和清单。它只改 glTF 材质 JSON，保持二进制几何块、节点、变换、网格、动画/蒙皮数据不变。车辆仍有同名四个 Wheel 枢轴；三角形数量、AABB、朝向、碰撞及轮子动画逻辑保持不变。
-- 程序生成的地面、路缘及街区物件也接入风格材质；黏土版不加载被过滤掉的原表面纹理。未重做 UI，没有改驾驶、转向或物理插值规则。
-
-## 开发与打包
-
-桌面开发（Godot 编辑器二进制运行工程）：
+## 开发与构建
 
 ```sh
-godot --path .                                  # 未设置变量时为 original
+godot --path .                              # 默认 original
 MICRO_APEX_MODEL_STYLE=bright_clay godot --path .
+MICRO_APEX_MODEL_STYLE=paper_craft godot --path .
 ```
 
-环境变量只在未锁定的开发配置中生效。非法值明确报错并退出，不静默切回其它风格；进程启动后风格固定，不提供热切换。
+环境变量仅对未锁定的桌面编辑器开发配置生效。非法值明确报错退出，启动后选择固定；Android 不读取设备环境变量。
 
-GitHub Actions 的 **Build Android APK** 新增 `model_style` 下拉值 `original` / `bright_clay`，默认 `original`。该选择显式赋给 `MICRO_APEX_MODEL_STYLE`，运行 `prepare_model_style.py --from-environment`，写入包内 `config/model_style.json`，设置 `locked=true` 并记录模型列表。导出时只保留所选模型。
-
-**CI 的进程环境变量不会继承到安装后的 APK。** Android 从包内配置识别风格；锁定配置也不会被桌面或设备的相反/非法环境变量覆盖。Android 运行路径不依赖设备 shell 变量。导出模板同样忽略开发环境变量。
-
-本地候选 APK 构建：
+Actions **Build Android APK** 的 `model_style` 为上述三个明确选项，默认 `original`。输入赋给 `MICRO_APEX_MODEL_STYLE`，由 `prepare_model_style.py --from-environment` 验证，固化为 `config/model_style.json` 的 `locked=true` 和模型清单。**CI 环境不会自动继承进 APK**，已安装游戏从包内配置识别风格。
 
 ```sh
-bash tools/build_android.sh                 # 固定默认 original，忽略开发者的同名环境变量
+bash tools/build_android.sh                 # 忽略开发者同名环境变量，固定 original
 bash tools/build_android.sh bright_clay
+bash tools/build_android.sh paper_craft
 ```
 
-该脚本显式选择风格，导出期间锁定配置，退出后恢复开发配置和导出预设。缺少资源或非法值会停止。默认原版预设始终过滤黏土目录；黏土包过滤原模型和未使用的表面纹理，不把两套模型都塞进安装包。没有修改包 ID、签名或版本号；将来发布仍需按正常规则递增版本码，同包 ID 的两种外观并非并排安装的独立应用。
+本地脚本退出时恢复开发配置与导出预设。三套资源清单必须同步；缺失、非法选择或 partial manifest 在修改配置前停止。原始 GLB 在 `assets/models/`，工艺资源在 `assets/styles/<style>/models/`。每包只带所选资源；工艺包还过滤原版表面纹理，其余两套模型/风格纹理均不打包。
 
-## 验证与发布元数据
+不要把环境变量读取改成设备 shell 依赖，也不要把开发者本机环境隐式用作默认构建选择。不要覆盖原始资产或既有 Release/tag。
+
+## 验证
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'
 python3 tools/validate.py --godot godot
 MICRO_APEX_MODEL_STYLE=bright_clay python3 tools/validate.py --godot godot
+MICRO_APEX_MODEL_STYLE=paper_craft python3 tools/validate.py --godot godot
 python3 tools/verify_model_style_exports.py --godot godot
 ```
 
-最后一条仅在本地导出两份 Android **资源 PCK**，不是构建 APK，也不调用远端服务。它恢复工作区配置，验证包内锁定风格、所选模型目录中全部模型加载、未选资源缺失，以及相反/非法环境变量均无法改变风格。完整场景探针还验证了两种包中六条赛道的资源加载。
+最后一项仅本地导出三份 Android 资源 PCK，不构建 APK、不调用远端。它验证每包全部模型可加载、其余风格资源不存在、相反/非法环境变量不改变选择，以及三套各六赛道的场景和 UI 初始化。完成后恢复源配置。
 
-Android CI 校验器的 `--expected-model-style` 核对实际 APK 内的配置、模型覆盖及资源过滤。artifact 和 Release 新增 `model-style.json`；发布器要求它与实际 APK 中的锁定配置一致，发布说明需标明风格。已有不含风格配置的四文件 artifact 仍按旧流程兼容，不能给新风格包悄悄省略元数据。附件仍必须通过 GitHub Actions runner 发布，权限与凭据不变，见 [Android 发布流程](android-build.md)。
+Android APK 检查器 `--expected-model-style` 验证锁定配置、全部导入模型目标及资源排他。新 artifact/Release 带 `model-style.json`，发布器要求与 APK 中配置一致；历史不含风格配置的四文件 artifact 保持兼容，新包不得省略元数据。风格名进入 APK 文件名和发布标题，独立风格须使用独立新标签。
 
-## 初版 28 模型阶段验证记录（历史数据）
-
-- 两种风格完整标准回归均通过，包括模型契约 467 项、碰撞停车转向 465 项、输入链 412 项、转向专项 8910 项、物理插值 11 项，以及每种风格三场自动比赛。
-- 两份真实资源 PCK 各 28 个模型全部加载，相反和非法环境变量的六组运行检查通过；两风格六赛道共 12 次包内场景启动通过。
-- 原始 GLB 合计 16,165,684 bytes，新 GLB 合计 16,161,448 bytes；二进制几何块完全一致。资源包约为原版 65.55 MB、黏土版 24.70 MB，后者主要减少了表面纹理；这些数字不含 Android native 模板，不能当作 APK 大小。
-- 相同小样场景的软件 OpenGL 计数均为 882 次绘制、659,470 个图元；纹理显存计数约 88.87 MB → 32.94 MB，总视频内存计数约 103.26 MB → 47.34 MB。仅作桌面代理检查，不代表 Android FPS、耗电或热表现。
-- 没有 Android 真机。本阶段未推送、触发 Actions、构建或发布新 APK。Library 图片保存辅助流程遇到工具发现 HTTP 401，未创建 Library 文件；截图原件保留在本地及此文档中，没有伪造文件 ID。
+三种风格仍使用同包名和固定调试签名，只能覆盖切换，不能并存；发布需正常递增版本码。附件只允许 GitHub Actions runner 上传，不允许云端直接上传，见 [Android 构建发布流程](android-build.md)。本轮仅本地实现与验证，未获准推送或发布，Android 真机外观与性能仍待验收。

@@ -48,13 +48,13 @@ def validate_certificate(output, expected):
 
 def validate_model_style(archive, expected):
     data = json.loads(archive.read('assets/config/model_style.json'))
-    if data.get('format') != 1 or data.get('locked') is not True or data.get('model_style') != expected or expected not in ('original', 'bright_clay'):
+    if data.get('format') != 1 or data.get('locked') is not True or data.get('model_style') != expected or expected not in ('original', 'bright_clay', 'paper_craft'):
         raise ValueError('APK model style is not the expected sealed build style')
     ids = data.get('model_ids', [])
     if not ids or len(set(ids)) != len(ids) or any(not re.fullmatch(r'[a-z0-9_]+', x) for x in ids):
         raise ValueError('Invalid model catalog in package')
-    selected = 'assets/assets/models/' if expected == 'original' else 'assets/assets/styles/bright_clay/models/'
-    excluded = 'assets/assets/styles/bright_clay/models/' if expected == 'original' else 'assets/assets/models/'
+    selected = 'assets/assets/models/' if expected == 'original' else f'assets/assets/styles/{expected}/models/'
+    excluded = [('assets/assets/models/' if style == 'original' else f'assets/assets/styles/{style}/') for style in ('original','bright_clay','paper_craft') if style != expected]
     names = set(archive.namelist())
     suffixes = ('.glb', '.glb.remap', '.glb.import')
     for model in ids:
@@ -69,7 +69,7 @@ def validate_model_style(archive, expected):
             target = re.search(r'^path="(res://[^"]+)"', metadata, re.MULTILINE)
             if not target or 'assets/' + target[1][6:] not in names:
                 raise ValueError('Missing imported model target: ' + model)
-    if any(n.startswith(excluded) and n.endswith(suffixes) for n in names):
+    if any(any(n.startswith(prefix) for prefix in excluded) for n in names):
         raise ValueError('Unselected model style is also packaged')
     return data
 
@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--sdk',default=os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT'))
     parser.add_argument('--certificate-sha256-file',type=pathlib.Path)
     parser.add_argument('--build-tools',default='36.0.0')
-    parser.add_argument('--expected-model-style', choices=('original','bright_clay'))
+    parser.add_argument('--expected-model-style', choices=('original','bright_clay','paper_craft'))
     args=parser.parse_args()
     if not args.sdk:parser.error('Set ANDROID_HOME or supply --sdk')
     sdk=pathlib.Path(args.sdk); apk=args.apk.resolve(); build=sdk/'build-tools'/args.build_tools

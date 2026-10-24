@@ -19,7 +19,7 @@ godot --editor --path .
 
 ## 模型风格
 
-默认保留原版。可在开发环境或 Actions 打包时选择独立的 `bright_clay` 黏土资源版本；Android 使用包内固化配置。小样、使用方法和验证范围见 [模型风格说明](docs/model-styles.md)。
+默认保留原版。可在开发环境或 Actions 打包时选择 `bright_clay` 手捏黏土或 `paper_craft` 折纸纸模独立资源版本；Android 使用包内固化配置。小样、使用方法和验证范围见 [模型风格说明](docs/model-styles.md)。
 
 菜单现支持卡片上触摸滚动、可拖动的加宽滚动条和无固定黑柱的宽屏画布；见 [移动 UI 修复与验证](docs/mobile-ui-layout.md)（本地待发布）。
 

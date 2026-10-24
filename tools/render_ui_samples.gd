@@ -23,4 +23,7 @@ func run():
  Input.flush_buffered_events();await capture("pressed")
  game.pause_game();await capture("pause")
  game.resume_game();game.show_results();await capture("results")
- game.queue_free();await process_frame;quit()
+ game.queue_free()
+ for frame in range(12):await process_frame
+ await RenderingServer.frame_post_draw
+ quit()

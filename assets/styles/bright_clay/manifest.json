@@ -1,302 +1,416 @@
 {
+  "format": 2,
   "style": "bright_clay",
-  "geometry": "identical; existing rounded/bevelled silhouettes retained",
+  "complete": true,
+  "geometry": "sculpted uneven clay",
+  "surface": "opaque corner pigment and baked tangent normal map",
   "models": [
     {
       "id": "asphalt_curve",
       "source_sha256": "0eea3d8a5340bbe11b6ac18e5309a0efaa9921e03085e10616c6308c3a0e258b",
-      "variant_sha256": "77c5aa6ebf8b78a588666e0009aca5bd65172034dd38d6d40381861fed44b04e",
-      "geometry_chunk_sha256": "d86e91b95363e27fd204952ee49e3ee282ce39a625fda913ce9dee8d9d17d3cb",
+      "variant_sha256": "f383d9125768323724c152446cd7dc7fc913a1ae30a28257680294dfe43cdb51",
+      "source_triangles": 576,
+      "triangles": 1468,
       "source_bytes": 42820,
-      "variant_bytes": 42680
+      "variant_bytes": 79236,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "asphalt_straight",
       "source_sha256": "dfff6cf80293947f06d2671a46360092b579f8c38713e6683e37e1d81d823b86",
-      "variant_sha256": "8bebc24ae92a9ad1d1ca49fab24cbea596738faf8f6e93251645b82151fa2538",
-      "geometry_chunk_sha256": "cf87d82e3af01bf33d02de1478822e96f23a8fbfa1496b4565be8fadc2a16b65",
+      "variant_sha256": "3244a55f04b974ebd1504ff348093fa51b443d35eba86b4b4b2b773c3868c366",
+      "source_triangles": 176,
+      "triangles": 504,
       "source_bytes": 18644,
-      "variant_bytes": 18504
+      "variant_bytes": 30748,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "car_agile",
       "source_sha256": "d3b315fd64a6aa89d13861a53d58c6b7715994e34e7d06f9fc4cca7b7a8ec670",
-      "variant_sha256": "59353c143ce1a0eadb64bc8b9c9f67d71a57fffa064f6e5ddc6f85738de76781",
-      "geometry_chunk_sha256": "5672e5fabdbee05edc4ca6e82b098378b0291df7f6012a44f2988fc686d990e7",
+      "variant_sha256": "ea5b44e6d4c23d5e9ad40332fff71fbd6a785174d46b2a860e318335e68942d0",
+      "source_triangles": 11040,
+      "triangles": 13390,
       "source_bytes": 580704,
-      "variant_bytes": 579868
+      "variant_bytes": 658936,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_balanced",
       "source_sha256": "14a9dee3de5123e6f4f59ffd291f0fc658168b0ef637bc7c169635acb49c0f16",
-      "variant_sha256": "272ebcfab2707ba1fe8cf33ef7a385c9b4b17579cb89e7ef8070bb698dbb104b",
-      "geometry_chunk_sha256": "1084becd9cf06ce2204b62cca98d41995519872d90fe9ca6c02da0bdc35f6908",
+      "variant_sha256": "45ac3bbe4b303c20632a3cbaea1bc16afad60136c6d2622cbea41af795709103",
+      "source_triangles": 10748,
+      "triangles": 13162,
       "source_bytes": 568760,
-      "variant_bytes": 567880
+      "variant_bytes": 642648,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_buggy",
       "source_sha256": "79f896dcd000e9a08204f47fb907ac3a86fefeee60fe25b1813ac927b7304313",
-      "variant_sha256": "f63560f48e11a1b302994b8180d2dc254d85ea3fcf1e032541434eaede0ff960",
-      "geometry_chunk_sha256": "556d5ef25f1a7a4e3d55fc5f5b6e12623b38992516a62e8ffdd3a2ca12a482ef",
+      "variant_sha256": "0256e3c09213c3c717493494cd8e85eadee151a5c67a9307b7b7b401ff2a1518",
+      "source_triangles": 21740,
+      "triangles": 24780,
       "source_bytes": 1305336,
-      "variant_bytes": 1304592
+      "variant_bytes": 1291028,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_dirt",
       "source_sha256": "9fb906c838df779543080a4e2c11931ec0dfc2dfac90a00d2cb250ca9f6df025",
-      "variant_sha256": "f4d2c5e105d088d117789fe7cc96918f5b7968568718604866254d2759abe795",
-      "geometry_chunk_sha256": "b2a39d56fbb0d51fe25d38935851a5ab54479445b7412df0b8bbfcdfbad89675",
+      "variant_sha256": "c65f52bd4d8f28013cfdb948ef673016265027f2fc92068db6b668c01dc4afd3",
+      "source_triangles": 20588,
+      "triangles": 23552,
       "source_bytes": 1302576,
-      "variant_bytes": 1301740
+      "variant_bytes": 1229540,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_muscle",
       "source_sha256": "a5ce0dfae47f9074b2407db634fb54fc721196ba95d803eb7fe9636f6d6985a2",
-      "variant_sha256": "27649cc802b37f7243853f8db5dfa38f5e75c8343e5cac73edd197fd9a7800f4",
-      "geometry_chunk_sha256": "9896bc9792747c098375f70dd1cb7100076246e480300e75da5080c0c8e87154",
+      "variant_sha256": "0dab8275618ac51573eab826d8baff1f34125032e4b34deb43eeba62e19b6b46",
+      "source_triangles": 12280,
+      "triangles": 15376,
       "source_bytes": 631576,
-      "variant_bytes": 630740
+      "variant_bytes": 737060,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_pickup",
       "source_sha256": "424cfb11159c66b1c0740712a2fe3a793cb2e1bfec99fd3105a09d357f23464a",
-      "variant_sha256": "658bd91f05fdd4ec8f95aed80d0962f474e8a0abe497fa34856216600b7007c7",
-      "geometry_chunk_sha256": "b017ec69d16ec2518c63e25bdecd1a3c7206b93f49d4afa956a64af2e0e66399",
+      "variant_sha256": "70a3b495dcbd2e565694df7c24fd89399a8a7c217ee02b021232cbe9922f6166",
+      "source_triangles": 20216,
+      "triangles": 23388,
       "source_bytes": 1260384,
-      "variant_bytes": 1259544
+      "variant_bytes": 1217388,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_roadster",
       "source_sha256": "ec2fa7abe53186b4e9bbea3191e4da82914e1e6751e51a7d45b5b4c659565850",
-      "variant_sha256": "f5cb44df5d5b8ca7b8caaae8cef81bd1659abc19504a3964daeff26bc768780c",
-      "geometry_chunk_sha256": "10b2d29c4eb73f900ec281b2fd21b9fc21c7ba9af70e5e9a2459c493dec26324",
+      "variant_sha256": "746f782d4e3dae1ee2016c384acf7443f9fc76239e14df4e8c40740d33a5627b",
+      "source_triangles": 11098,
+      "triangles": 12990,
       "source_bytes": 570700,
-      "variant_bytes": 569868
+      "variant_bytes": 644224,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "car_speed",
       "source_sha256": "c8d66ced261f801b18e93ba2b45cbd39cc9e6b98fbe5bffd5a639d886d1b12bf",
-      "variant_sha256": "ed3276ee5b97a8338941ea28e1fb88419239f2401498e32c400958906f26651d",
-      "geometry_chunk_sha256": "2ae3caf15373d2fd00dfb44e97d9694c1559e9c441b1754432892aa755912a2d",
+      "variant_sha256": "353dd4ea4636eb2d756c1c58ca75a36c2adb57c79577a420930504a67293b694",
+      "source_triangles": 11928,
+      "triangles": 14106,
       "source_bytes": 609044,
-      "variant_bytes": 608208
+      "variant_bytes": 691968,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "cone",
       "source_sha256": "2ec6f60f9ea567eb5b7495b40fc44932f3f3b77eccc6e7228021e3f481b6b207",
-      "variant_sha256": "83698cf0ef006ebb1f5b31fdffdace43800f21e83f18841a5cd4464a6e3d5d0b",
-      "geometry_chunk_sha256": "dedf032ef8596730e8fb93b3f9ad09cae2a8cc920660fd19aa129c9ac84ad970",
+      "variant_sha256": "a305a70f2ccd39c1573bb118162d3de49abb7f79b9f17269b19bb923e51ff048",
+      "source_triangles": 204,
+      "triangles": 264,
       "source_bytes": 17976,
-      "variant_bytes": 17816
+      "variant_bytes": 16336,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "curb",
       "source_sha256": "7440010d8236f291f6cff7aa876c599ad6251155aaca49b437b3216385a59fb5",
-      "variant_sha256": "b0907a0839e1bb7837bb25dbe7a39ce20e80bf5dc22d4dd229ddd75c7b05eb98",
-      "geometry_chunk_sha256": "c26fbf526fe1986d6dd4141dcd73b58cbc57d712fffdd4d24f185156147fe0c4",
+      "variant_sha256": "1b6fbad116c661247c0d4b3f9e2bb8daa1a4c66799972af08b54d969721f530f",
+      "source_triangles": 264,
+      "triangles": 624,
       "source_bytes": 16520,
-      "variant_bytes": 16396
+      "variant_bytes": 33200,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "dirt_curve",
       "source_sha256": "2ee342b9c8d1aaebbd0a31ec46f86044f916fb4f19455bc54f146f1c5b81832e",
-      "variant_sha256": "9cb49d7bba06a4082528ee4fd5aec86fc79c8cdbd76e1a123c0460ae90f21e81",
-      "geometry_chunk_sha256": "e8734d5e20d6476bb6cafeabb623569cd78fc7668a369936bc0def1e630a67e7",
+      "variant_sha256": "f69d1b19cc5b46c78f4adbeb8e79f5eb4c0efb9178095ff2462753b296676d7b",
+      "source_triangles": 804,
+      "triangles": 1592,
       "source_bytes": 81632,
-      "variant_bytes": 81756
+      "variant_bytes": 95332,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "dirt_straight",
       "source_sha256": "197ae6fa2fcb25679a8b57ce820b8dca7b279b8b49155abd940e59700f44f12f",
-      "variant_sha256": "fd39d804f3c81ad4f5a0d8e955c5447c4166c87dd730f2fabd71d32da68f4d4a",
-      "geometry_chunk_sha256": "53d015eeac7a0c7fb1dd3f2e42bc4b7c1fe8dc9a7a06b04e7ceb7e4f57bf18d3",
+      "variant_sha256": "2b67aedde20e76cc3ed3752b0baa41e68c83648106496df2cd1c2bf9e3b00897",
+      "source_triangles": 480,
+      "triangles": 800,
       "source_bytes": 55704,
-      "variant_bytes": 55828
+      "variant_bytes": 54044,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "district_art_0",
       "source_sha256": "34703246f8f3d853c97ca625242b5ec12e120b0f45dd3a0cad7afff19d6b5ec8",
-      "variant_sha256": "869f6a6315ab7523d78c0384ed88e4d8a3d02c8a15e9361e79a593d1c3cd22fa",
-      "geometry_chunk_sha256": "3101ea610bc3ebafc5a22ee02a7c962b1d7d43e952f9ba90aac8c397569aca21",
+      "variant_sha256": "37a9604214fe0fb2cb7025df5233cc4e9483f71b458504da2e211087ea6559c0",
+      "source_triangles": 23870,
+      "triangles": 33792,
       "source_bytes": 1628524,
-      "variant_bytes": 1629032
+      "variant_bytes": 1411280,
+      "nodes": 10,
+      "materials": 1
     },
     {
       "id": "district_art_1",
       "source_sha256": "102e50fc35e9119bb27aaa324d5ace0ac427e844460213a00f7fcb79baf76394",
-      "variant_sha256": "e00b4fc96bb412dcbc9a1e7b2be64f6c0101a604607691836af54e34c557e4a4",
-      "geometry_chunk_sha256": "154620ad02e733eabd5e32c9b4fae6a2af1e5fafd4579492550dee288574f7f0",
+      "variant_sha256": "23ab52e059cd377decfd2c4ac8645fa99fbbff88aebdb75a5d63fb2c3d47021a",
+      "source_triangles": 24804,
+      "triangles": 35124,
       "source_bytes": 1700692,
-      "variant_bytes": 1701152
+      "variant_bytes": 1455240,
+      "nodes": 9,
+      "materials": 1
     },
     {
       "id": "district_art_2",
       "source_sha256": "5293bbc7c489f68495a878180362ae5d3b139421e111077e76d5f4c0f0981183",
-      "variant_sha256": "0ba9a77ad19c8d21c1cea76417601ed3a08b0456ba5b69d94b95854bc68936e9",
-      "geometry_chunk_sha256": "029f9cdcf6b27f2e4c479c683f8836a859afc12c46ecab82a4b3643c4df37338",
+      "variant_sha256": "2fdbd4ed60321e36ac388b1a7d51d7fd40b1e531e9e522b9777b41a31ea2ad75",
+      "source_triangles": 15706,
+      "triangles": 22992,
       "source_bytes": 1121812,
-      "variant_bytes": 1122268
+      "variant_bytes": 939428,
+      "nodes": 9,
+      "materials": 1
     },
     {
       "id": "district_art_3",
       "source_sha256": "8f2aece4f71e29bd9a5a4fc7b0890118b1dd06d243d8f2d3d065a566fc4e8fe4",
-      "variant_sha256": "383b9c81073b7774745e2b6f92539bdf1546e5f79f19d3507e3072ce3c718c0d",
-      "geometry_chunk_sha256": "3721b72a67a51b4ea320336e6f2a1ad152a8db014a0009491f78cc573dc8d531",
+      "variant_sha256": "2a1550358ee51ccebac85fe7851db8fe3dce73b1027c9211567f981547d4275e",
+      "source_triangles": 15706,
+      "triangles": 22992,
       "source_bytes": 1121984,
-      "variant_bytes": 1122440
+      "variant_bytes": 950460,
+      "nodes": 9,
+      "materials": 1
     },
     {
       "id": "district_art_4",
       "source_sha256": "c4f136f250e258c090865fc4ae71e3d1da88011b09b4d31082ccc0b63712de3f",
-      "variant_sha256": "4f305f3c4065061a5cfce444dc2fb70d09f0a81027fd99d6970f7cf65e8a8eff",
-      "geometry_chunk_sha256": "ebf84abd5f9032ac35cc3544f6dd9dfa6784514734923e7039e0c829061d23b7",
+      "variant_sha256": "dbea8ad2ea2afd5673e3e03cf912673419a8c6429fd29ed83df2c272c9ae5996",
+      "source_triangles": 14534,
+      "triangles": 21388,
       "source_bytes": 1039080,
-      "variant_bytes": 1039540
+      "variant_bytes": 874728,
+      "nodes": 9,
+      "materials": 1
     },
     {
       "id": "district_art_5",
       "source_sha256": "4300b5cb27326ddf423cbfd11bc51d0dac52faed64b20daaea4ca86f06d5148e",
-      "variant_sha256": "c7b559c32b3dc952dcc1f2bc86eab9121757bd2f4d8452afa4f7596797f866f5",
-      "geometry_chunk_sha256": "d1bd9a92ee503fcc628fbc30c3b3eb53ad8bf34c9258e18437aaa536e08519d5",
+      "variant_sha256": "17646bace4a893e6c406d72c9319af91a0aac69a9dfa60230c9500f6ad099f61",
+      "source_triangles": 19956,
+      "triangles": 28004,
       "source_bytes": 1362312,
-      "variant_bytes": 1362768
+      "variant_bytes": 1170504,
+      "nodes": 9,
+      "materials": 1
     },
     {
       "id": "district_oak",
       "source_sha256": "3e5eeb916d5aaa789686b534d5950ee04bc21c496e5412c6417e8a9a3a18cf25",
-      "variant_sha256": "c1aff8755598564520fa1dd15df20b78952e7bee720003f64f56d4cf322e3a8b",
-      "geometry_chunk_sha256": "803f47823216de91c55961306f74bd94e237437d1779164826512250abb3c16a",
+      "variant_sha256": "3ae39f78cf03c1c131148ed2c7fc615e6d6099856dc6c9009cf333e7ebbe4fdd",
+      "source_triangles": 5464,
+      "triangles": 5800,
       "source_bytes": 167708,
-      "variant_bytes": 167864
+      "variant_bytes": 285520,
+      "nodes": 5,
+      "materials": 1
     },
     {
       "id": "district_outcrop",
       "source_sha256": "bc14e416bc1d3620fe81c9d5c81cdb24e027ca7649c821b798ae3917e3aee3c5",
-      "variant_sha256": "c5d83c4ecd328f56a97f52c5be04502507eb53ec51d633645fa0aaa3b3814f7f",
-      "geometry_chunk_sha256": "60afd11baa62aa23e77d7d3d8cdec125e23c3dc315853b7fa741c07ec3ac36a6",
+      "variant_sha256": "4b3dae63e0abb9fed705250e8a177a44fa3df537f32a6c19dd2f0ed20077b228",
+      "source_triangles": 320,
+      "triangles": 746,
       "source_bytes": 9700,
-      "variant_bytes": 9828
+      "variant_bytes": 34452,
+      "nodes": 1,
+      "materials": 1
     },
     {
       "id": "district_pine",
       "source_sha256": "c3cc4aeb52af8d4ae4d36df1ef5d7e69f33dfe18c5728b9384b58faf8ba7fc0f",
-      "variant_sha256": "45b413f5031c80d721767c896b080729ea97010616374b944fc055541e4630e3",
-      "geometry_chunk_sha256": "f2253ed2125193ab8fbe1a8b86dba8198ff8dbf1b552412d002b20c78b4c8d4c",
+      "variant_sha256": "d9fe79281b1484aeb49475eadec9d91a331d41bac2c282dd3e11f675cecc796c",
+      "source_triangles": 5464,
+      "triangles": 5752,
       "source_bytes": 167720,
-      "variant_bytes": 167876
+      "variant_bytes": 278556,
+      "nodes": 5,
+      "materials": 1
     },
     {
       "id": "foliage_grass_dry",
       "source_sha256": "4fca8892270478bc5ad567e19b5d3bf0206a3cb58435566975e351afb5dbc717",
-      "variant_sha256": "dcf7a92da9fc6ed2d4da4aee4da8c2ee010a5ed06dac6ac170ca721dde569b41",
-      "geometry_chunk_sha256": "2ce0c5a87e837291c37544c39d6d6d581d29f4a318b29c673c2c5a0e0d5402f2",
+      "variant_sha256": "baadec7cae431261e38bd292231f71200381db1fe8d101cf907d37ee62bfbc63",
+      "source_triangles": 54,
+      "triangles": 144,
       "source_bytes": 6204,
-      "variant_bytes": 6336
+      "variant_bytes": 11536,
+      "nodes": 1,
+      "materials": 1
     },
     {
       "id": "foliage_grass_green",
       "source_sha256": "78f2a6cdf4a91d1f0ccdd3f7fd4ee0f06c95391e7b39117580f4a120b1e69299",
-      "variant_sha256": "911d1e66e43633b55c554c64ee3b26e9e6b40497640884d7e1d664cb83dceaef",
-      "geometry_chunk_sha256": "2ce0c5a87e837291c37544c39d6d6d581d29f4a318b29c673c2c5a0e0d5402f2",
+      "variant_sha256": "51af294ae52f62b640e9b5363942ea0ab8b04f3c554dd408799968354045e757",
+      "source_triangles": 54,
+      "triangles": 144,
       "source_bytes": 6224,
-      "variant_bytes": 6352
+      "variant_bytes": 11536,
+      "nodes": 1,
+      "materials": 1
     },
     {
       "id": "foliage_leaf_cluster",
       "source_sha256": "c8c9a7abce687b7a3779781e277c89b813866d09f48f642cc2bb4aec93ad94b0",
-      "variant_sha256": "21f4291e176529e5b5fe651d2ebddabd417560fcea50547d2bcd93038661a431",
-      "geometry_chunk_sha256": "ef94b7e4ddf3f95580961a62cde777267cf02a59e283b53724bfcbbef712f3f6",
+      "variant_sha256": "e7d1b03c0b01f8e1025290011ac5cf27d407d9709833c54c01ae35ba237a0602",
+      "source_triangles": 140,
+      "triangles": 560,
       "source_bytes": 7056,
-      "variant_bytes": 7184
+      "variant_bytes": 28028,
+      "nodes": 1,
+      "materials": 1
     },
     {
       "id": "foliage_shrub_flower",
       "source_sha256": "c8175d4dfb452785de4ba06f09142357294e8eb12d6f6f49242a35a13d60fc0e",
-      "variant_sha256": "25de30c05c9b0686d5aa3e88ceb8a01af6a01e4b0f03cc1a685b1ad4a951f368",
-      "geometry_chunk_sha256": "e3aec117bc42de3ba5e356cacf6d120dbf9a509ba6ea2f6db130afc9cc4ee1a5",
+      "variant_sha256": "792b29f41733c75cf42423f76b29e624ca863d5e340fdecfee9f43e79a907935",
+      "source_triangles": 240,
+      "triangles": 540,
       "source_bytes": 12244,
-      "variant_bytes": 12424
+      "variant_bytes": 31512,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "foliage_shrub_round",
       "source_sha256": "675b02215136ef09357950fbf97f8d68b7476dd98733b9ea36fe9f3f1e23f6ed",
-      "variant_sha256": "5c42d43c4b69e5ff0a2ab6d2ab08a47eb99aa4f3855c2615c1248486f439b631",
-      "geometry_chunk_sha256": "fefde62044c3c557973e1e89269c44571a8a42a849eb18c9b556c43b66e43283",
+      "variant_sha256": "1c6cda65915c465826228d7eb5f7022d6e24ca6fafc279ec1ec6d20211fb20c3",
+      "source_triangles": 100,
+      "triangles": 400,
       "source_bytes": 5428,
-      "variant_bytes": 5556
+      "variant_bytes": 20444,
+      "nodes": 1,
+      "materials": 1
     },
     {
       "id": "prop_clock_tower",
       "source_sha256": "41de438733e1738a2d8d71c92c5c1563faca806bb16a8fba309664f9cc5aa833",
-      "variant_sha256": "98749f7da4160a14eb686ecf8b774e17ecd48e49c6798595f33f33ad69569186",
-      "geometry_chunk_sha256": "5be33de8c1d18cefa0fb5d6156cf5b3c6daa51b994229c1e1dc1145529e3a4e0",
+      "variant_sha256": "b0cd08983d7169dd618d9189c79f705eab51596fd27383c8ebcec98c77b4706f",
+      "source_triangles": 1620,
+      "triangles": 2728,
       "source_bytes": 116596,
-      "variant_bytes": 116828
+      "variant_bytes": 116472,
+      "nodes": 3,
+      "materials": 1
     },
     {
       "id": "prop_ferris_wheel",
       "source_sha256": "46b473f4299d969fe46281be46986f52f054d465fa03a200e39368a12645f7c5",
-      "variant_sha256": "958687208f28100938f6fe8ffde60228985f80545c16362f244d72b85f66a563",
-      "geometry_chunk_sha256": "92d506ef3a565a8e89854be391330b58c305d3dc3e9b289ca1b8d9ce12bd7e3e",
+      "variant_sha256": "c9ad13fdf82af77c6898bbcd31e00a22198a70a9d881d373575a61517f21d7bd",
+      "source_triangles": 5532,
+      "triangles": 5516,
       "source_bytes": 363728,
-      "variant_bytes": 363956
+      "variant_bytes": 325524,
+      "nodes": 3,
+      "materials": 1
     },
     {
       "id": "prop_market_hall",
       "source_sha256": "90671ad404532f85e910e43cda14aaa1253bc3edac9080637cd41364ba82047c",
-      "variant_sha256": "38956a064905b2b856057df4b8503f00fe1e1db683602027bb475657ed68402f",
-      "geometry_chunk_sha256": "db763f26b0bbc7fd8d5a0cf53c35beabdfea46070f8a2fdfbb3f08fe2cf05b2b",
+      "variant_sha256": "d3606f17b2ef27883a0cc46419a0fee5d899b3b5aa65e1df888fede1ae8381c1",
+      "source_triangles": 1188,
+      "triangles": 2360,
       "source_bytes": 87488,
-      "variant_bytes": 87768
+      "variant_bytes": 97560,
+      "nodes": 4,
+      "materials": 1
     },
     {
       "id": "prop_pavilion",
       "source_sha256": "b07a7a200ae2c3f5512c3a0e17ea95538c2e8141ed00efda8abb4e69da710b12",
-      "variant_sha256": "600f6c7183d46c1da81ebd57045b8c6f0d162a4bb94626d4e05c177316e2301b",
-      "geometry_chunk_sha256": "bc25cd732a88f23c33e7604b4e33236e24daee5d7a1130079a724d8d40affa4c",
+      "variant_sha256": "de205f88aa5d3db17f1e4f43aa05eaece08a9a5e698555e9a8efba0bb84f0320",
+      "source_triangles": 342,
+      "triangles": 696,
       "source_bytes": 26276,
-      "variant_bytes": 26508
+      "variant_bytes": 32824,
+      "nodes": 3,
+      "materials": 1
     },
     {
       "id": "rock",
       "source_sha256": "0fe6aa61afe8a183ed1084748281b388343891ca3e7c16595614ce374d987d7c",
-      "variant_sha256": "d8caab399484fc27ccc73eebc71a22d9d2bed2e0f300f2e66fd82d585071346c",
-      "geometry_chunk_sha256": "8e2bf2af9177ae62bddacdcdb2988f0fd030b203ed4ea8b10bee24b189bd6dd5",
+      "variant_sha256": "dde8a0e212ff6f00dae44c38a497bad37e4f7ade9ec395deffb5c8b9681e3d1d",
+      "source_triangles": 320,
+      "triangles": 560,
       "source_bytes": 37892,
-      "variant_bytes": 37976
+      "variant_bytes": 47720,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "safety_barrier",
       "source_sha256": "13d0fa31b256b7a41a57e160f396b09619b0c3b9683b75ab69276957f94ef431",
-      "variant_sha256": "aa714290e93b220071eb569c51dd7d5857f9638829820ed1cea8105421acd143",
-      "geometry_chunk_sha256": "59f291ee4706331ebab7a8a7e1590d9154d7a341be9956cf20b4fec120ac5e21",
+      "variant_sha256": "b45a6f1556c7fd738d5d8e8016b81ed58cb3200dead0fceed9bcf086a0d8772d",
+      "source_triangles": 368,
+      "triangles": 816,
       "source_bytes": 21460,
-      "variant_bytes": 21336
+      "variant_bytes": 39820,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "start_gantry",
       "source_sha256": "0d75d032998ff046c9381f3f934e91f3fb9bf0980d0abb12f654fca3b3f9205f",
-      "variant_sha256": "3af7453e5a474310be3bdc2784da55f8911bf5095edaac10ebf0852fcdfa643b",
-      "geometry_chunk_sha256": "207764c1dd9ee3aede1a8956011046b95824958c5dd06e5fa88b587f00c77c23",
+      "variant_sha256": "3a308adfe9357fe964c5f9c439973fc99d4d4d8d4f8b02c5c85e7ebb38400250",
+      "source_triangles": 2204,
+      "triangles": 3012,
       "source_bytes": 150700,
-      "variant_bytes": 150420
+      "variant_bytes": 209228,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "tire_barrier",
       "source_sha256": "eec4f41c972a96d05ebb935ca948c036ee2d44a5a0e8bafbfc0fe35886e5bb6d",
-      "variant_sha256": "6d86dd36d8a44625e20adf795af0c4746d973e461e5754da3e9d41e2e05bb22d",
-      "geometry_chunk_sha256": "2d6847df243a1cbd08b240146d8131aea5ae43ff5997a6609b940af46f4d3cb4",
+      "variant_sha256": "f2f23c2f6d59458ada81ca4af06fd640af7e1ff83b9dd1f93c56f229ca990ee8",
+      "source_triangles": 7776,
+      "triangles": 7776,
       "source_bytes": 520360,
-      "variant_bytes": 520292
+      "variant_bytes": 313516,
+      "nodes": 2,
+      "materials": 1
     },
     {
       "id": "tree",
       "source_sha256": "ed9e2221d32c5cf7835944ff8c43ebe88af50974157a111a2cb1dc6425036b48",
-      "variant_sha256": "e89c663f9c43f9bff8d45cf3597a91ef417e18b89d648503b59c9bdeeaca2904",
-      "geometry_chunk_sha256": "d7ed9a9a18c8aa01488c9f5619752e90ee6f81341e1a7103561df318f7426789",
+      "variant_sha256": "8db4d96c4876cad06100c3d1341a16691155c9abe1d8445a71251c2ce644796a",
+      "source_triangles": 500,
+      "triangles": 856,
       "source_bytes": 53364,
-      "variant_bytes": 53236
+      "variant_bytes": 69088,
+      "nodes": 2,
+      "materials": 1
     }
   ]
 }

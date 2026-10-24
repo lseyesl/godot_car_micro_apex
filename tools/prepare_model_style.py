@@ -1,27 +1,28 @@
 #!/usr/bin/env python3
 """Seal an explicit build style into resources; default ignores ambient developer environment."""
 import argparse, json, os, pathlib
-STYLES = ('original', 'bright_clay')
+STYLES = ('original', 'bright_clay', 'paper_craft')
 VARIABLE = 'MICRO_APEX_MODEL_STYLE'
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 def prepare(root, style):
     if style not in STYLES:
-        raise ValueError(f'Unsupported model style {style!r}; expected original or bright_clay')
+        raise ValueError(f'Unsupported model style {style!r}; expected original, bright_clay, paper_craft')
     root = pathlib.Path(root)
     models = sorted((root / 'assets/models').glob('*.glb'))
     if not models:
         raise ValueError('No original model catalog found')
-    clay_models = sorted((root / 'assets/styles/bright_clay/models').glob('*.glb'))
-    if {p.name for p in clay_models} != {p.name for p in models}:
-        raise ValueError('Missing or unmatched clay variants; both style catalogs must match')
-    if style == 'bright_clay':
-        missing = [p.name for p in models if not (root / 'assets/styles/bright_clay/models' / p.name).is_file()]
-        if missing:
-            raise ValueError('Missing clay variants: ' + ', '.join(missing))
+    for variant in STYLES[1:]:
+        variants = sorted((root / 'assets/styles' / variant / 'models').glob('*.glb'))
+        if {p.name for p in variants} != {p.name for p in models}:
+            raise ValueError(f'Missing or unmatched {variant} variants; all style catalogs must match')
+        manifest = root / 'assets/styles' / variant / 'manifest.json'
+        if manifest.exists() and json.loads(manifest.read_text()).get('complete') is not True:
+            raise ValueError(f'Incomplete {variant} asset generation')
     preset = root / 'export_presets.cfg'
     lines = preset.read_text().splitlines()
-    excluded = 'assets/styles/bright_clay/*' if style == 'original' else 'assets/models/*'
+    model_filters = {v: ('assets/models/*' if v == 'original' else f'assets/styles/{v}/*') for v in STYLES}
+    excluded = [value for key, value in model_filters.items() if key != style]
     for i, line in enumerate(lines):
         if line.startswith('include_filter='):
             entries = [x for x in line.split('=', 1)[1].strip('"').split(',') if x]
@@ -29,8 +30,8 @@ def prepare(root, style):
                 entries.append('config/model_style.json')
             lines[i] = 'include_filter="' + ','.join(entries) + '"'
         elif line.startswith('exclude_filter='):
-            entries = [x for x in line.split('=', 1)[1].strip('"').split(',') if x and x not in ('assets/models/*', 'assets/styles/bright_clay/*', 'assets/textures/surfaces/*')]
-            lines[i] = 'exclude_filter="' + ','.join(entries + [excluded] + (['assets/textures/surfaces/*'] if style == 'bright_clay' else [])) + '"'
+            entries = [x for x in line.split('=', 1)[1].strip('"').split(',') if x and x not in (*model_filters.values(), 'assets/textures/surfaces/*')]
+            lines[i] = 'exclude_filter="' + ','.join(entries + excluded + (['assets/textures/surfaces/*'] if style != 'original' else [])) + '"'
     data = {'format': 1, 'model_style': style, 'locked': True, 'model_ids': [p.stem for p in models]}
     payload = json.dumps(data, separators=(',', ':')) + '\n'
     (root / 'config/model_style.json').write_text(payload)
@@ -49,7 +50,7 @@ def main():
     args = parser.parse_args()
     style = os.environ.get(VARIABLE) if args.from_environment else (args.style or 'original')
     if style not in STYLES:
-        parser.error(f'{VARIABLE} must explicitly be original or bright_clay')
+        parser.error(f'{VARIABLE} must explicitly be original, bright_clay, paper_craft')
     print(json.dumps(prepare(args.project, style)))
 if __name__ == '__main__':
     main()

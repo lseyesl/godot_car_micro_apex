@@ -28,7 +28,7 @@ func open(host, destination:String="home") -> void:
 	cup=int(career.recommended_event()/6)
 	render()
 
-func box(color:Color=Color("142339"),border:Color=Color("263b54"),radius:int=14) -> StyleBoxFlat:
+func box(color:Color=Color("142339"),border:Color=Color("263b54"),radius:int=14) -> StyleBox:
 	if ClayUI.active():return ClayUI.panel()
 	var style:=StyleBoxFlat.new()
 	style.bg_color=color
@@ -101,7 +101,7 @@ func change(destination:String) -> void:
 func render() -> void:
 	for child in get_children():remove_child(child);child.queue_free()
 	var background:=ColorRect.new()
-	background.color=ClayUI.CREAM if ClayUI.active() else INK
+	background.color=ClayUI.background() if ClayUI.active() else INK
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 	var margin:=MarginContainer.new()
