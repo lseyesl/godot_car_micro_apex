@@ -1,3 +1,5 @@
+0.13.9：倒计时显示控件、左右可预摆前轮、踏板反馈与 GO 持续按压衔接，扩大实际左右热区；Android version code 28，见 [倒计时触控与验证](countdown-controls.md)。保留 0.13.8 转向及插值，真机待验收。
+
 0.13.8：按实际前进/后退统一转向，替换旧的倒车车头跟随箭头及碰撞角状态清零规则；见 [新规则、边界与验证](signed-motion-steering.md)。Android version code 27，两风格独立测试发布，真机待验收。以下版本记录保留历史语义。
 
 0.13.7：补充碰撞后松 GAS/反向箭头的转向恢复，保留普通漂移和倒车语义，见 [复现与回归证据](collision-steering-recovery.md)。
