@@ -211,11 +211,11 @@ jobs:
           本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
           两套风格同步新增摩天轮、钟楼、市场、凉亭和植被，共 37 个模型；bright_clay 配套明亮黏土 UI，original 保留原版 UI。
-          本次补充擦碰、推撞后松 GAS / 等待再起步的转向恢复，清除与新箭头相反的旧转向残留。
-          新增 548 项碰撞恢复检查，保留普通漂移、倒车和插值；Android 真机仍待复测。
+          转向统一按实际前进/后退判断：左右按钮控制轮角，实际后退时车身转向相反，不再按碰撞状态清零角状态。
+          低速死区抑制跨零噪声，保留自然转向惯性、碰撞平移响应和插值；覆盖全部车型及两风格回归，Android 真机仍待复测。
           两风格使用相同包名和固定签名，只能覆盖切换安装，不能同时并存。
           Android 真机外观、安装和性能尚待验收。模型风格说明：
-          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/collision-steering-recovery.md
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/signed-motion-steering.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/scenery-additions.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/clay-ui.md
 

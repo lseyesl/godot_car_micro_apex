@@ -25,16 +25,8 @@ var previous := Vector2.ZERO
 var reset_cooldown := 0.0
 var dust:CPUParticles3D
 var effects_enabled:=true
-# Covers a fresh touch/key change just after a contact, including a one-frame scrape.
-const CONTACT_STEERING_RECOVERY := .25
-# One collision-box length of free travel; a stopped car must not time out.
-const CONTACT_STEERING_CLEARANCE := 3.4
-var contact_steering_recovery := 0.0
-var contact_steering_distance := CONTACT_STEERING_CLEARANCE
 
 func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> void:
-	contact_steering_recovery=0.0
-	contact_steering_distance=CONTACT_STEERING_CLEARANCE
 	dynamics=Dynamics.new(spec)
 	dynamics.reset_at(at,heading)
 	player=is_player
@@ -109,20 +101,7 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 		add_child(marker)
 	reset_physics_interpolation()
 
-func note_steering_contact() -> void:
-	if player:
-		contact_steering_recovery=CONTACT_STEERING_RECOVERY
-		contact_steering_distance=0.0
-
 func tick(dt:float, controls:Dictionary, path) -> void:
-	if contact_steering_recovery>0.0 or contact_steering_distance<CONTACT_STEERING_CLEARANCE:
-		var requested:float=clampf(float(controls.steer),-1.0,1.0)
-		# Contact can remove travel while leaving the old lock/yaw intact. A fresh
-		# opposite arrow must not keep turning the nose the old way. Keep compatible
-		# turn state, neutral coasting and ordinary contact-free drift unchanged.
-		if dynamics.steering*requested<0.0:dynamics.steering=0.0
-		if dynamics.yaw_rate*requested>0.0:dynamics.yaw_rate=0.0
-		contact_steering_recovery=maxf(0.0,contact_steering_recovery-dt)
 	previous=dynamics.position
 	near=path.nearest(previous,dynamics.route_s)
 	dynamics.route_s=near.s
@@ -141,15 +120,12 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 		marker.basis=Basis(Quaternion(Vector3.UP,global_basis.inverse()*normal))
 	dynamics.position=Vector2(position.x,position.z)
 	dynamics.velocity=Vector2(velocity.x,velocity.z)
-	if contact_steering_distance<CONTACT_STEERING_CLEARANCE:
-		contact_steering_distance=minf(CONTACT_STEERING_CLEARANCE,contact_steering_distance+previous.distance_to(dynamics.position))
 	dust.emitting=effects_enabled and dynamics.surface!="asphalt" and dynamics.velocity.length()>6
 	impact=move_toward(impact,0.0,dt*12)
 	var boundary_contact:=false
 	var wall_speed:Vector2=incoming
 	for i in range(get_slide_collision_count()):
 		var hit:=get_slide_collision(i)
-		note_steering_contact()
 		impact=maxf(impact,previous.distance_to(dynamics.position)/dt*.15)
 		var other=hit.get_collider()
 		if other != null and other.is_in_group("track_boundary"):
@@ -162,17 +138,9 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 			wall_speed-=normal*minf(wall_speed.dot(normal),0.0)
 			if into > incoming.length()*.72:
 				wall_speed=Vector2.ZERO
-				if incoming.length() > .35:
-					# A hard stop must also discard the old turn. Otherwise fresh
-					# opposite-arrow + gas input still rotates the stopped nose
-					# the old way. Keep crawl contacts free to steer off the wall.
-					dynamics.yaw_rate=0.0
-					dynamics.steering=0.0
 		if other is CharacterBody3D and other.get("dynamics") != null:
 			var push:=Vector2(-hit.get_normal().x,-hit.get_normal().z)
 			other.dynamics.velocity+=push*minf(3.0,impact)*float(dynamics.spec.mass)/float(other.dynamics.spec.mass)
-			# The pushed car may separate before its own move_and_slide sees the hit.
-			if other.has_method("note_steering_contact"):other.note_steering_contact()
 	if boundary_contact:
 		# Apply friction once per physics tick, independent of seam contact count.
 		dynamics.velocity=wall_speed*exp(-5.0*dt)
@@ -186,8 +154,6 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 	reset_cooldown=maxf(0.0,reset_cooldown-dt)
 
 func reset_to_gate(path) -> void:
-	contact_steering_recovery=0.0
-	contact_steering_distance=CONTACT_STEERING_CLEARANCE
 	var gate:Dictionary=path.gate(progress.last_gate)
 	var pose:Dictionary=path.sample(gate.s+2.5)
 	dynamics.reset_at(pose.point,PathData.heading(pose.tangent))

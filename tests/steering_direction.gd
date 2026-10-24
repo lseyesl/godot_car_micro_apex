@@ -1,6 +1,7 @@
 extends SceneTree
 const Catalog=preload("res://scripts/catalog.gd")
 const Dynamics=preload("res://scripts/vehicle_dynamics.gd")
+const Observe=preload("res://tests/steering_observation.gd")
 const Controls=preload("res://scripts/touch_controls.gd")
 var checks:=0
 var failures:=0
@@ -32,14 +33,19 @@ func run() -> void:
 						var forward:Vector2=car.forward()
 						var right:=Vector2(-forward.y,forward.x)
 						car.velocity=forward*motion.x+right*motion.y
-						for frame in range(18):car.step(1.0/60,command.steer,false,false,road)
-						check(car.forward().dot(right)*expected>.001,"Vehicle-relative arrow reversed: %s %s heading=%f motion=%s"%[button,spec.id,heading,motion])
+						var valid:=true
+						for frame in range(18):
+							var state=Observe.before(car);car.step(1.0/60,command.steer,false,false,road)
+							valid=valid and Observe.valid(car,state,command.steer,1.0/60)
+						check(valid,"Signed motion must determine target yaw and preserve inertia at every heading")
+						if motion.y==0 and absf(motion.x)>=3:
+							check(car.forward().dot(right)*expected*signf(motion.x)>.001,"Forward/reverse body turn must reverse with actual travel")
 		var stopped=Dynamics.new(Catalog.CARS[3])
 		for frame in range(18):stopped.step(1.0/60,command.steer,false,false,"asphalt")
 		check(absf(stopped.yaw)<.001,"Steering alone must not spin a stationary car")
 		var reversing=Dynamics.new(Catalog.CARS[3])
 		for frame in range(60):reversing.step(1.0/60,command.steer,false,true,"asphalt")
-		check(reversing.speed()<0 and reversing.yaw*expected<0,"Brake-to-reverse must retain arrow direction")
+		check(reversing.speed()<0 and reversing.yaw*expected>0,"Brake-to-reverse must reverse body yaw while retaining wheel direction")
 	# Rotating a whole driving scenario must rotate its trajectory identically.
 	# This crosses +/-PI repeatedly without comparing raw wrapped yaw values.
 	var rotations:=[PI/2,PI,-PI,PI-.0001,-PI+.0001]

@@ -2,6 +2,7 @@ extends SceneTree
 const Car=preload("res://scripts/race_car.gd")
 const Catalog=preload("res://scripts/catalog.gd")
 const Dynamics=preload("res://scripts/vehicle_dynamics.gd")
+const Observe=preload("res://tests/steering_observation.gd")
 const Controls=preload("res://scripts/touch_controls.gd")
 class FlatPath extends RefCounted:
  var road:String="asphalt"
@@ -27,51 +28,59 @@ func touch(action:String,index:int,down:bool=true):
 func push_cases() -> Array:
  var traces:Array=[]
  path.road="asphalt"
- for heading in [0.0,PI/2,PI,-PI+.0001,3.55]:
-  for old in [-1,1]:
-   for count in [1,2]:
-    input.clear();car=Car.new();root.add_child(car);car.configure(Catalog.CARS[3],Vector2.ZERO,heading,true)
-    car.dynamics.velocity=car.dynamics.forward()*.4
-    touch("left" if old<0 else "right",0)
-    for frame in range(8):
-     await physics_frame;car.tick(1.0/60,input.driving(),path)
-    var actors:Array=[]
-    var f:Vector2=car.dynamics.forward()
-    for i in range(count):
-     var actor=Car.new();root.add_child(actor)
-     var p:Vector2=car.dynamics.position+f*(5.5 if i==0 else -7.0)
-     actor.configure(Catalog.CARS[0],p,car.dynamics.yaw+(PI if i==0 else 0),false)
-     actor.dynamics.velocity=actor.dynamics.forward()*16
-     actors.append(actor)
-    var first_hit:=false;var crossed_negative:=false;var positive_after:=false;var wrong:=0.0;var samples:Array=[];var hit_actors:Dictionary={}
-    for frame in range(90):
-     await physics_frame
-     var pre_push:float=car.dynamics.speed()
-     var normals:Array=[]
-     for i in range(actors.size()):
-      actors[i].tick(1.0/60,{"steer":0,"throttle":false,"brake":false},path)
-      for j in range(actors[i].get_slide_collision_count()):
-       var hit=actors[i].get_slide_collision(j)
-       if hit.get_collider()==car:hit_actors[i]=true;normals.append(str(hit.get_normal()))
-     if not first_hit and not hit_actors.is_empty():
-      first_hit=true;touch("left" if old<0 else "right",0,false);touch("right" if old<0 else "left",0)
-     crossed_negative=crossed_negative or (pre_push>=0 and car.dynamics.speed()<-.1)
-     if first_hit and frame>=35:touch("throttle",1)
-     var before:Vector2=car.dynamics.forward()
-     var incoming_speed:float=car.dynamics.speed()
-     car.tick(1.0/60,input.driving(),path)
-     if first_hit:
-      var contrary:float=before.angle_to(car.dynamics.forward())*old;wrong+=maxf(0,contrary)
-      if frame>35 and car.dynamics.speed()>.2:positive_after=true
-      samples.append({"frame":frame,"input":input.driving(),"heading":car.dynamics.yaw,"local_speed_before_push":pre_push,"local_speed_after_push":incoming_speed,"local_speed_after":car.dynamics.speed(),"steering":car.dynamics.steering,"yaw_rate":car.dynamics.yaw_rate,"contrary_degrees":rad_to_deg(contrary),"collision_normals":normals})
-    check(first_hit and crossed_negative,"Physical car impulse must cross forward speed through zero")
-    check(hit_actors.size()==count,"All actual attacking cars must contact the player")
-    check(wrong<.0001,"Pushed player must honor the new arrow before its own collision detection")
-    check(positive_after,"Released GAS then GAS must recover forward travel")
-    check(not car.dynamics.reverse,"Collision recoil must not toggle brake-to-reverse mode")
-    traces.append({"heading":heading,"old_input":old,"cars":count+1,"wrong_degrees":rad_to_deg(wrong),"samples":samples})
-    for actor in actors:actor.queue_free()
-    car.queue_free();await process_frame
+ for spec in Catalog.CARS:
+  for heading in [PI,-PI+.0001]:
+   for old in [-1,1]:
+    for count in [1,2]:
+     input.clear();car=Car.new();root.add_child(car);car.configure(spec,Vector2.ZERO,heading,true)
+     car.dynamics.velocity=car.dynamics.forward()*.4
+     touch("left" if old<0 else "right",0)
+     for frame in range(8):
+      await physics_frame;car.tick(1.0/60,input.driving(),path)
+     var actors:Array=[]
+     var f:Vector2=car.dynamics.forward()
+     for i in range(count):
+      var actor=Car.new();root.add_child(actor)
+      var p:Vector2=car.dynamics.position+f*(5.5 if i==0 else -7.0)
+      actor.configure(Catalog.CARS[0],p,car.dynamics.yaw+(PI if i==0 else 0),false)
+      actor.dynamics.velocity=actor.dynamics.forward()*16
+      actors.append(actor)
+     var first_hit:=false;var crossed_negative:=false;var positive_after:=false;var valid_motion:=true;var samples:Array=[];var hit_actors:Dictionary={}
+     for frame in range(150):
+      await physics_frame
+      if frame==35:
+       for actor in actors:actor.queue_free()
+       await process_frame
+      var pre_push:float=car.dynamics.speed()
+      var normals:Array=[]
+      for i in range(actors.size()):
+       if not is_instance_valid(actors[i]):continue
+       actors[i].tick(1.0/60,{"steer":0,"throttle":false,"brake":false},path)
+       for j in range(actors[i].get_slide_collision_count()):
+        var hit=actors[i].get_slide_collision(j)
+        if hit.get_collider()==car:hit_actors[i]=true;normals.append(str(hit.get_normal()))
+      if not first_hit and not hit_actors.is_empty():
+       first_hit=true;touch("left" if old<0 else "right",0,false);touch("right" if old<0 else "left",0)
+      crossed_negative=crossed_negative or (pre_push>=0 and car.dynamics.speed()<-.1)
+      if first_hit and frame>=35:touch("throttle",1)
+      var before:Vector2=car.dynamics.forward()
+      var incoming_speed:float=car.dynamics.speed()
+      var state=Observe.before(car.dynamics)
+      car.tick(1.0/60,input.driving(),path)
+      valid_motion=valid_motion and Observe.valid(car.dynamics,state,input.driving().steer,1.0/60)
+      if first_hit:
+       var contrary:float=before.angle_to(car.dynamics.forward())*old
+       if frame>35 and car.dynamics.speed()>.2:positive_after=true
+       var sample=Observe.row(car.dynamics,state,input.driving(),frame);sample["collision_normals"]=normals;sample["speed_before_push"]=pre_push;sample["speed_after_push"]=incoming_speed;samples.append(sample)
+     check(first_hit and crossed_negative,"Physical car impulse must cross forward speed through zero")
+     check(hit_actors.size()==count,"All actual attacking cars must contact the player")
+     check(valid_motion,"Pushed player must use signed motion and unmodified angular integration")
+     check(positive_after,"Released GAS then GAS must recover forward travel")
+     check(not car.dynamics.reverse,"Collision recoil must not toggle brake-to-reverse mode")
+     traces.append({"heading":heading,"old_input":old,"cars":count+1,"valid_motion":valid_motion,"samples":samples})
+     for actor in actors:
+      if is_instance_valid(actor):actor.queue_free()
+     car.queue_free();await process_frame
  return traces
 func free_driving_cases():
  path.road="asphalt"
@@ -90,19 +99,12 @@ func free_driving_cases():
     identical=identical and absf(wrapf(body.dynamics.yaw-reference.yaw,-PI,PI))<.00001 and absf(body.dynamics.yaw_rate-reference.yaw_rate)<.00001 and body.dynamics.velocity.distance_to(reference.velocity)<.001
     no_contacts=no_contacts and body.get_slide_collision_count()==0
     if frame==30:retained_drift=body.dynamics.yaw_rate<0
-    if frame>230:reversed_correctly=reversed_correctly or (body.dynamics.reverse and body.dynamics.speed()<-.5 and before.angle_to(body.dynamics.forward())>0)
+    if frame>230:reversed_correctly=reversed_correctly or (body.dynamics.reverse and body.dynamics.speed()<-.5 and before.angle_to(body.dynamics.forward())<0)
    check(no_contacts and identical,"Ordinary free driving/countersteer must match unchanged dynamics: "+str(spec.id))
    check(retained_drift,"Contact-free countersteering keeps existing turn inertia")
-   check(reversed_correctly,"Deliberate BRAKE-to-reverse keeps existing nose-relative semantics")
-   body.note_steering_contact();body.reset_to_gate(path)
-   check(body.contact_steering_recovery==0 and body.contact_steering_distance>=body.CONTACT_STEERING_CLEARANCE,"Teleport clears contact recovery state")
-   body.note_steering_contact()
-   for frame in range(60):
-    await physics_frame;body.tick(1.0/60,{"steer":0,"throttle":false,"brake":false},path)
-   check(body.contact_steering_distance==0,"A stopped post-contact player remains protected after the time window")
-   for frame in range(90):
-    await physics_frame;body.tick(1.0/60,{"steer":0,"throttle":true,"brake":false},path)
-   check(body.contact_steering_recovery==0 and body.contact_steering_distance>=body.CONTACT_STEERING_CLEARANCE,"Free travel ends recovery after clearing the contact area")
+   check(reversed_correctly,"Deliberate reverse changes body yaw relative to the same wheel input")
+   body.reset_to_gate(path)
+   check(body.dynamics.turn_speed==0 and body.dynamics.target_yaw_rate==0,"Reset clears steering-stage telemetry")
    body.queue_free();await process_frame
 func run():
  Engine.physics_ticks_per_second=600;Engine.max_physics_steps_per_frame=64;Engine.time_scale=10
@@ -136,21 +138,22 @@ func run():
          await physics_frame;car.tick(1.0/60,input.driving(),path)
         touch("throttle",1)
        touch("left" if old<0 else "right",0,false);touch("right" if old<0 else "left",0)
-       var wrong=0.0;var samples:Array=[]
+       var valid_motion:=true;var samples:Array=[]
        for frame in range(30):
         if mode=="regas" and frame==12:touch("throttle",1)
         var f0:Vector2=car.dynamics.forward();var v0:float=car.dynamics.speed();var yaw0:float=car.dynamics.yaw
+        var state=Observe.before(car.dynamics)
         await physics_frame;car.tick(1.0/60,input.driving(),path)
-        var contrary:float=f0.angle_to(car.dynamics.forward())*old;wrong+=maxf(0,contrary)
+        valid_motion=valid_motion and Observe.valid(car.dynamics,state,input.driving().steer,1.0/60)
+        var contrary:float=f0.angle_to(car.dynamics.forward())*old;
         var normals:Array=[]
         for i in range(car.get_slide_collision_count()):normals.append(str(car.get_slide_collision(i).get_normal()))
-        samples.append({"frame":frame,"input":input.driving(),"heading":yaw0,"local_speed_before":v0,"local_speed_after":car.dynamics.speed(),"local_lateral":car.dynamics.velocity.dot(Vector2(-car.dynamics.forward().y,car.dynamics.forward().x)),"smooth_steer":car.dynamics.steering,"yaw_rate":car.dynamics.yaw_rate,"contrary_degrees":rad_to_deg(contrary),"normals":normals})
-       check(wrong<.0001,"Fresh nose-relative input after contact must not keep the old turn: mode=%s road=%s heading=%f contrary_deg=%f"%[mode,road,heading,rad_to_deg(wrong)])
-       results.append({"road":road,"heading":heading,"angle":angle,"old_input":old,"mode":mode,"wrong_degrees":rad_to_deg(wrong),"samples":samples})
+        var sample=Observe.row(car.dynamics,state,input.driving(),frame);sample["collision_normals"]=normals;samples.append(sample)
+       check(valid_motion,"Contact must not override signed-motion target or angular inertia")
+       results.append({"road":road,"heading":heading,"angle":angle,"old_input":old,"mode":mode,"valid_motion":valid_motion,"samples":samples})
       car.queue_free();wall.queue_free();await process_frame
  var pushes:Array=await push_cases()
  await free_driving_cases()
- results.sort_custom(func(a,b):return a.wrong_degrees>b.wrong_degrees)
  check(results.filter(func(sample):return sample.mode=="delayed_regas").size()>=14,"Delayed restart must include both directions at every tested orientation")
  check(results.size()>=300,"Sweep must include actual collisions across directions and pedal transitions")
  var worst:Array=[]
@@ -159,4 +162,4 @@ func run():
    if sample.mode==mode:worst.append(sample);break
  DirAccess.make_dir_recursive_absolute("res://build/validation/collision-steering")
  var file=FileAccess.open("res://build/validation/collision-steering/current-"+Style.selected()+".json",FileAccess.WRITE);file.store_string(JSON.stringify({"wall_cases":worst,"push_cases":pushes},"  "));file.close()
- print("COLLISION_STEERING checks=%d failures=%d contacts=%d worst_deg=%f"%[checks,failures,results.size(),results[0].wrong_degrees if not results.is_empty() else -1]);input.queue_free();await process_frame;quit(1 if failures else 0)
+ print("COLLISION_STEERING checks=%d failures=%d contacts=%d"%[checks,failures,results.size()]);input.queue_free();await process_frame;quit(1 if failures else 0)

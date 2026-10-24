@@ -6,12 +6,17 @@ var velocity := Vector2.ZERO
 var yaw := 0.0
 var steering := 0.0
 var yaw_rate := 0.0
+# Steering-stage telemetry, before collision response alters actual velocity.
+var steering_longitudinal := 0.0
+var turn_speed := 0.0
+var target_yaw_rate := 0.0
 var reverse := false
 var brake_was_down := false
 var slip := 0.0
 var route_s := -1.0
 var surface := "asphalt"
 
+const STEERING_SPEED_DEADZONE: float = 0.1
 const STEERING_GAIN: float = 1.2
 const GRIP_TURN_AUTHORITY: float = 1.15
 const HIGH_SPEED_TURN_AUTHORITY: float = 1.8
@@ -59,18 +64,24 @@ func step(dt: float, steer: float, throttle: bool, brake: bool, road: String) ->
 	# At speed this creates oversteer; countersteering arrests the rotation.
 	var pace := smoothstep(8.0,34.0,absf(longitudinal))
 	var loose := 1.2 if road == "dirt" else (1.35 if road == "grass" else 1.0)
-	# Arcade arrows always turn the nose toward the vehicle's own left/right.
-	# Signed longitudinal speed inverted this during reverse and backward drift.
-	var requested_rate := -steering*absf(longitudinal)/float(spec.radius)*STEERING_GAIN
+	# Wheel deflection is unchanged in reverse; signed travel reverses body yaw.
+	# Inside the symmetric deadzone request no new yaw, preserving natural decay.
+	steering_longitudinal=longitudinal
+	turn_speed=longitudinal if absf(longitudinal)>STEERING_SPEED_DEADZONE else 0.0
+	var requested_rate := -steering*turn_speed/float(spec.radius)*STEERING_GAIN
 	# Give full-lock input enough authority to rotate the car instead of
 	# converting most of the steering into lateral scrub.  The speed-dependent
 	# term still keeps high-speed corners bounded, while the small grip boost
 	# makes low-speed hairpins feel immediate as well.
 	var rotation_limit := grip*GRIP_TURN_AUTHORITY/maxf(absf(longitudinal),2.0) + pace*HIGH_SPEED_TURN_AUTHORITY*loose
-	var target_rate := clampf(requested_rate,-rotation_limit,rotation_limit)
-	var response := 14.0 if target_rate*yaw_rate < 0.0 else 9.0
-	yaw_rate = lerpf(yaw_rate,target_rate,1.0-exp(-response*dt))
-	yaw = wrapf(yaw+yaw_rate*dt,-PI,PI)
+	target_yaw_rate = clampf(requested_rate,-rotation_limit,rotation_limit)
+	var response := 14.0 if target_yaw_rate*yaw_rate < 0.0 else 9.0
+	yaw_rate = lerpf(yaw_rate,target_yaw_rate,1.0-exp(-response*dt))
+	# wrapf snaps values approximately equal to PI onto -PI, losing tiny turns.
+	# Exact remainder preserves low-speed angular increments across the seam.
+	yaw = fmod(yaw+yaw_rate*dt+PI,TAU)
+	if yaw<0.0:yaw+=TAU
+	yaw-=PI
 	var right := Vector2(-f.y,f.x)
 	var lateral := velocity.dot(right)
 	var rear_grip := grip * (1.0-0.38*pace)
@@ -88,6 +99,9 @@ func reset_at(p: Vector2, angle: float) -> void:
 	velocity=Vector2.ZERO
 	steering=0.0
 	yaw_rate=0.0
+	steering_longitudinal=0.0
+	turn_speed=0.0
+	target_yaw_rate=0.0
 	slip=0.0
 	reverse=false
 	brake_was_down=false

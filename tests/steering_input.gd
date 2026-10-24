@@ -76,7 +76,7 @@ func run() -> void:
 	Input.parse_input_event(drag);Input.flush_buffered_events()
 	check(game.controls.driving().steer==1 and game.controls.driving().throttle,"Dragging left to right must update touch and emulated mouse together")
 	touch(0,"right",false);touch(1,"throttle",false)
-	# Opposing inputs cancel, regardless of source; re-press brake engages arcade reverse.
+	# Opposing inputs cancel, regardless of source; re-press brake engages reverse drive.
 	key(KEY_A,true);touch(0,"right");touch(1,"throttle")
 	check(game.controls.driving().steer==0 and game.controls.driving().throttle,"Keyboard and touch opposite arrows cancel")
 	key(KEY_A,false);touch(0,"right",false);touch(1,"throttle",false)
@@ -86,7 +86,7 @@ func run() -> void:
 		var right:=Vector2(-game.player.dynamics.forward().y,game.player.dynamics.forward().x)
 		key(KEY_A if direction<0 else KEY_D,true);key(KEY_S,true)
 		for frame in range(40):await physics_frame
-		check(game.player.dynamics.speed()<-.1 and game.player.dynamics.forward().dot(right)*direction>0,"Live reverse must turn nose toward the pressed arrow")
+		check(game.player.dynamics.speed()<-.1 and game.player.dynamics.forward().dot(right)*direction<0,"Live reverse reverses body yaw relative to forward travel")
 		key(KEY_A if direction<0 else KEY_D,false);key(KEY_S,false)
 	game.queue_free();await process_frame
 	for suffix in ["",".bak"]:
