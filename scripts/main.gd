@@ -8,6 +8,7 @@ const Catalog = preload("res://scripts/catalog.gd")
 const PathData = preload("res://scripts/track_path.gd")
 const TrackView = preload("res://scripts/track_view.gd")
 const RaceCar = preload("res://scripts/race_car.gd")
+const UILayout=preload("res://scripts/ui_layout.gd")
 const TouchControls = preload("res://scripts/touch_controls.gd")
 const MiniMap = preload("res://scripts/minimap.gd")
 const SaveStore = preload("res://scripts/save_store.gd")
@@ -27,6 +28,7 @@ var sound := true
 var world: Node3D
 var camera: Camera3D
 var sun: DirectionalLight3D
+var menu_backdrop:ColorRect
 var ui: Control
 var overlay: Control
 var controls
@@ -130,6 +132,11 @@ func _ready() -> void:
 	camera.current=true
 	var canvas:=CanvasLayer.new()
 	add_child(canvas)
+	menu_backdrop=ColorRect.new()
+	menu_backdrop.color=ClayUI.CREAM if ClayUI.active() else Color("0b1423")
+	menu_backdrop.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	menu_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(menu_backdrop)
 	ui=Control.new()
 	ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	canvas.add_child(ui)
@@ -152,16 +159,17 @@ func _ready() -> void:
 	if smoke_mode and not "--capture-menu" in args:
 		start_race()
 
+func fit_ui_to_safe_area(window:Rect2i,safe:Rect2i) -> void:
+	var full:=get_viewport().get_visible_rect().size
+	var rect:=UILayout.safe_content_rect(window,safe,full)
+	ui.offset_left=rect.position.x
+	ui.offset_top=rect.position.y
+	ui.offset_right=rect.end.x-full.x
+	ui.offset_bottom=rect.end.y-full.y
+
 func apply_safe_area() -> void:
 	if not OS.has_feature("android") or not is_instance_valid(ui):return
-	var pixels:=Vector2(DisplayServer.window_get_size())
-	if pixels.x<=0 or pixels.y<=0:return
-	var safe:=DisplayServer.get_display_safe_area()
-	var scale_factor:=get_viewport().get_visible_rect().size/pixels
-	ui.offset_left=maxf(0,safe.position.x)*scale_factor.x
-	ui.offset_top=maxf(0,safe.position.y)*scale_factor.y
-	ui.offset_right=-maxf(0,pixels.x-safe.end.x)*scale_factor.x
-	ui.offset_bottom=-maxf(0,pixels.y-safe.end.y)*scale_factor.y
+	fit_ui_to_safe_area(Rect2i(DisplayServer.window_get_position(),DisplayServer.window_get_size()),DisplayServer.get_display_safe_area())
 
 func audio(id:String, loop:bool) -> AudioStreamPlayer:
 	var p:=AudioStreamPlayer.new()
@@ -202,6 +210,7 @@ func label(text:String,font_size:int=20,color:Color=Color("edf1e8")) -> Label:
 
 func button(text:String, callback:Callable, accent:bool=false) -> Button:
 	var b:=Button.new()
+	b.mouse_filter=Control.MOUSE_FILTER_PASS
 	b.text=text
 	b.custom_minimum_size=Vector2(0,48)
 	b.focus_mode=Control.FOCUS_NONE
@@ -284,6 +293,7 @@ func menu_track(index:int) -> void:
 
 func show_menu(destination:String="home") -> void:
 	state=State.MENU
+	menu_backdrop.show()
 	clear_ui()
 	clear_world()
 	frontend=Frontend.new()
@@ -364,6 +374,7 @@ func start_race() -> void:
 	receipt={}
 	countdown_beep=0
 	sun.directional_shadow_max_distance=170
+	menu_backdrop.hide()
 	clear_ui()
 	clear_world()
 	path=PathData.new(selected_track,reversed_route)
@@ -669,10 +680,17 @@ func modal(title:String,subtitle:String) -> VBoxContainer:
 	overlay.color=Color(.88,.92,.83,.94) if ClayUI.active() else Color(.02,.035,.05,.94)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ui.add_child(overlay)
+	var scroll:=ScrollContainer.new()
+	UILayout.configure_scroll(scroll)
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.offset_left=24;scroll.offset_right=-24;scroll.offset_top=24;scroll.offset_bottom=-24
+	overlay.add_child(scroll)
 	var center:=CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(center)
+	center.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	center.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	scroll.add_child(center)
 	var panel_node:=PanelContainer.new()
+	panel_node.mouse_filter=Control.MOUSE_FILTER_PASS
 	panel_node.add_theme_stylebox_override("panel",panel())
 	center.add_child(panel_node)
 	var v:=VBoxContainer.new()
@@ -741,6 +759,7 @@ func _notification(what:int) -> void:
 		if is_instance_valid(controls):
 			pause_game(true)
 	elif what in [NOTIFICATION_APPLICATION_RESUMED,NOTIFICATION_APPLICATION_FOCUS_IN]:
+		apply_safe_area.call_deferred()
 		if state==State.PAUSED and paused_by_system:
 			resume_game()
 	elif what==NOTIFICATION_WM_GO_BACK_REQUEST:

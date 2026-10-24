@@ -1,4 +1,5 @@
 extends Control
+const UILayout=preload("res://scripts/ui_layout.gd")
 const ClayUI=preload("res://scripts/clay_ui.gd")
 const Catalog=preload("res://scripts/catalog.gd")
 const Career=preload("res://scripts/career.gd")
@@ -46,6 +47,8 @@ func text(value:String,size:int=18,color:Color=Color("f2f6ff")) -> Label:
 
 func action(value:String,callback:Callable,primary:bool=false) -> Button:
 	var button:=Button.new()
+	# Let the parent ScrollContainer receive a swipe begun on a button.
+	button.mouse_filter=Control.MOUSE_FILTER_PASS
 	button.text=value
 	button.custom_minimum_size.y=48
 	button.add_theme_stylebox_override("normal",box(ACCENT if primary else Color("1b304a"),ACCENT if primary else Color("35516b"),8))
@@ -74,6 +77,7 @@ func horizontal(parent:Node,separation:int=16) -> HBoxContainer:
 
 func card(parent:Node,width:float=0) -> VBoxContainer:
 	var panel:=PanelContainer.new()
+	panel.mouse_filter=Control.MOUSE_FILTER_PASS
 	panel.add_theme_stylebox_override("panel",box())
 	panel.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	panel.custom_minimum_size.x=width
@@ -123,7 +127,7 @@ func render() -> void:
 		nav.add_child(button)
 	var scroll:=ScrollContainer.new()
 	scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	UILayout.configure_scroll(scroll)
 	root.add_child(scroll)
 	content=VBoxContainer.new()
 	content.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -337,6 +341,7 @@ func add_slider(parent:Node,title:String,key:String,fallback:float,callback:Call
 	var row:=horizontal(parent)
 	row.add_child(text(title,17))
 	var slider:=HSlider.new()
+	slider.mouse_filter=Control.MOUSE_FILTER_PASS
 	slider.min_value=0
 	slider.max_value=1
 	slider.step=.05
@@ -344,6 +349,18 @@ func add_slider(parent:Node,title:String,key:String,fallback:float,callback:Call
 	slider.custom_minimum_size=Vector2(200,40)
 	slider.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	row.add_child(slider)
+	# A vertical swipe across a slider belongs to the enclosing scroll view.
+	# Restore the pre-press value so scrolling cannot accidentally change audio.
+	var gesture:Dictionary={"dragging":false,"value":slider.value}
+	var scroll:=content.get_parent() as ScrollContainer
+	slider.drag_started.connect(func():gesture.dragging=true;gesture.value=slider.value)
+	scroll.scroll_started.connect(func():
+		if gesture.dragging:
+			gesture.dragging=false
+			slider.editable=false
+			slider.value=gesture.value)
+	scroll.scroll_ended.connect(func():slider.editable=true)
+	slider.drag_ended.connect(func(_changed):gesture.dragging=false)
 	slider.value_changed.connect(func(value):callback.call(value))
 	slider.drag_ended.connect(func(_changed):game.saved.set_setting(key,slider.value))
 	slider.focus_exited.connect(func():game.saved.set_setting(key,slider.value))
@@ -361,11 +378,14 @@ func credits_page() -> void:
 func show_licenses() -> void:
 	var column=game.modal("第三方许可","Godot Engine / Noto Sans CJK")
 	var scroll:=ScrollContainer.new()
+	UILayout.configure_scroll(scroll)
 	scroll.custom_minimum_size=Vector2(700,300)
 	column.add_child(scroll)
 	var license:=RichTextLabel.new()
 	license.custom_minimum_size.x=660
 	license.fit_content=true
+	license.scroll_active=false
+	license.mouse_filter=Control.MOUSE_FILTER_PASS
 	license.text=FileAccess.get_file_as_string("res://assets/legal/Godot-LICENSE.txt")+"\n\n"+FileAccess.get_file_as_string("res://assets/legal/Godot-COPYRIGHT.txt")+"\n\n"+FileAccess.get_file_as_string("res://assets/legal/Noto-CJK-LICENSE.txt")+"\n\n"+FileAccess.get_file_as_string("res://assets/legal/PolyHaven-CC0.txt")
 	scroll.add_child(license)
 	column.add_child(action("关闭",func():game.dismiss_overlay()))
