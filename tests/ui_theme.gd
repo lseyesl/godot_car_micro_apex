@@ -37,7 +37,7 @@ func run():
      check(contrast(button.get_theme_color(pair[1]),button.get_theme_stylebox(pair[0]).bg_color)>=4.5,"Readable button state "+pair[0])
  game.frontend.change("home");await process_frame
  await click("自由驾驶");check(game.frontend.page=="freeplay","Actual navigation button remains clickable")
- game.launch_free(0,false,true);game.state=Main.State.RACING;game.controls.enabled=true;game.controls.layout();game.set_physics_process(false)
+ game.launch_free(0,false,true);game.state=Main.State.RACING;game.controls.pedals_locked=false;game.controls.enabled=true;game.controls.layout();game.set_physics_process(false)
  check(game.controls.areas.left==Rect2(28,594,100,100),"Left target geometry unchanged")
  root.size=Vector2i(960,540)
  for frame in range(2):await process_frame

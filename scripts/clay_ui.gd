@@ -48,8 +48,8 @@ static func apply_button(button:Button,accent:bool=false) -> void:
  for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
   button.add_theme_color_override(state,INK)
  button.add_theme_color_override("font_disabled_color",Color("5d685e"))
-static func touch_box(action:String,pressed:bool) -> StyleBoxFlat:
- return box("touch", "pressed" if pressed else "normal", action=="brake")
+static func touch_box(action:String,pressed:bool,locked:bool=false) -> StyleBoxFlat:
+ return box("touch", "pressed" if pressed else ("disabled" if locked else "normal"), action=="brake")
 static func theme(font:Font) -> Theme:
  var result=Theme.new();result.default_font=font;result.default_font_size=18
  result.set_color("default_color","RichTextLabel",INK)

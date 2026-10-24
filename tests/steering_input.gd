@@ -31,7 +31,7 @@ func run() -> void:
 	game=Main.new();root.add_child(game)
 	var temp:="/tmp/apex-steering-input-%d.cfg"%OS.get_process_id()
 	game.saved=Store.new(temp);game.practice=true;game.quality=0
-	game.start_race();game.state=Main.State.RACING;game.controls.enabled=true
+	game.start_race();game.state=Main.State.RACING;game.controls.pedals_locked=false;game.controls.enabled=true
 	game.controls.auto_throttle=false
 	await process_frame
 	game.controls.layout()

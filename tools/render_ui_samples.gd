@@ -15,7 +15,7 @@ func run():
  var game=Main.new();game.saved=Store.new("/tmp/apex-ui-capture-%d.cfg"%OS.get_process_id());root.add_child(game)
  for page in ["home","garage","freeplay","career","settings"]:
   game.frontend.change(page);await capture(page)
- game.selected_track=0;game.quality=1;game.practice=true;game.start_race();game.state=Main.State.RACING;game.countdown=0;game.set_process(false);game.set_physics_process(false);game.controls.enabled=true;game.center_label.text="";game.update_hud()
+ game.selected_track=0;game.quality=1;game.practice=true;game.start_race();game.state=Main.State.RACING;game.controls.pedals_locked=false;game.countdown=0;game.set_process(false);game.set_physics_process(false);game.controls.enabled=true;game.center_label.text="";game.update_hud()
  await capture("hud")
  game.controls.layout()
  for pair in [[0,"left"],[1,"throttle"]]:

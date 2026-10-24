@@ -4,6 +4,9 @@ const ClayUI=preload("res://scripts/clay_ui.gd")
 var fingers:Dictionary={}
 var mouse_action:=""
 var enabled:=false
+# Countdown accepts press/release feedback while withholding pedal commands.
+var pedals_locked:=false
+var hit_areas:Dictionary={}
 var reset_held:=0.0
 var areas:Dictionary={}
 var font:Font
@@ -21,18 +24,35 @@ func layout() -> void:
 	var bottom:=size.y-26
 	areas={"left":Rect2(28,bottom-h,h,h),"right":Rect2(42+h,bottom-h,h,h),"brake":Rect2(size.x-44-2*h,bottom-h,h,h),"throttle":Rect2(size.x-28-h,bottom-h,h,h),"reset":Rect2(size.x-132,115,104,48)}
 
+	# Keep painted controls unchanged; partition the enlarged steering targets
+	# at the middle of the arrow gap so a point can never press both arrows.
+	var padding:=h*.24
+	var split:float=(areas.left.end.x+areas.right.position.x)*.5
+	var bounds:=Rect2(Vector2.ZERO,size)
+	hit_areas=areas.duplicate()
+	var left:Rect2=areas.left.grow(padding).intersection(bounds)
+	left.end.x=minf(left.end.x,split)
+	var right:Rect2=areas.right.grow(padding).intersection(bounds)
+	right.position.x=maxf(right.position.x,split)
+	right.end.x=minf(areas.right.end.x+padding,areas.brake.position.x)
+	hit_areas.left=left
+	hit_areas.right=right
+
 func action_at(p:Vector2) -> String:
 	layout()
-	for key in areas:
-		if areas[key].has_point(p):
+	for key in hit_areas:
+		if hit_areas[key].has_point(p):
 			return key
 	return ""
 
 func _input(event:InputEvent) -> void:
 	if not enabled:
 		return
+	# Touch owns its finger state; ignore its synthesized mouse duplicate.
+	if event.device==InputEvent.DEVICE_ID_EMULATION:
+		return
 	if event is InputEventScreenTouch:
-		if event.pressed:
+		if event.pressed and not event.canceled:
 			var action:=action_at(get_global_transform_with_canvas().affine_inverse()*event.position)
 			if action!="":
 				fingers[event.index]=action
@@ -61,7 +81,7 @@ func held(action:String) -> bool:
 	return false
 
 func driving() -> Dictionary:
-	return {"steer":float(held("right"))-float(held("left")),"throttle":held("throttle") or (enabled and auto_throttle and not held("brake")),"brake":held("brake")}
+	return {"steer":float(held("right"))-float(held("left")),"throttle":not pedals_locked and (held("throttle") or (enabled and auto_throttle and not held("brake"))),"brake":not pedals_locked and held("brake")}
 
 func clear() -> void:
 	fingers.clear()
@@ -76,10 +96,12 @@ func _draw() -> void:
 	for key in areas:
 		var rect:Rect2=areas[key]
 		var active:=held(key)
+		var locked:bool=pedals_locked and key in ["throttle","brake"]
 		var fill:=Color(.06,.14,.24,.78)
+		if locked:fill=Color(.06,.14,.24,.42)
 		if active:
 			fill=Color("ffd34e")
-		draw_style_box(ClayUI.touch_box(key,active) if ClayUI.active() else style(fill,Color("6d9cbb") if not active else Color("fff0a3")),rect)
+		draw_style_box(ClayUI.touch_box(key,active,locked) if ClayUI.active() else style(fill,Color("6d9cbb") if not active else Color("fff0a3")),rect)
 		var text:String={"left":"◀","right":"▶","brake":"BRAKE","throttle":"GAS","reset":"RESET"}[key]
 		if key in ["left","right"]:
 			var center:=rect.get_center()

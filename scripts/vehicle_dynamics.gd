@@ -33,9 +33,12 @@ func speed() -> float:
 func grip_for(road: String) -> float:
 	return float(spec.grip) * (float(spec.dirt) if road == "dirt" else (0.42 if road == "grass" else 1.0))
 
+func prepare_steering(dt:float,steer:float) -> void:
+	steering = move_toward(steering,clampf(steer,-1,1),dt*9.0)
+
 func step(dt: float, steer: float, throttle: bool, brake: bool, road: String) -> void:
 	surface = road
-	steering = move_toward(steering,clampf(steer,-1,1),dt*9.0)
+	prepare_steering(dt,steer)
 	var f := forward()
 	var longitudinal := velocity.dot(f)
 	if brake and not brake_was_down:

@@ -456,7 +456,8 @@ func build_hud() -> void:
 	center_label.offset_bottom=60
 	controls=TouchControls.new()
 	ui.add_child(controls)
-	controls.enabled=false
+	controls.enabled=true
+	controls.pedals_locked=true
 	controls.auto_throttle=bool(saved.setting("auto_throttle",false)) and not tutorial
 	controls.large=bool(saved.setting("large_controls",false))
 	if practice and event_id<0:
@@ -470,6 +471,8 @@ func build_hud() -> void:
 
 func _physics_process(dt:float) -> void:
 	if state==State.COUNTDOWN:
+		player.prepare_start(dt,controls.driving().steer)
+		controls.queue_redraw()
 		countdown-=dt
 		var beat:=ceili(countdown)
 		if beat>0 and beat!=countdown_beep:
@@ -478,8 +481,7 @@ func _physics_process(dt:float) -> void:
 		center_label.text=str(maxi(1,ceili(countdown)))
 		if countdown<=0:
 			state=State.RACING
-			controls.enabled=true
-			controls.clear()
+			controls.pedals_locked=false
 			center_label.text="GO!"
 			play_cue("go")
 		return
@@ -655,6 +657,8 @@ func resume_game() -> void:
 		overlay.queue_free()
 		overlay=null
 	controls.clear()
+	controls.enabled=true
+	controls.pedals_locked=true
 	countdown=3.0
 	state=State.COUNTDOWN
 

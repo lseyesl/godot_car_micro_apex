@@ -24,7 +24,7 @@ func run():
  root.size=Vector2i(1280,720)
  game=Main.new();game.saved=Store.new("/tmp/apex-signed-wall-%d.cfg"%OS.get_process_id());root.add_child(game)
  game.practice=true;game.quality=0;game.selected_track=0;game.selected_car=3;game.start_race()
- game.state=Main.State.RACING;game.controls.enabled=true;game.controls.auto_throttle=false;game.set_physics_process(false)
+ game.state=Main.State.RACING;game.controls.pedals_locked=false;game.controls.enabled=true;game.controls.auto_throttle=false;game.set_physics_process(false)
  await process_frame;game.controls.layout();await physics_frame
  var base:Dictionary=game.path.nearest(Vector2(-52,-15));var contact_cases:=0;var stops:=0
  for offset in [-6.0,0.0,6.0]:

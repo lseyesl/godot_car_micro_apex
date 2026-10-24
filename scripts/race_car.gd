@@ -101,6 +101,15 @@ func configure(spec:Dictionary, at:Vector2, heading:float, is_player:bool) -> vo
 		add_child(marker)
 	reset_physics_interpolation()
 
+# Grid/resume preparation updates wheel lock only, never body motion or clocks.
+func prepare_start(dt:float,steer:float) -> void:
+	dynamics.prepare_steering(dt,steer)
+	update_wheels()
+
+func update_wheels() -> void:
+	for i in range(wheels.size()):
+		wheels[i].rotation=wheel_rotations[i]+Vector3(wheel_angle,(-dynamics.steering*.35 if "Front" in wheels[i].name else 0.0),0)
+
 func tick(dt:float, controls:Dictionary, path) -> void:
 	previous=dynamics.position
 	near=path.nearest(previous,dynamics.route_s)
@@ -146,8 +155,7 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 		dynamics.velocity=wall_speed*exp(-5.0*dt)
 		velocity=PathData.world(dynamics.velocity)
 	wheel_angle+=dynamics.speed()*dt/.34
-	for i in range(wheels.size()):
-		wheels[i].rotation=wheel_rotations[i]+Vector3(wheel_angle,(-dynamics.steering*.35 if "Front" in wheels[i].name else 0.0),0)
+	update_wheels()
 	visual.rotation.z=lerpf(visual.rotation.z,-dynamics.steering*minf(dynamics.velocity.length()/45.0,1.0)*.035,dt*8)
 	if occlusion_visual!=null:
 		occlusion_visual.rotation=visual.rotation
