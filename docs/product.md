@@ -1,3 +1,5 @@
+0.13.11：新增星环高速、双叶流线、峡谷回针、都会街角四种独立轮廓，共 10 条赛道 / 20 个方向。旧六条几何和 36 场生涯、存档不变；三套模型风格同步。Android version code 30，真机待验收；见 [真实路线对照与验证](route-variety.md)。
+
 0.13.10：手机菜单滚动、横屏铺满与安全区修复；保留原版，bright_clay 更新为手捏 A，新增 paper_craft 折纸 C，三套各 37 模型与对应 UI。Android version code 29。真实渲染与性能边界见 [A/C 改造](crafted-styles.md)，Android 真机待验收。
 
 0.13.9：倒计时显示控件、左右可预摆前轮、踏板反馈与 GO 持续按压衔接，扩大实际左右热区；Android version code 28，见 [倒计时触控与验证](countdown-controls.md)。保留 0.13.8 转向及插值，真机待验收。

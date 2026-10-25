@@ -211,6 +211,10 @@ jobs:
           下载 $APK_FILE 安装；附 SHA-256 校验文件和包信息。
           本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
+          新增星环高速（椭圆）、双叶流线（S 湾）、峡谷回针（单发卡）、都会街角（城市直角弯），共 10 条赛道 / 20 个方向。
+          新路线支持正向竞速、反向和练习；保留旧六条几何、36 场生涯、已解锁进度与存档记录。
+          每种风格新增 64 组多车型正反向 AI 圈、8 场六车比赛及护栏/兼容检查；完整 CI 后再导出 APK。
+          新路线纸模远景约 389–425 draw calls 为桌面代理结果，不能代替 Android 真机性能验收。
           三套风格各含 37 个同步模型：original 原版、bright_clay 手捏黏土、paper_craft 折纸纸模；各自锁定模型和 UI，未改变驾驶物理。
           倒计时显示驾驶控件，左右可预摆前轮；GAS/BRAKE 有按压反馈但不提前驱动车辆，持续按住在 GO 后生效，提前释放不留输入。
           扩大左右实际触碰区，默认 1280×720 布局从 100×100 增至 131×148，按钮画面尺寸保持；新增 418 项倒计时触控检查。
@@ -223,6 +227,7 @@ jobs:
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/scenery-additions.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/crafted-styles.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/mobile-ui-layout.md
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/route-variety.md
 
           Model style: $MICRO_APEX_MODEL_STYLE
           Commit: $RELEASE_SHA
