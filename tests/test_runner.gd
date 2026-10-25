@@ -21,7 +21,7 @@ func _initialize() -> void:
 func run() -> void:
 	for index in range(Catalog.TRACKS.size()):
 		var track=Track.new(index)
-		check(track.length>1000 and track.length<1400,"Track length outside intended race scale")
+		check((track.length>1000 and track.length<1400) if index<6 else (track.length>550 and track.length<1000),"Track length outside authored legacy/new circuit scale")
 		check(track.sample(0).point.distance_to(track.sample(track.length).point)<.001,"Track must close")
 		var asphalt:=0
 		var dirt:=0

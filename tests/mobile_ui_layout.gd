@@ -78,6 +78,25 @@ func run():
      await tap(rect.get_center());check(actions.pressed==1,"Bottom action must accept one real touch tap: "+page)
     if game.state!=Main.State.MENU:game.show_menu()
     game.dismiss_overlay()
+ # Expanded catalog: real touch selects the last page and reaches its bottom action.
+ root.size=Vector2i(960,432);await settle();game.fit_ui_to_safe_area(Rect2i(0,0,960,432),Rect2i(32,8,928,384));game.show_menu("freeplay");await settle()
+ var last_page:Button
+ for button in game.frontend.find_children("*","Button",true,false):
+  if button.text=="多样路线 10–10":last_page=button
+ check(last_page!=null,"Expanded route catalog exposes the last page")
+ if last_page!=null:
+  await tap(last_page.get_global_rect().get_center());await settle()
+  check(game.frontend.circuit_page==3,"Touch navigation opens the last route group")
+  var last_scroll=first_scroll()
+  for repeat in range(4):await swipe(last_scroll.get_global_rect().get_center(),Vector2(0,-200))
+  var practice:Button
+  for button in game.frontend.find_children("*","Button",true,false):
+   if button.text=="自由练习":practice=button
+  check(practice!=null and last_scroll.get_global_rect().grow(2).encloses(practice.get_global_rect()),"Tenth route practice action is fully reachable")
+  if practice!=null:
+   await tap(practice.get_global_rect().get_center())
+   check(game.path.index==9 and game.practice,"Real touch launches the selected tenth route")
+  game.show_menu("home");await settle()
  # Horizontal slider ownership must survive the scroll propagation fix.
  root.size=Vector2i(1280,720);await settle();game.fit_ui_to_safe_area(Rect2i(0,0,1280,720),Rect2i(0,0,1280,720));game.show_menu("settings");await settle()
  var slider=game.frontend.find_children("*","HSlider",true,false)[0];var before:float=slider.value;var scroll=first_scroll()

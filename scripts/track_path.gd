@@ -9,6 +9,7 @@ var distances := PackedFloat32Array()
 var length := 0.0
 var index := 0
 var theme := 0
+var scenery_index := 0
 var reversed := false
 var definition: Dictionary
 var elevations:Array[Dictionary]=[]
@@ -19,6 +20,7 @@ func _init(track_index: int = 0, reverse_route: bool = false) -> void:
 	index = track_index
 	definition = Catalog.TRACKS[index]
 	theme = int(definition.get("theme",index))
+	scenery_index=int(definition.get("scenery",index))
 	var controls: Array = definition.points
 	for i in range(controls.size()):
 		for step in range(20):

@@ -20,7 +20,8 @@ func run() -> void:
 		var district=view.get_child(1)
 		check(district.get_script()==preload("res://scripts/track_district.gd"),"District must be the active scenery builder")
 		print("SCENERY track=%d groups=%d"%[index,district.get_meta("theme_scenery_count",0)])
-		check(int(district.get_meta("theme_scenery_count",0))>=40,"Each theme must populate at least forty reserved roadside groups")
+		check(int(district.get_meta("theme_scenery_count",0))>=(40 if index<6 else 24),"Legacy districts stay dense; new routes retain a populated bounded roadside budget")
+		if index>=6:check(district.plots.size()<=64,"New routes have a bounded detail budget")
 		check(district.plots.size()>=20,"Circuit must have populated district plots")
 		var clear_road:=true
 		var clear_plots:=true

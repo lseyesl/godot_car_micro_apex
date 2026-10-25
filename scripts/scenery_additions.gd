@@ -16,7 +16,7 @@ const LANDMARKS=[
 static func landmarks(d) -> void:
  var placed:Array[Dictionary]=[]
  for i in range(2):
-  var id:String=LANDMARKS[d.path.index][i]
+  var id:String=LANDMARKS[d.path.scenery_index][i]
   var radius:float=16.0 if id=="prop_ferris_wheel" else 12.0
   var p:Vector2=d.fit_landmark(PARCELS[i],radius)
   if not p.is_finite():continue
@@ -24,7 +24,7 @@ static func landmarks(d) -> void:
   var node:Node3D=d.view.model(id,PathData.world(p),0,d.props)
   node.set_meta("scenery_addition",id)
   for side in [-1,1]:
-   d.art_tree(p+Vector2(side*(12.0 if id=="prop_ferris_wheel" else 9.0),6.0 if id=="prop_ferris_wheel" else 5.0),.4,d.path.index in [1,5])
+   d.art_tree(p+Vector2(side*(12.0 if id=="prop_ferris_wheel" else 9.0),6.0 if id=="prop_ferris_wheel" else 5.0),.4,d.path.scenery_index in [1,5])
   placed.append({"id":id,"point":p,"radius":radius})
  d.set_meta("new_landmarks",placed)
 static func greenery(d) -> void:
@@ -41,7 +41,7 @@ static func greenery(d) -> void:
    var p:Vector2=at.point+normal*float(side)*(14.0 if shrub else 11.8)
    if not d.available(p,radius):continue
    d.reserve(p,radius)
-   var id:String=("foliage_shrub_flower" if i%2==0 else "foliage_shrub_round") if shrub else ("foliage_grass_dry" if d.path.index in [2,5] else "foliage_grass_green")
+   var id:String=("foliage_shrub_flower" if i%2==0 else "foliage_shrub_round") if shrub else ("foliage_grass_dry" if d.path.scenery_index in [2,5] else "foliage_grass_green")
    var node:Node3D=d.view.model(id,PathData.world(p),i*2.399,d.props)
    node.set_meta("scenery_addition",id)
    placed.append({"id":id,"point":p,"radius":radius})

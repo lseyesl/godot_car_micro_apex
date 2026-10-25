@@ -5,7 +5,7 @@ static func segment(view,a:Vector2,b:Vector2,na:Vector2,nb:Vector2,ha:float,hb:f
 	var path=view.path
 	var feature:Dictionary=path.feature_at((path.distances[index]+path.distances[index+1])*.5)
 	if feature.is_empty() or maxf(ha,hb)<.08:return
-	var tint:=Color(COLORS[path.index])
+	var tint:=Color(COLORS[path.scenery_index])
 	if feature.kind=="hill":
 		# Continuous filled shoulders communicate an earth ramp, not a floating ribbon.
 		var st:=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)

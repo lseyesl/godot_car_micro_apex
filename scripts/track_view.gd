@@ -156,7 +156,7 @@ func build(data, quality: int) -> void:
 			var inner_b:Vector2=b+nb*(half+0.1)*side
 			var outer_a:Vector2=a+na*(half+0.8)*side
 			var outer_b:Vector2=b+nb*(half+0.8)*side
-			add_curb(curbs,curb_body,inner_a,inner_b,outer_a,outer_b,ha,hb,Color(District.Scenery.EDGE[path.index]) if int(path.distances[i]/3.0)%2==0 else Color("ddd8bf"))
+			add_curb(curbs,curb_body,inner_a,inner_b,outer_a,outer_b,ha,hb,Color(District.Scenery.EDGE[path.scenery_index]) if int(path.distances[i]/3.0)%2==0 else Color("ddd8bf"))
 			var edge:SurfaceTool=strips["red" if i%4<2 else "white"]
 			ribbon_vertex(edge,inner_a,inner_b,outer_b,Vector3(ha,hb,hb)+Vector3.ONE*.035)
 			ribbon_vertex(edge,inner_a,outer_b,outer_a,Vector3(ha,hb,ha)+Vector3.ONE*.035)
@@ -198,9 +198,9 @@ func build(data, quality: int) -> void:
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.mesh=strips[road].commit()
 		var m:Material
-		if road=="asphalt":m=miniature_material("clean_asphalt",.35,Color(District.Scenery.ROAD[path.index]),.25)
-		elif road=="dirt":m=miniature_material("brown_mud_dry",.3,Color(District.Scenery.DIRT[path.index]),.28)
-		elif road=="verge":m=miniature_material("cobblestone_floor_03" if path.theme==0 else "grass_path_3",.30,Color(District.Scenery.VERGE[path.index]),.18)
+		if road=="asphalt":m=miniature_material("clean_asphalt",.35,Color(District.Scenery.ROAD[path.scenery_index]),.25)
+		elif road=="dirt":m=miniature_material("brown_mud_dry",.3,Color(District.Scenery.DIRT[path.scenery_index]),.28)
+		elif road=="verge":m=miniature_material("cobblestone_floor_03" if path.theme==0 else "grass_path_3",.30,Color(District.Scenery.VERGE[path.scenery_index]),.18)
 		else:m=material(colors[road]).duplicate()
 		if m is StandardMaterial3D:m.cull_mode=BaseMaterial3D.CULL_DISABLED
 		node.material_override=m

@@ -13,7 +13,7 @@ func run() -> void:
 	for index in range(Catalog.TRACKS.size()):
 		var forward=Track.new(index)
 		var reverse=Track.new(index,true)
-		check(forward.elevations.size()==2,"Every route needs a bridge and crest")
+		check(forward.elevations.size()==(2 if index<6 else 0),"Legacy elevations stay unchanged; new layouts are deliberately flat")
 		for step in range(400):
 			var s:float=forward.length*step/400.0
 			check(absf(forward.height_at(s)-reverse.height_at(reverse.length-s))<.002,"Reverse route must preserve world elevation")

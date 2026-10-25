@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export/test both Android resource packs locally; no APK build or remote actions."""
+"""Export/test all three Android resource packs locally; no APK build or remote actions."""
 import argparse
 import json
 import os
@@ -53,9 +53,9 @@ def run(godot):
                      '--script', str(ROOT / 'tests/exported_style_scene_probe.gd')],
                     env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
                 (output / f'packed-scenes-{style}.log').write_text(result.stdout)
-                if result.returncode or result.stdout.count('PACKED_STYLE_SCENE ') != 6 or 'ERROR:' in result.stdout:
+                if result.returncode or 'PACKED_STYLE_SCENES_COMPLETE' not in result.stdout or 'ERROR:' in result.stdout:
                     raise RuntimeError(result.stdout)
-                print(f'PASS packed six tracks: {style}', flush=True)
+                print(f'PASS packed all catalog tracks: {style}', flush=True)
                 results.append({'style': style, 'bytes': pack.stat().st_size})
         (output / 'export-summary.json').write_text(json.dumps(results, indent=2) + '\n')
         print(results, flush=True)

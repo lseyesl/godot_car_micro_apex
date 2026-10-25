@@ -46,7 +46,7 @@ func run():
     check(material is StandardMaterial3D and material.transparency==BaseMaterial3D.TRANSPARENCY_DISABLED,"Foliage/landmarks must remain opaque")
   check(triangles<10000,"Each new asset has a bounded triangle budget: "+id)
   print("NEW_ASSET id=%s triangles=%d"%[id,triangles]);node.free()
- for index in range(6):
+ for index in range(Catalog.TRACKS.size()):
   var path=Track.new(index);var view=View.new();root.add_child(view);view.build(path,1)
   var district=view.get_child(1)
   var landmarks:Array=district.get_meta("new_landmarks",[])

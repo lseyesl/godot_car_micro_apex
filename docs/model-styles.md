@@ -40,7 +40,7 @@ MICRO_APEX_MODEL_STYLE=paper_craft python3 tools/validate.py --godot godot
 python3 tools/verify_model_style_exports.py --godot godot
 ```
 
-最后一项仅本地导出三份 Android 资源 PCK，不构建 APK、不调用远端。它验证每包全部模型可加载、其余风格资源不存在、相反/非法环境变量不改变选择，以及三套各六赛道的场景和 UI 初始化。完成后恢复源配置。
+最后一项仅本地导出三份 Android 资源 PCK，不构建 APK、不调用远端。它验证每包全部模型可加载、其余风格资源不存在、相反/非法环境变量不改变选择，以及三套各全部已登记赛道的场景和 UI 初始化。完成后恢复源配置。
 
 Android APK 检查器 `--expected-model-style` 验证锁定配置、全部导入模型目标及资源排他。新 artifact/Release 带 `model-style.json`，发布器要求与 APK 中配置一致；历史不含风格配置的四文件 artifact 保持兼容，新包不得省略元数据。风格名进入 APK 文件名和发布标题，独立风格须使用独立新标签。
 

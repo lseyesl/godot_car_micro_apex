@@ -56,7 +56,13 @@ func build_ground(owner_view) -> void:
 	var ground:MeshInstance3D=view.add_box(Vector3(100,-1.08,0) if path.theme==0 else Vector3(0,-1.08,0),Vector3(448,2,640) if path.theme==0 else Vector3(640,2,640),Color(colors[path.theme]))
 	ground.material_override=view.miniature_material("cobblestone_floor_03" if path.theme==0 else ("grass_ground" if path.theme==1 else "brown_mud_dry"),.28,Color(["bbba9d","819570","b79c7b"][path.theme]),.22)
 	if path.index==3:ground.material_override=view.miniature_material("clean_asphalt",.25,Color("869698"),.23)
-	ground.material_override=view.miniature_material("grass_ground" if path.index in [0,1] else "brown_mud_dry",.25,Color(Scenery.GROUND[path.index]),.18)
+	ground.material_override=view.miniature_material("grass_ground" if path.scenery_index in [0,1] else "brown_mud_dry",.25,Color(Scenery.GROUND[path.scenery_index]),.18)
+	if path.index>=6:
+		# Clay/paper mud has one fixed tint; do not use it for the surrounding
+		# ground of a dirt route, where it would hide the driving surface.
+		if path.definition.has("ground_color"):
+			ground.material_override=view.miniature_material("cobblestone_floor_03",.28,Color(path.definition.ground_color),.18)
+		return
 	if path.theme==0:
 		var sea:MeshInstance3D=view.add_box(Vector3(-330,-2.3,0),Vector3(412,.3,640),Color("639c9d"))
 		var water:=ShaderMaterial.new()
@@ -95,6 +101,8 @@ func marina(z:float) -> void:
 
 func build_details(owner_view) -> void:
 	view=owner_view
+	if path.index>=6:
+		build_route_details();return
 	race_control()
 	Additions.landmarks(self)
 	landscape_pockets()
@@ -436,7 +444,7 @@ func race_control() -> void:
 			view.solid_cone(Vector3(x,1.5+row*1.1,-row*2),.21,.28,.65,Color(["b19873","6b8d8b","9b7967"][seat%3]),group,10)
 			view.solid_cone(Vector3(x,2.04+row*1.1,-row*2),.18,.18,.35,Color("c7ad87"),group,8)
 	var sign:=Label3D.new()
-	sign.text=["BAY / GRAND PRIX","TIMBER / SPRINT","REDSTONE / RALLY","DOCKSIDE / SPRINT","MARKET / CIRCUIT","ALPINE / RALLY"][path.index]
+	sign.text=path.definition.get("banner",["BAY / GRAND PRIX","TIMBER / SPRINT","REDSTONE / RALLY","DOCKSIDE / SPRINT","MARKET / CIRCUIT","ALPINE / RALLY"][path.scenery_index])
 	sign.font_size=48
 	sign.pixel_size=.013
 	sign.position=Vector3(0,9,5.3)
@@ -594,3 +602,16 @@ func snow_cover() -> void:
 	for child in view.get_children():
 		if child is MeshInstance3D and child.mesh is BoxMesh and child.mesh.size.x>400:
 			child.material_override=view.material(Color("edf3ed")) if ModelStyle.is_crafted() else snow
+
+# New routes use a bounded roadside budget, not the dense legacy district grid.
+func build_route_details() -> void:
+	race_control();Additions.landmarks(self)
+	for i in range(12):
+		var at:Dictionary=path.sample(path.length*(i+.35)/12.0)
+		var normal:=Vector2(-at.tangent.y,at.tangent.x)
+		var p:Vector2=at.point+normal*24.0*(1 if i%2 else -1)
+		if not available(p,9):continue
+		reserve(p,9);art_building(p,PathData.heading(at.tangent),path.theme*2+i%2)
+	Additions.greenery(self)
+	set_meta("theme_scenery_count",plots.size())
+	starting_grid();batch_primitives()

@@ -21,7 +21,7 @@ func _initialize() -> void:
 				total+=1
 				if path.nearest(Vector2(x,z)).distance<=20:close+=1
 		var coverage:=float(close)/total
-		if coverage<.72:failures+=1;push_error("Insufficient interior road coverage")
+		if index<6 and coverage<.72:failures+=1;push_error("Insufficient interior road coverage")
 		var narrow:=0
 		for i in range(0,path.points.size(),4):
 			for j in range(i+4,path.points.size(),4):

@@ -291,9 +291,10 @@ func freeplay() -> void:
 	content.add_child(text("自由驾驶",32))
 	content.add_child(text("用已拥有的赛车熟悉每一条路线。自由比赛和练习不发放生涯金币。",17,MUTED))
 	var pages:=horizontal(content)
-	for group in range(2):
+	for group in range(ceili(Catalog.TRACKS.size()/3.0)):
 		var index:=group
-		pages.add_child(action(["经典赛道 01–03","新境赛道 04–06"][group],func():circuit_page=index;render(),circuit_page==group))
+		var title:String=["经典赛道 01–03","新境赛道 04–06"][group] if group<2 else "多样路线 %02d–%02d"%[group*3+1,mini(group*3+3,Catalog.TRACKS.size())]
+		pages.add_child(action(title,func():circuit_page=index;render(),circuit_page==group))
 	var row:=GridContainer.new()
 	row.columns=3
 	row.add_theme_constant_override("h_separation",12)
@@ -304,6 +305,7 @@ func freeplay() -> void:
 		var cell:=card(row)
 		cell.add_child(text("CIRCUIT 0%d"%(i+1),13,MINT))
 		cell.add_child(text(Catalog.TRACKS[i].name,23))
+		cell.add_child(text(Catalog.TRACKS[i].tag,13,MUTED))
 		var preview:=RoutePreview.new()
 		preview.path=Track.new(i)
 		preview.custom_minimum_size=Vector2(200,125)
