@@ -1,3 +1,5 @@
+0.13.10：手机菜单滚动、横屏铺满与安全区修复；保留原版，bright_clay 更新为手捏 A，新增 paper_craft 折纸 C，三套各 37 模型与对应 UI。Android version code 29。真实渲染与性能边界见 [A/C 改造](crafted-styles.md)，Android 真机待验收。
+
 0.13.9：倒计时显示控件、左右可预摆前轮、踏板反馈与 GO 持续按压衔接，扩大实际左右热区；Android version code 28，见 [倒计时触控与验证](countdown-controls.md)。保留 0.13.8 转向及插值，真机待验收。
 
 0.13.8：按实际前进/后退统一转向，替换旧的倒车车头跟随箭头及碰撞角状态清零规则；见 [新规则、边界与验证](signed-motion-steering.md)。Android version code 27，两风格独立测试发布，真机待验收。以下版本记录保留历史语义。
