@@ -1,5 +1,9 @@
 extends Node3D
 
+const Haptics=preload("res://scripts/haptic_feedback.gd")
+var haptics=Haptics.new()
+var haptic_frame:Dictionary={}
+
 const ClayUI=preload("res://scripts/clay_ui.gd")
 
 const ModelStyle=preload("res://scripts/model_style.gd")
@@ -92,6 +96,7 @@ func _ready() -> void:
 	difficulty=clampi(int(saved.setting("difficulty",1)),0,2)
 	quality=clampi(int(saved.setting("quality",1)),0,1)
 	sound=bool(saved.setting("sound",true))
+	haptics.enabled=bool(saved.setting("vibration",true))
 	practice=bool(saved.setting("practice",false))
 	master_volume=clampf(float(saved.setting("volume",.8)),0,1)
 	music_volume=clampf(float(saved.setting("music_volume",.35)),0,1)
@@ -299,6 +304,7 @@ func menu_track(index:int) -> void:
 	show_menu("freeplay")
 
 func show_menu(destination:String="home") -> void:
+	haptics.suspend()
 	stop_start_cue()
 	state=State.MENU
 	menu_backdrop.show()
@@ -319,6 +325,15 @@ func dismiss_overlay() -> void:
 		ui.remove_child(overlay)
 		overlay.queue_free()
 		overlay=null
+
+func collect_player_contact(kind:String,closing_speed:float) -> void:
+	if state!=State.RACING or haptic_frame.is_empty():return
+	haptic_frame.contact=true
+	haptic_frame[kind]=maxf(haptic_frame[kind],closing_speed)
+
+func toggle_vibration() -> void:
+	var value:bool=not haptics.enabled
+	if saved.set_setting("vibration",value):haptics.enabled=value
 
 func stop_start_cue() -> void:
 	if is_instance_valid(start_audio):
@@ -387,6 +402,7 @@ func update_record_hint() -> void:
 		help_label.text="最佳单圈  "+Catalog.clock_text(saved.best(selected_track,selected_car))
 
 func start_race() -> void:
+	haptics.begin_race()
 	stop_start_cue()
 	var career:=Career.new(saved)
 	var event:Dictionary={}
@@ -430,6 +446,7 @@ func start_race() -> void:
 		var side:=Vector2(-grid.tangent.y,grid.tangent.x)
 		var offset:=0.0 if practice else (-2.0 if i%2==0 else 2.0)
 		var spec:Dictionary=career.specification(choice) if i==0 else Career.tuned(Catalog.CARS[choice],int(event.get("ai_level",0)),int(event.get("ai_level",0)),int(event.get("ai_level",0)))
+		car.player_contact.connect(collect_player_contact)
 		car.configure(spec,grid.point+side*offset,PathData.heading(grid.tangent),i==0)
 		car.effects_enabled=quality>0 and DisplayServer.get_name()!="headless"
 		car.car_index=choice
@@ -535,10 +552,12 @@ func _physics_process(dt:float) -> void:
 			state=State.RACING
 			controls.pedals_locked=false
 			present_start(0)
+			haptics.go(Time.get_ticks_msec())
 		return
 	if state!=State.RACING:
 		return
 	time+=dt
+	haptic_frame={"vehicle":0.0,"road":0.0,"contact":false}
 	for car in cars:
 		if car.progress.finish_time>=0:
 			# Finished opponents clear the finish lane instead of becoming parked obstacles.
@@ -591,6 +610,8 @@ func _physics_process(dt:float) -> void:
 		elif tutorial_step==2 and controls.held("brake"):tutorial_step=3
 	if target_laps>0 and player.progress.finish_time>=0:
 		show_results()
+
+	if state==State.RACING:haptics.collision(haptic_frame.vehicle,haptic_frame.road,haptic_frame.contact,Time.get_ticks_msec())
 
 func _process(dt:float) -> void:
 	if is_instance_valid(music):
@@ -699,6 +720,7 @@ func pause_game(system_pause:bool=false) -> void:
 	stop_start_cue()
 	if is_instance_valid(countdown_plate):countdown_plate.hide()
 	if is_instance_valid(center_label):center_label.hide()
+	haptics.suspend()
 	state=State.PAUSED
 	paused_by_system=system_pause
 	controls.enabled=false
@@ -709,6 +731,7 @@ func pause_game(system_pause:bool=false) -> void:
 	v.add_child(button("离开比赛",leave_race))
 
 func resume_game() -> void:
+	haptics.active=true
 	paused_by_system=false
 	if is_instance_valid(overlay):
 		overlay.queue_free()
@@ -752,6 +775,7 @@ func modal(title:String,subtitle:String) -> VBoxContainer:
 func show_results() -> void:
 	if state==State.RESULTS:return
 	stop_start_cue()
+	haptics.suspend()
 	state=State.RESULTS
 	countdown_plate.hide()
 	controls.enabled=false
@@ -806,6 +830,7 @@ func _unhandled_key_input(event:InputEvent) -> void:
 
 func _notification(what:int) -> void:
 	if what in [NOTIFICATION_APPLICATION_PAUSED,NOTIFICATION_APPLICATION_FOCUS_OUT]:
+		haptics.suspend()
 		if is_instance_valid(controls):
 			pause_game(true)
 	elif what in [NOTIFICATION_APPLICATION_RESUMED,NOTIFICATION_APPLICATION_FOCUS_IN]:
@@ -821,6 +846,7 @@ func _notification(what:int) -> void:
 		get_tree().quit()
 
 func _exit_tree() -> void:
+	haptics.suspend()
 	# Stop looping playback before freeing the scene (also covers Android activity shutdown).
 	for playback in [engine_audio,dirt_audio,impact_audio,music,cue]:
 		if is_instance_valid(playback):

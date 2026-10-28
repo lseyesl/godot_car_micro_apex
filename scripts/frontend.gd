@@ -329,6 +329,7 @@ func settings() -> void:
 	left.add_child(action("声音："+("开" if game.sound else "关"),func():game.sound=not game.sound;game.saved.set_setting("sound",game.sound);render()))
 	var right:=card(row)
 	right.add_child(text("驾驶与辅助",24))
+	right.add_child(action("震动："+("开" if game.haptics.enabled else "关"),func():game.toggle_vibration();render()))
 	right.add_child(action("自动油门："+("开" if game.saved.setting("auto_throttle",false) else "关"),func():game.saved.set_setting("auto_throttle",not game.saved.setting("auto_throttle",false));render()))
 	right.add_child(action("触控尺寸："+("加大" if game.saved.setting("large_controls",false) else "标准"),func():game.saved.set_setting("large_controls",not game.saved.setting("large_controls",false));render()))
 	right.add_child(action("镜头："+("宽视野" if game.saved.setting("wide_camera",false) else "近距离"),func():game.saved.set_setting("wide_camera",not game.saved.setting("wide_camera",false));render()))

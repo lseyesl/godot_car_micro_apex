@@ -99,6 +99,13 @@ func run():
   game.show_menu("home");await settle()
  # Horizontal slider ownership must survive the scroll propagation fix.
  root.size=Vector2i(1280,720);await settle();game.fit_ui_to_safe_area(Rect2i(0,0,1280,720),Rect2i(0,0,1280,720));game.show_menu("settings");await settle()
+ var vibration=game.frontend.find_children("*","Button",true,false).filter(func(b):return b.text.begins_with("震动："))[0]
+ var sound_before:bool=game.sound
+ await tap(vibration.get_global_rect().get_center());await settle()
+ check(not game.haptics.enabled and not bool(game.saved.setting("vibration",true)) and game.sound==sound_before,"Real vibration button tap persists off independently of sound")
+ vibration=game.frontend.find_children("*","Button",true,false).filter(func(b):return b.text.begins_with("震动："))[0]
+ await tap(vibration.get_global_rect().get_center());await settle()
+ check(game.haptics.enabled and bool(game.saved.setting("vibration",false)),"Real vibration button tap restores on")
  var slider=game.frontend.find_children("*","HSlider",true,false)[0];var before:float=slider.value;var scroll=first_scroll()
  await swipe(slider.get_global_rect().get_center(),Vector2(-80,0))
  check(absf(slider.value-before)>.05 and scroll.scroll_vertical==0,"Horizontal slider edits value without vertically scrolling")

@@ -19,6 +19,7 @@ var wheels: Array[Node3D] = []
 var wheel_rotations: Array[Vector3] = []
 var wheel_angle := 0.0
 var impact := 0.0
+signal player_contact(kind:String,closing_speed:float)
 var finish_elapsed:=0.0
 var near:Dictionary={}
 var previous := Vector2.ZERO
@@ -137,6 +138,15 @@ func tick(dt:float, controls:Dictionary, path) -> void:
 		var hit:=get_slide_collision(i)
 		impact=maxf(impact,previous.distance_to(dynamics.position)/dt*.15)
 		var other=hit.get_collider()
+		# Use real horizontal contacts. Floor/support normals cannot be impacts.
+		if absf(hit.get_normal().y)<.5:
+			var n:=Vector2(hit.get_normal().x,hit.get_normal().z).normalized()
+			if other is CharacterBody3D and other.get("dynamics")!=null and (player or other.get("player")==true):
+				var collider_velocity:Vector3=hit.get_collider_velocity()
+				var relative:Vector2=incoming-Vector2(collider_velocity.x,collider_velocity.z)
+				player_contact.emit("vehicle",maxf(0,-relative.dot(n)))
+			elif player and other is StaticBody3D:
+				player_contact.emit("road",maxf(0,-incoming.dot(n)))
 		if other != null and other.is_in_group("track_boundary"):
 			boundary_contact=true
 			var normal:=Vector2(hit.get_normal().x,hit.get_normal().z).normalized()
