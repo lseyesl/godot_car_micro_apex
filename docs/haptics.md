@@ -19,7 +19,7 @@
 
 ## 平台与限制
 
-生产代码仅在 Android／iOS 调用 [Input.vibrate_handheld](https://docs.godotengine.org/en/stable/classes/class_input.html#class-input-method-vibrate-handheld)，桌面等平台不操作设备。两个现有 Android 导出预设均增加正常的 `permissions/vibrate=true`，不引入插件、额外权限或凭据。该设置使后续 Android 导出包含 VIBRATE；本轮未构建 APK，尚未核验新 APK manifest。
+生产代码仅在 Android／iOS 调用 [Input.vibrate_handheld](https://docs.godotengine.org/en/stable/classes/class_input.html#class-input-method-vibrate-handheld)，桌面等平台不操作设备。两个现有 Android 导出预设均增加正常的 `permissions/vibrate=true`，不引入插件、额外权限或凭据。该设置使后续 Android 导出包含 VIBRATE；0.13.12 发布流程会再核验实际 Release APK manifest。
 
 幅度是请求值，实际振感取决于硬件／系统；没有幅度控制的设备不能保证强度区别，因此各级同时采用不同的时长。没有振动器时不会产生物理反馈。参见 Android [Vibrator](https://developer.android.com/reference/android/os/Vibrator) 与 [VIBRATE permission](https://developer.android.com/reference/android/Manifest.permission#VIBRATE)。
 
@@ -30,7 +30,7 @@ Godot 4.7 没有公开的手持设备取消震动 API；不能用零时长／零
 - Godot 4.7 Linux headless：三风格各自完整回归 29 个套件通过；最终补充的 `haptics` 25 项与 `haptic_contacts` 6 项在三风格分别通过。验证入口现已包含这两个套件，共 30 个默认套件。
 - 专项覆盖默认／旧存档／保存／关闭、GO 一次及静音独立、暂停恢复、后台、阈值／全部碰撞等级、冷却／擦碰、多接触汇总、真实车撞车／AI 撞玩家／AI 互撞、实体墙体与实际地面接触，以及桌面不调用设备。
 - 已检查三风格 1280×720 设置页实际 Godot OpenGL 渲染。最终移动 UI 专项三风格各 572 项通过，包括实际触摸震动开关、低高度、宽屏、安全区和触摸滚动；Python 38 项测试通过。原有转向、插值、倒计时操作、十赛道与模型契约测试继续通过。
-- 未接 Android 真机，未验证实际振感、振动延迟、无振动器设备与 Android 生命周期的硬件表现；桌面注入记录只验证请求与规则。未推送、构建或发布。
+- 未接 Android 真机，未验证实际振感、振动延迟、无振动器设备与 Android 生命周期的硬件表现；桌面注入记录只验证请求与规则。本地验证记录不代表 Android 真机验收；0.13.12 包另经 Actions 构建及发布检查。
 
 | 原版 | 手捏黏土 | 纸模 |
 | --- | --- | --- |

@@ -211,6 +211,10 @@ jobs:
           下载 $APK_FILE 安装；附 SHA-256 校验文件和包信息。
           本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
+          本次更新：放大并强化 3/2/1/GO，三种风格分别适配；3/2/1 使用短电子提示，GO 使用不同起跑音，遵循声音及主音量设置。
+          新增默认开启并持久保存的独立震动开关：首次 GO 短震，玩家与车辆／护栏实体碰撞按真实法线接近速度分级，忽略地面接触与 AI 互撞。
+          碰撞共享 300 ms 冷却，持续接触需脱离 180 ms 后才可重触发；多接触点合并，最多 90 ms 短脉冲。
+          Android 振感、幅度支持、扬声器响度与延迟尚未真机验收；关闭／暂停阻止新震动，Godot 无取消 API，已经发出的短脉冲可能执行到结束。
           新增星环高速（椭圆）、双叶流线（S 湾）、峡谷回针（单发卡）、都会街角（城市直角弯），共 10 条赛道 / 20 个方向。
           新路线支持正向竞速、反向和练习；保留旧六条几何、36 场生涯、已解锁进度与存档记录。
           每种风格新增 64 组多车型正反向 AI 圈、8 场六车比赛及护栏/兼容检查；完整 CI 后再导出 APK。
@@ -222,6 +226,8 @@ jobs:
           低速死区抑制跨零噪声，保留自然转向惯性、碰撞平移响应和插值；覆盖全部车型及所选风格回归，Android 真机仍待复测。
           三风格使用相同包名和固定签名，只能覆盖切换安装，不能同时并存。
           Android 真机外观、安装和性能尚待验收。模型风格说明：
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/start-cues.md
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/haptics.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/countdown-controls.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/signed-motion-steering.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/scenery-additions.md
