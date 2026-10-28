@@ -11,6 +11,17 @@ func run():
  root.size=Vector2i(2400,1080)
  var g=Main.new();g.saved=Store.new("/tmp/start-cues-%d.cfg"%OS.get_process_id());root.add_child(g);g.quality=0;g.set_process(false);g.set_physics_process(false)
  g.allow_headless_start_audio=true
+ g.launch_free(0,false,true)
+ var plate=g.countdown_plate.get_theme_stylebox("panel")
+ check(g.ui.modulate.a==1 and g.center_label.modulate.a==1 and g.center_label.self_modulate.a==1,"Transparency does not fade text or parent")
+ check(g.center_label.get_theme_font_size("font_size")==160 and g.center_label.get_theme_constant("outline_size")==6,"Numeral size and outline preserved")
+ if g.ClayUI.active():
+  check(is_equal_approx(plate.paint_opacity,.12),"Craft plate fades every paint layer")
+  check(g.ClayUI.panel().paint_opacity==1,"Shared menu paint remains opaque")
+ else:
+  check(is_equal_approx(plate.bg_color.a,.30) and is_equal_approx(plate.shadow_color.a,.08),"Original plate fill and shadow transparent")
+  check(is_equal_approx(plate.border_color.a,.50),"Original border remains a light outline")
+
  var events:Array=[];g.start_cue_presented.connect(func(beat):events.append(beat))
  g.launch_free(0,false,true)
  g.present_start(3);g.present_start(3)

@@ -1,5 +1,6 @@
 extends StyleBox
-# One cached paint resource per state; opaque polygons, no blur shader or UI nodes.
+# One cached paint resource per state; no blur shader or UI nodes.
+@export_range(0.0,1.0) var paint_opacity:=1.0
 @export var paper:=false
 @export var role:="panel"
 @export var state:="normal"
@@ -29,11 +30,13 @@ var _colors:=PackedColorArray()
 var _strokes:=PackedVector2Array()
 var _stroke_colors:=PackedColorArray()
 func poly(_canvas:RID,points:PackedVector2Array,color:Color):
+ color.a*=paint_opacity
  var offset:=_vertices.size()
  for i in Geometry2D.triangulate_polygon(points):_indices.append(offset+i)
  for p in points:_vertices.append(p);_colors.append(color)
 
 func line(_canvas:RID,points:PackedVector2Array,color:Color,_width:float=1.0):
+ color.a*=paint_opacity
  for i in range(points.size()-1):
   _strokes.append(points[i]);_strokes.append(points[i+1]);_stroke_colors.append(color)
 func flush(canvas:RID):

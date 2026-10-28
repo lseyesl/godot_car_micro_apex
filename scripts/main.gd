@@ -510,7 +510,15 @@ func build_hud() -> void:
 	help_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	countdown_plate=Panel.new()
 	countdown_plate.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	countdown_plate.add_theme_stylebox_override("panel",ClayUI.panel() if ClayUI.active() else panel(Color(.035,.07,.12,.96),Color("ffd34e"),24))
+	var start_plate:StyleBox
+	if ClayUI.active():
+		start_plate=ClayUI.panel()
+		# All craft layers (backing, face, folds and shadow), isolated from text/menu paint.
+		start_plate.paint_opacity=.12
+	else:
+		start_plate=panel(Color(.035,.07,.12,.30),Color(Color("ffd34e"),.50),24)
+		start_plate.shadow_color=Color(.01,.025,.06,.08)
+	countdown_plate.add_theme_stylebox_override("panel",start_plate)
 	ui.add_child(countdown_plate)
 	center_label=label("3",160,Color("ffd34e"))
 	center_label.add_theme_color_override("font_outline_color",ClayUI.PAPER if ClayUI.active() else Color("07101b"))
