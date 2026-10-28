@@ -45,6 +45,10 @@ var reset_progress := 0.0
 var hud_label: Label
 var speed_label: Label
 var help_label: Label
+signal start_cue_presented(beat:int)
+var allow_headless_start_audio:=false
+var start_audio: AudioStreamPlayer
+var countdown_plate: Panel
 var center_label: Label
 var engine_audio: AudioStreamPlayer
 var dirt_audio: AudioStreamPlayer
@@ -150,6 +154,9 @@ func _ready() -> void:
 	dirt_audio=audio("dirt",true)
 	impact_audio=audio("impact",false)
 	music=audio("music",true)
+	start_audio=AudioStreamPlayer.new()
+	add_child(start_audio)
+	ui.resized.connect(fit_countdown)
 	cue=AudioStreamPlayer.new()
 	add_child(cue)
 	get_tree().auto_accept_quit=false
@@ -292,6 +299,7 @@ func menu_track(index:int) -> void:
 	show_menu("freeplay")
 
 func show_menu(destination:String="home") -> void:
+	stop_start_cue()
 	state=State.MENU
 	menu_backdrop.show()
 	clear_ui()
@@ -311,6 +319,34 @@ func dismiss_overlay() -> void:
 		ui.remove_child(overlay)
 		overlay.queue_free()
 		overlay=null
+
+func stop_start_cue() -> void:
+	if is_instance_valid(start_audio):
+		start_audio.stop()
+		start_audio.stream=null
+
+func fit_countdown() -> void:
+	if not is_instance_valid(center_label) or not is_instance_valid(countdown_plate):return
+	var extent:=Vector2(minf(420,ui.size.x*.65),minf(240,ui.size.y*.42))
+	for control in [countdown_plate,center_label]:
+		control.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+		control.offset_left=-extent.x*.5;control.offset_right=extent.x*.5
+		control.offset_top=-extent.y*.5-ui.size.y*.10;control.offset_bottom=extent.y*.5-ui.size.y*.10
+	center_label.add_theme_font_size_override("font_size",int(minf(160,extent.y*.70)))
+
+func present_start(beat:int) -> void:
+	if beat==countdown_beep:return
+	countdown_beep=beat
+	center_label.text=str(beat) if beat>0 else "GO!"
+	center_label.show()
+	center_label.add_theme_color_override("font_color",(ClayUI.INK if beat>0 else Color("256654")) if ClayUI.active() else (Color("ffd34e") if beat>0 else Color("68dec5")))
+	countdown_plate.show()
+	start_cue_presented.emit(beat)
+	stop_start_cue()
+	if sound and master_volume>0 and (DisplayServer.get_name()!="headless" or allow_headless_start_audio):
+		start_audio.stream=load("res://assets/audio/"+("countdown" if beat>0 else "go")+".wav")
+		start_audio.volume_db=linear_to_db(master_volume)-8
+		start_audio.play()
 
 func play_cue(id:String) -> void:
 	if not sound or DisplayServer.get_name()=="headless":return
@@ -351,6 +387,7 @@ func update_record_hint() -> void:
 		help_label.text="最佳单圈  "+Catalog.clock_text(saved.best(selected_track,selected_car))
 
 func start_race() -> void:
+	stop_start_cue()
 	var career:=Career.new(saved)
 	var event:Dictionary={}
 	if not career.owned(selected_car):selected_car=3
@@ -372,7 +409,7 @@ func start_race() -> void:
 		target_laps=1 if tutorial else (0 if practice else 3)
 		session_difficulty=difficulty
 	receipt={}
-	countdown_beep=0
+	countdown_beep=-1
 	sun.directional_shadow_max_distance=170
 	menu_backdrop.hide()
 	clear_ui()
@@ -408,6 +445,7 @@ func start_race() -> void:
 	toast="减速入弯 · 反打修正 · 长按 RESET 复位"
 	toast_until=10
 	build_hud()
+	present_start(3)
 	update_camera(1.0,true)
 
 func build_hud() -> void:
@@ -453,7 +491,13 @@ func build_hud() -> void:
 	help_label.offset_top=22
 	help_label.offset_bottom=85
 	help_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	center_label=label("3",100,Color("ffd34e"))
+	countdown_plate=Panel.new()
+	countdown_plate.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	countdown_plate.add_theme_stylebox_override("panel",ClayUI.panel() if ClayUI.active() else panel(Color(.035,.07,.12,.96),Color("ffd34e"),24))
+	ui.add_child(countdown_plate)
+	center_label=label("3",160,Color("ffd34e"))
+	center_label.add_theme_color_override("font_outline_color",ClayUI.PAPER if ClayUI.active() else Color("07101b"))
+	center_label.add_theme_constant_override("outline_size",6)
 	center_label.add_theme_color_override("font_shadow_color",ClayUI.background() if ClayUI.active() else Color("142b46"))
 	center_label.add_theme_constant_override("shadow_offset_y",5)
 	center_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
@@ -465,6 +509,7 @@ func build_hud() -> void:
 	center_label.offset_right=160
 	center_label.offset_top=-100
 	center_label.offset_bottom=60
+	fit_countdown()
 	controls=TouchControls.new()
 	ui.add_child(controls)
 	controls.enabled=true
@@ -485,16 +530,11 @@ func _physics_process(dt:float) -> void:
 		player.prepare_start(dt,controls.driving().steer)
 		controls.queue_redraw()
 		countdown-=dt
-		var beat:=ceili(countdown)
-		if beat>0 and beat!=countdown_beep:
-			countdown_beep=beat
-			play_cue("countdown")
-		center_label.text=str(maxi(1,ceili(countdown)))
-		if countdown<=0:
+		if countdown>0:present_start(ceili(countdown))
+		else:
 			state=State.RACING
 			controls.pedals_locked=false
-			center_label.text="GO!"
-			play_cue("go")
+			present_start(0)
 		return
 	if state!=State.RACING:
 		return
@@ -555,6 +595,7 @@ func _physics_process(dt:float) -> void:
 func _process(dt:float) -> void:
 	if is_instance_valid(music):
 		music.volume_db=linear_to_db(maxf(master_volume*music_volume*(.38 if state in [State.RACING,State.COUNTDOWN] else .7),.0001)) if sound else -80
+	if is_instance_valid(start_audio):start_audio.volume_db=linear_to_db(maxf(master_volume,.0001))-8 if sound else -80
 	if is_instance_valid(cue):cue.volume_db=linear_to_db(maxf(master_volume,.0001))-8 if sound else -80
 	if state in [State.RACING,State.COUNTDOWN]:
 		update_camera(dt)
@@ -630,7 +671,9 @@ func update_hud() -> void:
 	var place:=ranking().find(player)+1
 	var mode:="驾驶训练" if tutorial else ("计时挑战" if event_id>=0 and practice else "计时练习")
 	hud_label.text=(mode if practice else "P%d / 6    圈 %d / %d"%[place,mini(player.progress.laps+1,target_laps),target_laps])+"\n"+Catalog.clock_text(time)
-	if time>1 and state==State.RACING:center_label.text=""
+	if time>1 and state==State.RACING:
+		center_label.text=""
+		countdown_plate.hide()
 	var surface_name:String={"asphalt":"柏油路","dirt":"土路","grass":"路外"}[player.dynamics.surface]
 	speed_label.text="%03d km/h\n%s"%[roundi(absf(player.dynamics.speed())*3.6),surface_name]
 	speed_label.add_theme_font_size_override("font_size",23)
@@ -653,6 +696,9 @@ func update_hud() -> void:
 func pause_game(system_pause:bool=false) -> void:
 	if state not in [State.RACING,State.COUNTDOWN]:
 		return
+	stop_start_cue()
+	if is_instance_valid(countdown_plate):countdown_plate.hide()
+	if is_instance_valid(center_label):center_label.hide()
 	state=State.PAUSED
 	paused_by_system=system_pause
 	controls.enabled=false
@@ -672,6 +718,8 @@ func resume_game() -> void:
 	controls.pedals_locked=true
 	countdown=3.0
 	state=State.COUNTDOWN
+	countdown_beep=-1
+	present_start(3)
 
 func modal(title:String,subtitle:String) -> VBoxContainer:
 	if is_instance_valid(overlay):
@@ -703,7 +751,9 @@ func modal(title:String,subtitle:String) -> VBoxContainer:
 
 func show_results() -> void:
 	if state==State.RESULTS:return
+	stop_start_cue()
 	state=State.RESULTS
+	countdown_plate.hide()
 	controls.enabled=false
 	controls.clear()
 	center_label.text=""

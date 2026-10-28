@@ -21,8 +21,9 @@ save('engine',1,lambda t,i:.22*tone(60,t)+.12*tone(120,t)+.08*tone(180,t)+.04*to
 save('dirt',1,lambda t,i:(random.random()-.5)*.35*(.65+.35*tone(20,t)))
 save('impact',.22,lambda t,i:(random.random()-.5)*math.exp(-t*23)*.7)
 melody('click',[76],.09)
-melody('countdown',[72],.22)
-melody('go',[84],.45)
+# Keep start cues reproducible through the dedicated generator.
+import runpy
+runpy.run_path(str(Path(__file__).with_name('build_start_audio.py')))
 melody('finish',[60,64,67,72,76,79,84,84],.18)
 BPM=112
 BEAT=60/BPM
