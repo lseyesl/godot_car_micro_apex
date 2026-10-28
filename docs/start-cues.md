@@ -12,7 +12,7 @@
 
 截图为 Godot 4.7 / Linux 软件 OpenGL 的实际画面，不是概念图或 Android 真机截图。本地完整 3、2、1、按压与 GO 图在 `build/validation/start-cues/`。
 
-后续本地修改降低了背景板遮挡，最新前后对照见 [倒计时背景透明度](countdown-opacity.md)（尚未发布）。
+后续本地修改降低了背景板遮挡，最新前后对照见 [倒计时背景透明度](countdown-opacity.md)（0.13.13）。
 
 ## 原创音频与生命周期
 
