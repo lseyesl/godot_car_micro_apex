@@ -217,8 +217,9 @@ jobs:
           下载 $APK_FILE 安装；附 SHA-256 校验文件和包信息。
           本包复用固定调试签名，附签名证书 SHA-256。使用同一证书且版本号递增的后续包支持覆盖升级。旧的临时签名版本不属于此签名系列，不能保证覆盖安装；请保留旧应用数据，勿直接卸载。
 
-          本次 bright_clay 更新：37 个橡皮泥模型采用高饱和车身、草绿、晴空蓝、阳光黄和珊瑚红配色，保留哑光指印、暗色轮胎与道路对比。
-          未增加灯光、曝光、几何、材质或 draw calls；原版与 paper 资源不变。用户视觉确认和 Android 真机外观、性能仍待验收。
+          本次 paper_craft 更新：37 个模型具有实体纸板切边及凹入层压接缝；绿草、枯草和三种树改为单片封闭厚板剪影，无交叉片或残留立体树冠。
+          单片树固定面向游戏相机，脚部贴地或花槽顶面；取消纸模树上的额外立体叶簇。程序化小松树同步替换，原棕榈位置复用宽叶树剪影，不保留棕榈叶形。
+          其余模型仍是立体纸板造型，原版与 bright_clay 资源不变；保留十赛道、驾驶、UI、声音和震动。Android 真机外观、安装、性能及用户视觉确认仍待验收。
           保留上版：降低倒计时板遮挡，原版填充 alpha 0.96 → 0.30、阴影 0.25 → 0.08；黏土／纸模所有背景绘制层统一乘 0.12，包括底层、边框与折角，数字和描边保持。
           保留上版功能：放大并强化 3/2/1/GO，三种风格分别适配；3/2/1 使用短电子提示，GO 使用不同起跑音，遵循声音及主音量设置。
           新增默认开启并持久保存的独立震动开关：首次 GO 短震，玩家与车辆／护栏实体碰撞按真实法线接近速度分级，忽略地面接触与 AI 互撞。
@@ -235,6 +236,9 @@ jobs:
           低速死区抑制跨零噪声，保留自然转向惯性、碰撞平移响应和插值；覆盖全部车型及所选风格回归，Android 真机仍待复测。
           三风格使用相同包名和固定签名，只能覆盖切换安装，不能同时并存。
           Android 真机外观、安装和性能尚待验收。模型风格说明：
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/cardboard-models.md
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/grass-board.md
+          https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/tree-board.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/saturated-clay.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/countdown-opacity.md
           https://github.com/$GH_REPO/blob/$RELEASE_SHA/docs/start-cues.md

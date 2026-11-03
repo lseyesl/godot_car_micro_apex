@@ -1,5 +1,7 @@
 # 单片厚纸板草丛（本地候选）
 
+这些改动已纳入 0.13.15 `paper_craft` 发布源码；本页保留各阶段的本地验证记录。可安装包与实际发布状态以 [GitHub Releases](https://github.com/lseyesl/godot_car_micro_apex/releases) 和对应 Actions 为准，Android 真机仍未验收。
+
 按用户要求，`paper_craft` 的 `foliage_grass_green`、`foliage_grass_dry` 从独立草叶堆成的立体丛，改为各一片竖立草丛剪影。不是交叉卡片，也不是材质模拟厚度。未推送、打包 APK 或发布。
 
 本页记录草丛改造阶段；随后三种树也改成单片厚板，最新树木改动见 [树木剪影](tree-board.md)。本页“其他模型不变”指草丛这一阶段，不能据此认为树木仍是立体造型。
