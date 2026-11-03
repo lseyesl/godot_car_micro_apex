@@ -54,9 +54,9 @@ func miniature_material(asset:String,scale_factor:float,tint:Color,strength:floa
 	if ModelStyle.is_crafted():
 		m.shader=load("res://assets/styles/"+ModelStyle.selected()+"/craft_surface.gdshader")
 		var clay:Color=ModelStyle.clay_color(tint)
-		if asset=="clean_asphalt":clay=Color("71818b")
-		elif asset=="brown_mud_dry":clay=Color("dbb28b")
-		elif asset in ["grass_ground","grass_path_3"]:clay=Color("b2cd91")
+		if asset=="clean_asphalt":clay=Color("435f73") if ModelStyle.is_clay() else Color("71818b")
+		elif asset=="brown_mud_dry":clay=Color("e6a03f") if ModelStyle.is_clay() else Color("dbb28b")
+		elif asset in ["grass_ground","grass_path_3"]:clay=Color("64bd45") if ModelStyle.is_clay() else Color("b2cd91")
 		m.set_shader_parameter("tint",clay.srgb_to_linear().lerp(clay,.15))
 		m.set_shader_parameter("surface_normal",load("res://assets/styles/"+ModelStyle.selected()+"/textures/surface_normal.png"))
 		surface_cache[key]=m

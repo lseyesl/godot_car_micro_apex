@@ -27,6 +27,10 @@ static func model_path_for(style:String,id:String) -> String:
 	assert(style in STYLES,"Invalid model style")
 	return ("res://assets/models/" if style=="original" else "res://assets/styles/"+style+"/models/")+id+".glb"
 static func clay_color(color:Color) -> Color:
+	# Clay pigments stay chromatic; preserve neutral markings and dark road contrast.
+	if is_clay():
+		if color.s<.18 or color.v<.25 or color.get_luminance()<.10:return color
+		return Color.from_hsv(color.h,clampf(color.s*1.15,.55,.86),clampf(color.v*1.04,.35,.94),color.a)
 	# Keep wheels, signs and road markings readable against a high-key environment.
 	if color.get_luminance()<.10:return color.lerp(Color("526674"),.45)
 	return color.lerp(Color("f1dfb9") if is_paper() else Color("f4f2eb"),.18)

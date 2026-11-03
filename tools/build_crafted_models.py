@@ -7,6 +7,8 @@ from pathlib import Path
 import bpy, bmesh
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from clay_palette import pigment as saturated_clay_pigment
 
 def glb(path):
  raw=path.read_bytes();n,kind=struct.unpack_from('<II',raw,12);assert kind==0x4e4f534a
@@ -91,6 +93,7 @@ def craft_material(style,normal_path):
 def pigment(material,style):
  node=material.node_tree.nodes.get('Principled BSDF') if material and material.use_nodes else None
  c=list(node.inputs['Base Color'].default_value[:3] if node else material.diffuse_color[:3]);name=material.name.lower() if material else ''
+ if style=='bright_clay':return saturated_clay_pigment(name,c)
  if any(x in name for x in ['rubber','trim']):c=[.032,.042,.044] if style=='bright_clay' else [.05,.052,.05]
  elif 'glass' in name:c=[.045,.085,.10] if style=='bright_clay' else [.07,.10,.115]
  elif any(x in name for x in ['rim','metal','disc']):c=[.53,.50,.42] if style=='bright_clay' else [.58,.56,.49]
@@ -185,9 +188,12 @@ def build(style,names):
   settings=re.sub(r'^import_script/path=.*$', 'import_script/path="res://tools/import_crafted_models.gd"',settings,flags=re.M)
   import_path.write_text(settings)
   prior[name]={'id':name,'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'variant_sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'source_triangles':source_triangles,'triangles':triangles,'source_bytes':source.stat().st_size,'variant_bytes':dest.stat().st_size,'nodes':len(doc['nodes']),'materials':len(doc.get('materials',[]))}
+  if style=='bright_clay':
+   from recolor_clay_models import read,non_color_buffer_hash
+   final_doc,final_binary=read(dest.read_bytes());prior[name]['non_color_buffer_sha256']=non_color_buffer_hash(final_doc,final_binary)
   print('CRAFT_MODEL',style,name,source_triangles,'->',triangles,flush=True)
  complete=set(prior)==set(catalog)
- manifest_path.write_text(json.dumps({'format':2,'style':style,'complete':complete,'geometry':'sculpted uneven clay' if style=='bright_clay' else 'faceted folded paper with physical edge bands','surface':'opaque corner pigment and baked tangent normal map','models':[prior[x] for x in sorted(prior)]},indent=2)+'\n')
+ manifest_path.write_text(json.dumps({**({'palette':'saturated_clay_v2'} if style=='bright_clay' else {}),'format':2,'style':style,'complete':complete,'geometry':'sculpted uneven clay' if style=='bright_clay' else 'faceted folded paper with physical edge bands','surface':'opaque corner pigment and baked tangent normal map','models':[prior[x] for x in sorted(prior)]},indent=2)+'\n')
  print('CRAFT_DONE',style,len(prior),'complete',complete,flush=True)
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--style',choices=['bright_clay','paper_craft'],required=True);parser.add_argument('--models',nargs='*')
