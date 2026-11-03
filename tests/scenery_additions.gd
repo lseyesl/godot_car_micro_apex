@@ -3,6 +3,8 @@ const Catalog=preload("res://scripts/catalog.gd")
 const Track=preload("res://scripts/track_path.gd")
 const View=preload("res://scripts/track_view.gd")
 const Style=preload("res://scripts/model_style.gd")
+const Main=preload("res://scripts/main.gd")
+const Additions=preload("res://scripts/scenery_additions.gd")
 var checks:=0
 var failures:=0
 func check(ok:bool,message:String):
@@ -51,6 +53,28 @@ func run():
   var district=view.get_child(1)
   var landmarks:Array=district.get_meta("new_landmarks",[])
   var greenery:Array=district.get_meta("new_greenery",[])
+  if Style.is_paper():
+   check(is_equal_approx(Additions.PAPER_GRASS_YAW,Main.CAMERA_YAW),"Paper cutouts face the actual fixed gameplay camera")
+   var prototypes:Array[Mesh]=[]
+   for id in ["foliage_grass_green","foliage_grass_dry"]:
+    var grass=load(Style.model_path(id)).instantiate()
+    prototypes.append(grass.find_children("*","MeshInstance3D",true,false)[0].mesh);grass.free()
+   var grass_count:=0
+   var yaw:=deg_to_rad(Main.CAMERA_YAW)
+   var camera_forward:=Vector3(sin(yaw),0,cos(yaw))
+   # Inspect authored transforms before queued batching removes the source meshes.
+   # Headless RenderingServerDummy does not return stored MultiMesh transforms.
+   for grass in view.decoration.find_children("*","MeshInstance3D",true,false):
+    if grass.mesh not in prototypes:continue
+    grass_count+=1
+    var transform:Transform3D=grass.global_transform
+    check(absf(transform.basis.z.normalized().dot(camera_forward))>cos(deg_to_rad(9.0)),"Single paper grass face remains readable at gameplay camera yaw")
+    var bounds:AABB=transform*grass.mesh.get_aabb()
+    check(absf(bounds.position.y+.08)<.002,"Placed grass feet meet ground, without floating")
+   var expected_grass:=0
+   for plot in greenery:
+    if str(plot.id).begins_with("foliage_grass"):expected_grass+=1
+   check(grass_count==expected_grass and grass_count>0,"All grass plots use the single cardboard board")
   check(landmarks.size()==2,"Two landmarks required on every track")
   check(greenery.size()>=24 and greenery.size()<=48,"Bounded visible greenery required on every track")
   check(district.get_meta("new_leaf_clusters",0)>0,"Existing trees need additional canopy clusters")

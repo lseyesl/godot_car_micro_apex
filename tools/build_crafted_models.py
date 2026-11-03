@@ -9,7 +9,7 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from clay_palette import pigment as saturated_clay_pigment
-from cardboard_geometry import cut_edges
+from cardboard_geometry import cut_edges,single_grass_board,GRASS_BOARDS
 
 def glb(path):
  raw=path.read_bytes();n,kind=struct.unpack_from('<II',raw,12);assert kind==0x4e4f534a
@@ -111,7 +111,10 @@ def build_mesh(obj,style,material,asset_id="",cardboard_stats=None):
  longest=max(span);wheel='WheelMesh' in obj.name
  bm=bmesh.new();bm.from_mesh(mesh)
  bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.000001)
- if style=='bright_clay':
+ if style=='paper_craft' and asset_id in GRASS_BOARDS:
+  stats,source_min,source_max=single_grass_board(obj,bm,source_min,source_max,colors,asset_id)
+  if cardboard_stats is not None:cardboard_stats.append(dict(mesh=obj.name,**stats))
+ elif style=='bright_clay':
   limit=max(.22,min(.85,longest*.13))
   if obj.name.startswith("prop_ferris_wheel") or longest>20:limit=longest*2
   edges=[e for e in bm.edges if e.calc_length()>limit]
@@ -130,7 +133,8 @@ def build_mesh(obj,style,material,asset_id="",cardboard_stats=None):
   stats=cut_edges(bm,span,asset_id,wheel,colors)
   if cardboard_stats is not None:cardboard_stats.append(dict(mesh=obj.name,**stats))
  bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.normal_update();bm.to_mesh(mesh);bm.free();mesh.update()
- # Keep exact visual envelope, units and pivot clearance, including wheel radius.
+ # Keep the target envelope and pivots, including wheel radius. Grass boards
+ # intentionally supply a thinner depth and a ground-contacting bottom edge.
  current_min=Vector([min(v.co[j] for v in mesh.vertices) for j in range(3)]);current_max=Vector([max(v.co[j] for v in mesh.vertices) for j in range(3)])
  for vertex in mesh.vertices:
   for j in range(3):

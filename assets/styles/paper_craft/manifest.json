@@ -1967,23 +1967,27 @@
     {
       "id": "foliage_grass_dry",
       "source_sha256": "4fca8892270478bc5ad567e19b5d3bf0206a3cb58435566975e351afb5dbc717",
-      "variant_sha256": "f266df3c2227fff8a45c26ab9872379a7b1815c276ae01ba3deaf08438f01067",
+      "variant_sha256": "d306c06d450db527dbc15439c677f2eb6d3efe7577cf86908a787a5fa97929dc",
       "source_triangles": 54,
-      "triangles": 276,
+      "triangles": 100,
       "source_bytes": 6204,
-      "variant_bytes": 31472,
+      "variant_bytes": 10344,
       "nodes": 1,
       "materials": 1,
       "cardboard": {
         "meshes": [
           {
             "mesh": "scenery_dry",
-            "category": "foliage",
-            "requested_cut_width": 0.024137611687183383,
-            "bevel_faces": 117,
-            "layered_edges": 3,
-            "groove_depth_max": 0.002896513402462006,
-            "layer_width_max": 0.03426781016837481,
+            "category": "single_grass_board",
+            "single_board": true,
+            "thickness": 0.055,
+            "outline_points": 13,
+            "ground_y": -0.08,
+            "requested_cut_width": 0.055,
+            "bevel_faces": 39,
+            "layered_edges": 13,
+            "groove_depth_max": 0.008869923681020745,
+            "layer_width_max": 0.055,
             "boundary_components_before": 0,
             "boundary_components_after": 0,
             "boundary_edges_before": 0,
@@ -1991,30 +1995,34 @@
             "protected_join_components": 0
           }
         ],
-        "layered_edges": 3,
-        "groove_depth_max": 0.002896513402462006
+        "layered_edges": 13,
+        "groove_depth_max": 0.008869923681020745
       }
     },
     {
       "id": "foliage_grass_green",
       "source_sha256": "78f2a6cdf4a91d1f0ccdd3f7fd4ee0f06c95391e7b39117580f4a120b1e69299",
-      "variant_sha256": "d61faee6a5165a69a78540f6dc78906fc8b8defc23436fa5c21d18b4e79acea6",
+      "variant_sha256": "af1055a7d9e4fc79802a01717b6ad695610021dda34a672a1c2286dbe5fe1036",
       "source_triangles": 54,
-      "triangles": 276,
+      "triangles": 100,
       "source_bytes": 6224,
-      "variant_bytes": 31472,
+      "variant_bytes": 10348,
       "nodes": 1,
       "materials": 1,
       "cardboard": {
         "meshes": [
           {
             "mesh": "scenery_leaf",
-            "category": "foliage",
-            "requested_cut_width": 0.024137611687183383,
-            "bevel_faces": 117,
-            "layered_edges": 3,
-            "groove_depth_max": 0.002896513402462006,
-            "layer_width_max": 0.03426781016837481,
+            "category": "single_grass_board",
+            "single_board": true,
+            "thickness": 0.055,
+            "outline_points": 13,
+            "ground_y": -0.08,
+            "requested_cut_width": 0.055,
+            "bevel_faces": 39,
+            "layered_edges": 13,
+            "groove_depth_max": 0.008869923681020745,
+            "layer_width_max": 0.055,
             "boundary_components_before": 0,
             "boundary_components_after": 0,
             "boundary_edges_before": 0,
@@ -2022,8 +2030,8 @@
             "protected_join_components": 0
           }
         ],
-        "layered_edges": 3,
-        "groove_depth_max": 0.002896513402462006
+        "layered_edges": 13,
+        "groove_depth_max": 0.008869923681020745
       }
     },
     {

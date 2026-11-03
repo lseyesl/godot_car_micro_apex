@@ -29,6 +29,32 @@ def physical_seam(doc,data):
       if max(abs(sum((x[j]-a[j])*normal[j] for j in range(3)))/length for x in neighbor)>1e-6:return True
  return False
 class CardboardGeometryTests(unittest.TestCase):
+ def test_grass_is_one_closed_extruded_silhouette(self):
+  for name in ('foliage_grass_green','foliage_grass_dry'):
+   with self.subTest(model=name):
+    doc,data=read((ROOT/'assets/styles/paper_craft/models'/f'{name}.glb').read_bytes())
+    self.assertEqual(len(doc['meshes']),1);self.assertEqual(len(doc['meshes'][0]['primitives']),1)
+    primitive=doc['meshes'][0]['primitives'][0];points=accessor(doc,data,primitive['attributes']['POSITION'])
+    indices=[x[0] for x in accessor(doc,data,primitive['indices'])]
+    weld=[tuple(round(x,5) for x in p) for p in points];depths={p[2] for p in weld}
+    self.assertEqual(len(depths),4,'Two parallel faces and two recessed edge rings only')
+    self.assertAlmostEqual(max(depths)-min(depths),.055,places=4)
+    edges=collections.Counter();neighbors=collections.defaultdict(set)
+    for i in range(0,len(indices),3):
+     triangle=[weld[j] for j in indices[i:i+3]]
+     self.assertEqual(len(set(triangle)),3)
+     for a,b in zip(triangle,triangle[1:]+triangle[:1]):
+      edges[tuple(sorted((a,b)))]+=1;neighbors[a].add(b);neighbors[b].add(a)
+    self.assertTrue(all(n==2 for n in edges.values()),'Every welded edge must belong to a closed solid')
+    pending=[weld[0]];seen=set()
+    while pending:
+     vertex=pending.pop()
+     if vertex not in seen:seen.add(vertex);pending.extend(neighbors[vertex]-seen)
+    self.assertEqual(seen,set(weld),'No detached blades or crossing cards')
+    self.assertEqual(len(seen),13*4);self.assertEqual(len(indices)//3,100)
+    node=next(n for n in doc['nodes'] if 'mesh' in n)
+    self.assertAlmostEqual(min(p[1] for p in points)+node['translation'][1],-.08,places=5)
+    self.assertTrue(all(len(c)==3 or c[3]>.999 for c in accessor(doc,data,primitive['attributes']['COLOR_0'])))
  def test_every_paper_model_has_real_recessed_lamination(self):
   folder=ROOT/'assets/styles/paper_craft'
   for record in json.loads((folder/'manifest.json').read_text())['models']:

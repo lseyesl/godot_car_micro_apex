@@ -1,5 +1,7 @@
 extends RefCounted
-# Identical placements for both art styles. No collision or moving gameplay nodes.
+# Shared positions for all art styles. No collision or moving gameplay nodes.
+const Style=preload("res://scripts/model_style.gd")
+const PAPER_GRASS_YAW=35.54 # Fixed gameplay camera heading; no per-frame billboard.
 const PathData=preload("res://scripts/track_path.gd")
 const PARCELS=[Vector2(94,143),Vector2(-45,-145)]
 static func skyline_clear(point:Vector2) -> bool:
@@ -42,7 +44,9 @@ static func greenery(d) -> void:
    if not d.available(p,radius):continue
    d.reserve(p,radius)
    var id:String=("foliage_shrub_flower" if i%2==0 else "foliage_shrub_round") if shrub else ("foliage_grass_dry" if d.path.scenery_index in [2,5] else "foliage_grass_green")
-   var node:Node3D=d.view.model(id,PathData.world(p),i*2.399,d.props)
+   var angle:float=i*2.399
+   if Style.is_paper() and not shrub:angle=deg_to_rad(PAPER_GRASS_YAW+sin(i*1.7)*8.0)
+   var node:Node3D=d.view.model(id,PathData.world(p),angle,d.props)
    node.set_meta("scenery_addition",id)
    placed.append({"id":id,"point":p,"radius":radius})
  d.set_meta("new_greenery",placed)

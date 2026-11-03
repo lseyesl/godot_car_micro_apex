@@ -57,7 +57,13 @@ func run():
     if a[key] is not MeshInstance3D:continue
     var source:Mesh=a[key].mesh;var mesh:Mesh=b[key].mesh;triangles+=tris(mesh)
     var bounds:AABB=mesh.get_aabb();var expected:AABB=source.get_aabb()
-    check(bounds.position.distance_to(expected.position)<.002 and bounds.size.distance_to(expected.size)<.004,"Visual scale/envelope changed: "+path+":"+key)
+    if style=="paper_craft" and id in ["foliage_grass_green","foliage_grass_dry"]:
+     check(absf(bounds.position.x-expected.position.x)<.002 and absf(bounds.size.x-expected.size.x)<.004 and absf(bounds.end.y-expected.end.y)<.002,"Grass board preserves width and top: "+path)
+     check(absf(bounds.size.z-.055)<.002,"Grass is one thin solid board: "+path)
+     var placed:AABB=variant.transform*b[key].transform*bounds
+     check(absf(placed.position.y+.08)<.002,"Grass board base contacts scene ground: "+path)
+    else:
+     check(bounds.position.distance_to(expected.position)<.002 and bounds.size.distance_to(expected.size)<.004,"Visual scale/envelope changed: "+path+":"+key)
     check(mesh.get_surface_count()<=source.get_surface_count(),"Craft assets must not add material draw surfaces: "+path)
     changed=changed or tris(source)!=tris(mesh)
     changed=changed or positions(source)!=positions(mesh)

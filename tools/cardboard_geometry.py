@@ -83,3 +83,33 @@ def cut_edges(bm,span,asset,wheel,colors):
  bm.normal_update();boundary_after,loops_after=boundaries(bm)
  assert loops_after<=loops_before and (boundary_before>0 or boundary_after==0),('New open seams',asset,role,loops_before,loops_after)
  return {'category':role,'requested_cut_width':width,'bevel_faces':bevel_count,'layered_edges':layered,'groove_depth_max':max(depths,default=0),'layer_width_max':max(widths,default=0),'boundary_components_before':loops_before,'boundary_components_after':loops_after,'boundary_edges_before':boundary_before,'boundary_edges_after':boundary_after,'protected_join_components':skipped}
+
+GRASS_BOARDS={'foliage_grass_green','foliage_grass_dry'}
+
+def single_grass_board(obj,bm,source_min,source_max,colors,asset):
+ """One closed extruded grass silhouette, not crossed cards or separate leaves."""
+ assert asset in GRASS_BOARDS
+ assert all(abs(v)<1e-6 for v in obj.rotation_euler) and all(abs(v-1)<1e-6 for v in obj.scale)
+ outline=[(0,0),(.08,.27),(.02,.65),(.22,.44),(.14,.85),(.37,.55),(.45,1),(.54,.62),(.76,.91),(.70,.44),(.94,.70),(.85,.27),(1,0)]
+ if asset.endswith('_dry'):outline=[(0,0),(.12,.25),(.05,.63),(.28,.40),(.18,.82),(.39,.60),(.56,1),(.57,.59),(.80,.84),(.74,.36),(.96,.53),(.89,.20),(1,0)]
+ low=source_min.copy();high=source_max.copy();thickness=.055;center=(low.y+high.y)*.5
+ low.y=center-thickness*.5;high.y=center+thickness*.5
+ # Existing scene ground boxes top out at -0.08; preserve the original node pivot.
+ low.z=-obj.matrix_world.translation.z-.08
+ edge=len(colors);colors.extend([(.58,.38,.20),(.32,.18,.085),(.74,.58,.37)])
+ bm.clear();rings=[];max_inset=0
+ for depth,shrink in [(-.5,1),(-1/6,.985),(1/6,.985),(.5,1)]:
+  ring=[]
+  for u,v in outline:
+   x=low.x+(high.x-low.x)*(.5+(u-.5)*shrink);z=low.z+(high.z-low.z)*(.45+(v-.45)*shrink)
+   ring.append(bm.verts.new((x,center+depth*thickness,z)))
+   max_inset=max(max_inset,abs((high.z-low.z)*(v-.45)*(1-shrink)))
+  rings.append(ring)
+ bm.faces.new(rings[0][::-1]).material_index=0;bm.faces.new(rings[-1]).material_index=0
+ for layer in range(3):
+  for i in range(len(outline)):
+   j=(i+1)%len(outline);face=bm.faces.new((rings[layer][i],rings[layer][j],rings[layer+1][j],rings[layer+1][i]));face.material_index=edge+[2,1,0][layer]
+ bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.normal_update()
+ count,loops=boundaries(bm);assert count==0
+ stats={'category':'single_grass_board','single_board':True,'thickness':thickness,'outline_points':len(outline),'ground_y':-.08,'requested_cut_width':thickness,'bevel_faces':len(outline)*3,'layered_edges':len(outline),'groove_depth_max':max_inset,'layer_width_max':thickness,'boundary_components_before':0,'boundary_components_after':loops,'boundary_edges_before':0,'boundary_edges_after':count,'protected_join_components':0}
+ return stats,low,high
