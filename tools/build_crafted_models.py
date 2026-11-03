@@ -9,7 +9,7 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from clay_palette import pigment as saturated_clay_pigment
-from cardboard_geometry import cut_edges,single_grass_board,GRASS_BOARDS
+from cardboard_geometry import cut_edges,single_grass_board,GRASS_BOARDS,tree_scene_board,TREE_BOARDS
 
 def glb(path):
  raw=path.read_bytes();n,kind=struct.unpack_from('<II',raw,12);assert kind==0x4e4f534a
@@ -104,14 +104,17 @@ def pigment(material,style):
  if style=='paper_craft':c=[min(.91,x*.88+.075) for x in c]
  return c
 
-def build_mesh(obj,style,material,asset_id="",cardboard_stats=None):
+def build_mesh(obj,style,material,asset_id="",cardboard_stats=None,prebuilt=None):
  mesh=obj.data;original_materials=list(mesh.materials);colors=[pigment(m,style) for m in original_materials]
  source_min=Vector([min(v.co[j] for v in mesh.vertices) for j in range(3)]);source_max=Vector([max(v.co[j] for v in mesh.vertices) for j in range(3)])
  corners=[Vector(v) for v in obj.bound_box];span=Vector([max(v[j] for v in corners)-min(v[j] for v in corners) for j in range(3)])
  longest=max(span);wheel='WheelMesh' in obj.name
  bm=bmesh.new();bm.from_mesh(mesh)
  bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.000001)
- if style=='paper_craft' and asset_id in GRASS_BOARDS:
+ if prebuilt is not None:
+  colors=[list(m.diffuse_color[:3]) for m in original_materials]
+  if cardboard_stats is not None:cardboard_stats.append(dict(mesh=obj.name,**prebuilt))
+ elif style=='paper_craft' and asset_id in GRASS_BOARDS:
   stats,source_min,source_max=single_grass_board(obj,bm,source_min,source_max,colors,asset_id)
   if cardboard_stats is not None:cardboard_stats.append(dict(mesh=obj.name,**stats))
  elif style=='bright_clay':
@@ -174,8 +177,9 @@ def build(style,names):
   source=ROOT/'assets/models'/(name+'.glb');original,_=glb(source)
   bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source))
   material=craft_material(style,normal_path);triangles=0;cardboard_stats=[]
+  board,tree_stats=tree_scene_board(name,pigment) if style=='paper_craft' and name in TREE_BOARDS else (None,None)
   for obj in list(bpy.context.scene.objects):
-   if obj.type=='MESH':triangles+=build_mesh(obj,style,material,name,cardboard_stats)
+   if obj.type=='MESH':triangles+=build_mesh(obj,style,material,name,cardboard_stats,tree_stats if obj==board else None)
   dest=out/(name+'.glb')
   bpy.ops.export_scene.gltf(filepath=str(dest),export_format='GLB',export_yup=True,export_apply=True,export_materials='EXPORT',export_vertex_color='ACTIVE',export_cameras=False,export_lights=False)
   doc,binary=glb(dest);restore_contract(doc,original);binary=shared_surface_texture(doc,binary)

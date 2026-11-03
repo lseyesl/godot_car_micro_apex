@@ -40,7 +40,10 @@ func build() -> void:
 							ball(Vector3(0,.72,z),.8,"668753",group)
 							ball(Vector3(0,1.1,z),.35,"e6bc6a" if d.path.index==0 else "ca7d91",group)
 					1,5:
-						for tier in range(3):d.view.solid_cone(Vector3(0,.9+tier*.7,0),.8-tier*.17,.03,1.4,Color("719068" if d.path.index==1 else "9eb9b4"),group,10)
+						if d.view.ModelStyle.is_paper():
+							d.view.paper_tree(p,.26,"district_pine",.48)
+						else:
+							for tier in range(3):d.view.solid_cone(Vector3(0,.9+tier*.7,0),.8-tier*.17,.03,1.4,Color("719068" if d.path.index==1 else "9eb9b4"),group,10)
 					2:
 						block(Vector3(0,1.1,0),Vector3(.45,1.8,.45),"72916a",group)
 						block(Vector3(0,1.2,0),Vector3(.4,.35,1.2),"72916a",group)

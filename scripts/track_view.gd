@@ -272,8 +272,18 @@ func tint_model(node:Node, color:Color) -> void:
 	for child in node.get_children():
 		tint_model(child,color)
 
+# Paper scenery uses the same three authored boards at every tree entry point.
+func paper_tree(p:Vector2,size:float,id:String,base_y:float=-.08) -> Node3D:
+	var node:=model(id,PathData.world(p,base_y),deg_to_rad(35.54+sin(p.x*.17+p.y*.13)*8.0),decoration)
+	node.scale=Vector3.ONE*size
+	node.set_meta("paper_tree_board",true)
+	node.set_meta("paper_tree_ground",base_y)
+	return node
+
 # Rounded toy trees and colorful track furniture establish the miniature club style.
 func club_tree(p:Vector2, scale_factor:float, variant:int) -> void:
+	if ModelStyle.is_paper():
+		paper_tree(p,scale_factor,"district_oak");return
 	var group:=Node3D.new()
 	decoration.add_child(group)
 	group.position=PathData.world(p)
@@ -292,6 +302,8 @@ func club_tree(p:Vector2, scale_factor:float, variant:int) -> void:
 		crown.position=at
 
 func pine_tree(p:Vector2, size:float, variant:int) -> void:
+	if ModelStyle.is_paper():
+		paper_tree(p,size,"district_pine");return
 	var group:=Node3D.new()
 	decoration.add_child(group)
 	group.position=PathData.world(p)
@@ -301,6 +313,8 @@ func pine_tree(p:Vector2, size:float, variant:int) -> void:
 		solid_cone(Vector3(0,3.2+tier*1.9,0),3.3-tier*.7,.08,4.6-tier*.6,[Color("496e5c"),Color("63866a"),Color("7b9873")][(variant+tier)%3],group,9)
 
 func palm_tree(p:Vector2, size:float, angle:float) -> void:
+	if ModelStyle.is_paper():
+		paper_tree(p,size,"tree");return
 	var group:=Node3D.new()
 	decoration.add_child(group)
 	group.position=PathData.world(p)

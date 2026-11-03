@@ -113,3 +113,48 @@ def single_grass_board(obj,bm,source_min,source_max,colors,asset):
  count,loops=boundaries(bm);assert count==0
  stats={'category':'single_grass_board','single_board':True,'thickness':thickness,'outline_points':len(outline),'ground_y':-.08,'requested_cut_width':thickness,'bevel_faces':len(outline)*3,'layered_edges':len(outline),'groove_depth_max':max_inset,'layer_width_max':thickness,'boundary_components_before':0,'boundary_components_after':loops,'boundary_edges_before':0,'boundary_edges_after':count,'protected_join_components':0}
  return stats,low,high
+
+TREE_BOARDS={'tree','district_oak','district_pine'}
+
+def tree_scene_board(asset,pigment):
+ """Replace tree geometry by one closed silhouette; keep all semantic pivots."""
+ from mathutils import Vector
+ objects=[o for o in bpy.context.scene.objects if o.type=='MESH']
+ anchor=next((o for o in objects if o.name=='timber'),objects[0])
+ vertices=[o.matrix_world@v.co for o in objects for v in o.data.vertices]
+ low=Vector([min(p[j] for p in vertices) for j in range(3)]);high=Vector([max(p[j] for p in vertices) for j in range(3)])
+ materials=[m for o in objects for m in o.data.materials]
+ bark=next(m for m in materials if any(s in m.name.lower() for s in ['bark','timber']))
+ leaf=next(m for m in materials if 'leaf' in m.name.lower())
+ colors=[pigment(bark,'paper_craft'),pigment(leaf,'paper_craft'),(.58,.38,.20),(.32,.18,.085),(.74,.58,.37)]
+ outline=[(.43,0),(.57,0),(.57,.29),(.75,.30),(.95,.42),(1,.64),(.89,.80),(.72,.91),(.50,1),(.29,.95),(.08,.82),(0,.61),(.07,.42),(.27,.31),(.43,.29)]
+ if asset=='tree':outline=[(.43,0),(.57,0),(.57,.28),(.80,.30),(1,.47),(.98,.70),(.82,.89),(.63,1),(.40,.97),(.18,.90),(0,.73),(.02,.49),(.15,.34),(.33,.29),(.43,.28)]
+ if asset=='district_pine':outline=[(.44,0),(.56,0),(.56,.15),(1,.15),(.74,.39),(.90,.39),(.64,.64),(.77,.64),(.50,1),(.23,.64),(.36,.64),(.10,.39),(.26,.39),(0,.15),(.44,.15)]
+ thickness=.10 if asset=='tree' else .12
+ bm=bmesh.new();rings=[];inverse=anchor.matrix_world.inverted();groove=0
+ for depth,shrink in [(-.5,1),(-1/6,.99),(1/6,.99),(.5,1)]:
+  ring=[]
+  for u,v in outline:
+   x=low.x+(high.x-low.x)*(.5+(u-.5)*shrink);z=high.z*(.45+(v-.45)*shrink)
+   ring.append(bm.verts.new(inverse@Vector((x,depth*thickness,z))))
+   groove=max(groove,abs(high.z*(v-.45)*(1-shrink)))
+  rings.append(ring)
+ for index in [0,3]:
+  for face,mat in [([0,1,2,14],0),(list(range(2,15)),1)]:
+   if index==0:face=face[::-1]
+   bm.faces.new([rings[index][i] for i in face]).material_index=mat
+ for layer in range(3):
+  for i in range(len(outline)):
+   j=(i+1)%len(outline);bm.faces.new((rings[layer][i],rings[layer][j],rings[layer+1][j],rings[layer+1][i])).material_index=2+[2,1,0][layer]
+ bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));assert boundaries(bm)==(0,0)
+ mesh=bpy.data.meshes.new('Single cardboard tree');bm.to_mesh(mesh);bm.free();anchor.data=mesh
+ for i,color in enumerate(colors):
+  mat=bpy.data.materials.new('Tree board pigment '+str(i));mat.diffuse_color=(*color,1);mesh.materials.append(mat)
+ # Empty semantic nodes preserve original names, transforms and hierarchy without
+ # retaining hidden crowns, crossed cards or duplicate volumes.
+ for obj in objects:
+  if obj==anchor:continue
+  name=obj.name;parent=obj.parent;matrix=obj.matrix_basis.copy();children=list(obj.children)
+  bpy.data.objects.remove(obj,do_unlink=True);empty=bpy.data.objects.new(name,None);bpy.context.collection.objects.link(empty);empty.parent=parent;empty.matrix_basis=matrix
+  for child in children:child.parent=empty
+ return anchor,{'category':'single_tree_board','single_board':True,'thickness':thickness,'outline_points':len(outline),'ground_y':0,'requested_cut_width':thickness,'bevel_faces':45,'layered_edges':15,'groove_depth_max':groove,'layer_width_max':thickness,'boundary_components_before':0,'boundary_components_after':0,'boundary_edges_before':0,'boundary_edges_after':0,'protected_join_components':0}

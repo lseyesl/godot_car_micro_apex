@@ -51,6 +51,7 @@ static func greenery(d) -> void:
    placed.append({"id":id,"point":p,"radius":radius})
  d.set_meta("new_greenery",placed)
 static func leaf_clusters(d,tree:Node3D) -> void:
+ if Style.is_paper():return # A single tree silhouette must not grow 3D leaf clumps.
  for side in [-1,1]:
   var leaf:Node3D=d.view.model("foliage_leaf_cluster",Vector3(side*.55,4.7,0),0,tree)
   leaf.scale=Vector3.ONE*.55

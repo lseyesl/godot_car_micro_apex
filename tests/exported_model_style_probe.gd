@@ -9,7 +9,11 @@ func run():
  for id in data.model_ids:
   var path=Style.model_path(id)
   if not ResourceLoader.exists(path):failures+=1;push_error("Missing packed model "+path);continue
-  var node=load(path).instantiate();node.free()
+  var node=load(path).instantiate()
+  if expected=="paper_craft" and id in ["tree","district_oak","district_pine"]:
+   if node.find_children("*","MeshInstance3D",true,false).size()!=1:
+    failures+=1;push_error("Packaged tree is not one board: "+id)
+  node.free()
   for other in Style.STYLES:
    if other!=expected and ResourceLoader.exists(Style.model_path_for(other,id)):
     failures+=1;push_error("Unused style is packed: "+other)

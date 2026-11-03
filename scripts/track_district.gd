@@ -504,7 +504,10 @@ func finish_model(node:Node,variant:int) -> void:
 	for child in node.get_children():finish_model(child,variant)
 
 func art_tree(p:Vector2,size:float,pine:bool) -> void:
-	var tree:Node3D=view.model("district_pine" if pine else "district_oak",PathData.world(p),rng.randf()*TAU,props)
+	var angle:float=rng.randf()*TAU # Consume the same legacy random value in all styles.
+	if ModelStyle.is_paper():
+		view.paper_tree(p,size,"district_pine" if pine else "district_oak");return
+	var tree:Node3D=view.model("district_pine" if pine else "district_oak",PathData.world(p),angle,props)
 	tree.scale=Vector3.ONE*size
 	finish_foliage(tree)
 	Additions.leaf_clusters(self,tree)

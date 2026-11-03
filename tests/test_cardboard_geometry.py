@@ -29,6 +29,35 @@ def physical_seam(doc,data):
       if max(abs(sum((x[j]-a[j])*normal[j] for j in range(3)))/length for x in neighbor)>1e-6:return True
  return False
 class CardboardGeometryTests(unittest.TestCase):
+ def test_three_trees_are_single_closed_boards_without_hidden_crowns(self):
+  for name in ('tree','district_oak','district_pine'):
+   with self.subTest(model=name):
+    doc,data=read((ROOT/'assets/styles/paper_craft/models'/f'{name}.glb').read_bytes())
+    self.assertEqual(len(doc['meshes']),1);self.assertEqual(sum('mesh' in n for n in doc['nodes']),1)
+    self.assertEqual(len(doc['meshes'][0]['primitives']),1)
+    primitive=doc['meshes'][0]['primitives'][0];points=accessor(doc,data,primitive['attributes']['POSITION'])
+    node=next(n for n in doc['nodes'] if 'mesh' in n);q=node.get('rotation',[0,0,0,1]);offset=node.get('translation',[0,0,0])
+    def cross(a,b):return (a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0])
+    def world(p):
+     t=[2*x for x in cross(q[:3],p)];c=cross(q[:3],t)
+     return tuple(p[i]+q[3]*t[i]+c[i]+offset[i] for i in range(3))
+    transformed=[world(p) for p in points];thickness=.10 if name=='tree' else .12
+    self.assertAlmostEqual(min(p[1] for p in transformed),0,places=4)
+    self.assertAlmostEqual(max(p[2] for p in transformed)-min(p[2] for p in transformed),thickness,places=4)
+    self.assertTrue(all(min(abs(p[2]-thickness*d) for d in [-.5,-1/6,1/6,.5])<1e-4 for p in transformed))
+    indices=[x[0] for x in accessor(doc,data,primitive['indices'])];weld=[tuple(round(x,5) for x in p) for p in points]
+    edges=collections.Counter();neighbors=collections.defaultdict(set)
+    for i in range(0,len(indices),3):
+     triangle=[weld[j] for j in indices[i:i+3]];self.assertEqual(len(set(triangle)),3)
+     for a,b in zip(triangle,triangle[1:]+triangle[:1]):
+      edges[tuple(sorted((a,b)))]+=1;neighbors[a].add(b);neighbors[b].add(a)
+    self.assertTrue(all(n==2 for n in edges.values()))
+    pending=[weld[0]];seen=set()
+    while pending:
+     vertex=pending.pop()
+     if vertex not in seen:seen.add(vertex);pending.extend(neighbors[vertex]-seen)
+    self.assertEqual(seen,set(weld));self.assertEqual(len(seen),15*4)
+    self.assertEqual(len(indices)//3,116)
  def test_grass_is_one_closed_extruded_silhouette(self):
   for name in ('foliage_grass_green','foliage_grass_dry'):
    with self.subTest(model=name):

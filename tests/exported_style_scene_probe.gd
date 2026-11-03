@@ -17,8 +17,15 @@ func run():
    var box=game.controls.get_theme_stylebox("normal") if game.controls.has_theme_stylebox("normal") else UI.box("touch")
    if box.paper!=Style.is_paper():failures+=1;push_error("Packaged UI shape does not match style")
   var district=game.circuit.get_child(1)
-  if district.get_meta("new_landmarks",[]).size()!=2 or district.get_meta("new_greenery",[]).size()<24 or district.get_meta("new_leaf_clusters",0)==0:
+  var leaves:int=district.get_meta("new_leaf_clusters",0)
+  var bad_canopy:bool=leaves!=0 if Style.is_paper() else leaves==0
+  if district.get_meta("new_landmarks",[]).size()!=2 or district.get_meta("new_greenery",[]).size()<24 or bad_canopy:
    failures+=1;push_error("Missing packaged scenery additions")
+  if Style.is_paper():
+   var boards:=0
+   for tree in game.circuit.decoration.find_children("*","Node3D",true,false):
+    if tree.get_meta("paper_tree_board",false):boards+=1
+   if boards==0:failures+=1;push_error("Missing packaged single-board trees")
   print("PACKED_STYLE_SCENE style=%s track=%d cars=%d"%[Style.selected(),track,game.cars.size()])
  print("PACKED_STYLE_SCENES_COMPLETE tracks=%d failures=%d"%[load("res://scripts/catalog.gd").TRACKS.size(),failures])
  game.queue_free()

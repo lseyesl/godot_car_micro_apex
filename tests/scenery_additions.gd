@@ -77,7 +77,20 @@ func run():
    check(grass_count==expected_grass and grass_count>0,"All grass plots use the single cardboard board")
   check(landmarks.size()==2,"Two landmarks required on every track")
   check(greenery.size()>=24 and greenery.size()<=48,"Bounded visible greenery required on every track")
-  check(district.get_meta("new_leaf_clusters",0)>0,"Existing trees need additional canopy clusters")
+  if Style.is_paper():
+   check(district.get_meta("new_leaf_clusters",0)==0,"Single tree boards must not have volumetric canopy additions")
+   var tree_count:=0
+   var camera_yaw:=deg_to_rad(Main.CAMERA_YAW)
+   for tree in view.decoration.find_children("*","Node3D",true,false):
+    if not tree.get_meta("paper_tree_board",false):continue
+    tree_count+=1
+    var ground:float=tree.get_meta("paper_tree_ground",INF)
+    check(ground in [-.08,.48] and absf(tree.global_position.y-ground)<.002,"Scaled paper tree feet meet ground or existing planter top")
+    check(absf(tree.global_transform.basis.z.normalized().dot(Vector3(sin(camera_yaw),0,cos(camera_yaw))))>cos(deg_to_rad(9.0)),"Paper tree silhouette faces gameplay camera")
+    check(tree.find_children("*","MeshInstance3D",true,false).size()==1,"Placed tree is one board without added 3D leaf clusters")
+   check(tree_count>0,"All tracks retain paper tree scenery")
+  else:
+   check(district.get_meta("new_leaf_clusters",0)>0,"Existing trees need additional canopy clusters")
   for plot in landmarks+greenery:
    check(path.nearest(plot.point).distance>path.WIDTH*.5+plot.radius+1.0,"Decoration clears entire driving corridor")
    check(plot.point.distance_to(path.gate(0).point)>plot.radius+path.WIDTH*.5,"Decoration clears start")

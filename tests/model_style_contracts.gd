@@ -12,6 +12,20 @@ func nodes(scene:Node) -> Dictionary:
  var result:Dictionary={}
  for node in scene.find_children("*","Node3D",true,false):result[str(scene.get_path_to(node))]=node
  return result
+func envelope(node:Node3D,transform:Transform3D=Transform3D.IDENTITY) -> AABB:
+ transform=transform*node.transform
+ var bounds:AABB;var first:=true
+ if node is MeshInstance3D:
+  for surface in range(node.mesh.get_surface_count()):
+   for vertex in node.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]:
+    var point:Vector3=transform*vertex
+    if first:bounds=AABB(point,Vector3.ZERO);first=false
+    else:bounds=bounds.expand(point)
+ for child in node.get_children():
+  if child is not Node3D:continue
+  if child is not MeshInstance3D and child.get_child_count()==0:continue
+  var box:=envelope(child,transform);bounds=box if first else bounds.merge(box);first=false
+ return bounds
 func tris(mesh:Mesh) -> int:
  var count:=0
  for s in range(mesh.get_surface_count()):
@@ -50,14 +64,19 @@ func run():
    var variant=load(path).instantiate();var b=nodes(variant)
    check(original.transform.is_equal_approx(variant.transform),"Root transform changed: "+path)
    check(a.keys()==b.keys(),"Semantic node paths/order changed: "+path)
+   var paper_tree:bool=style=="paper_craft" and id in ["tree","district_oak","district_pine"]
    var triangles:=0;var changed:=false
    for key in a:
     if not b.has(key):continue
     check(a[key].transform.is_equal_approx(b[key].transform),"Pivot transform changed: "+path+":"+key)
     if a[key] is not MeshInstance3D:continue
+    if b[key] is not MeshInstance3D:
+     check(paper_tree,"Only flattened tree crowns may become empty semantic pivots: "+path);continue
     var source:Mesh=a[key].mesh;var mesh:Mesh=b[key].mesh;triangles+=tris(mesh)
     var bounds:AABB=mesh.get_aabb();var expected:AABB=source.get_aabb()
-    if style=="paper_craft" and id in ["foliage_grass_green","foliage_grass_dry"]:
+    if paper_tree:
+     pass # Whole-tree envelope checked after flattening; local anchor can be rotated.
+    elif style=="paper_craft" and id in ["foliage_grass_green","foliage_grass_dry"]:
      check(absf(bounds.position.x-expected.position.x)<.002 and absf(bounds.size.x-expected.size.x)<.004 and absf(bounds.end.y-expected.end.y)<.002,"Grass board preserves width and top: "+path)
      check(absf(bounds.size.z-.055)<.002,"Grass is one thin solid board: "+path)
      var placed:AABB=variant.transform*b[key].transform*bounds
@@ -78,6 +97,12 @@ func run():
      check(material is BaseMaterial3D and material.vertex_color_use_as_albedo,"Imported pigment must actually drive albedo: "+path)
      check(material.normal_enabled and material.normal_texture!=null and material.normal_texture.resource_path.begins_with("res://assets/styles/"+style+"/textures/"),"One shared style normal texture is required: "+path)
      check(material.transparency==BaseMaterial3D.TRANSPARENCY_DISABLED and material.roughness>=.9 and material.metallic<.001,"Craft surfaces remain opaque and matte: "+path)
+   if paper_tree:
+    var bounds:=envelope(variant);var expected:=envelope(original)
+    check(absf(bounds.size.x-expected.size.x)<.004 and absf(bounds.end.y-expected.end.y)<.004,"Tree board preserves overall width and top: "+path)
+    check(absf(bounds.position.y)<.002,"Tree board root has a zero-height foot: "+path)
+    check(absf(bounds.size.z-(.10 if id=="tree" else .12))<.002,"Tree is a single thin board: "+path)
+    check(variant.find_children("*","MeshInstance3D",true,false).size()==1,"No hidden crown volumes remain: "+path)
    check(changed,"Geometry must change, not just palette: "+path)
    check(triangles<=maxf(source_triangles*2.6+64,1500),"Geometry must fit mobile triangle budget: "+path)
    if id.begins_with("car_"):check(variant.find_children("Wheel_*","Node3D",true,false).size()==4,"Four original wheel pivots required: "+path)

@@ -1762,79 +1762,27 @@
     {
       "id": "district_oak",
       "source_sha256": "3e5eeb916d5aaa789686b534d5950ee04bc21c496e5412c6417e8a9a3a18cf25",
-      "variant_sha256": "f350f2c400b7c8ec253d6a15cb4f1a37fe77567a06c9ae80557c5f9187afd76a",
+      "variant_sha256": "ad1a381a4d8b2a3911bf59a8d1bf514c695d36b55165cb6fd23fddc977bdc896",
       "source_triangles": 5464,
-      "triangles": 12272,
+      "triangles": 116,
       "source_bytes": 167708,
-      "variant_bytes": 1686800,
+      "variant_bytes": 12668,
       "nodes": 5,
       "materials": 1,
       "cardboard": {
         "meshes": [
           {
             "mesh": "timber",
-            "category": "foliage",
+            "category": "single_tree_board",
+            "single_board": true,
+            "thickness": 0.12,
+            "outline_points": 15,
+            "ground_y": 0,
             "requested_cut_width": 0.12,
-            "bevel_faces": 27,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.1456421289786835,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf0",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 762,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.19993189915523402,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf2",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 772,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.19976336698091973,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf1",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 762,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.19966571352465962,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf3",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 724,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.1998597562066874,
+            "bevel_faces": 45,
+            "layered_edges": 15,
+            "groove_depth_max": 0.04480609941482549,
+            "layer_width_max": 0.12,
             "boundary_components_before": 0,
             "boundary_components_after": 0,
             "boundary_edges_before": 0,
@@ -1843,7 +1791,7 @@
           }
         ],
         "layered_edges": 15,
-        "groove_depth_max": 0.0144
+        "groove_depth_max": 0.04480609941482549
       }
     },
     {
@@ -1880,79 +1828,27 @@
     {
       "id": "district_pine",
       "source_sha256": "c3cc4aeb52af8d4ae4d36df1ef5d7e69f33dfe18c5728b9384b58faf8ba7fc0f",
-      "variant_sha256": "13db77e37668306c5b1a776abf2d9a64352c00e5e32f580928217186655ff6bc",
+      "variant_sha256": "b20906e758e4aee2fb09e978832c418bfaa970a1e2f9d1985d418281d5e4f418",
       "source_triangles": 5464,
-      "triangles": 11334,
+      "triangles": 116,
       "source_bytes": 167720,
-      "variant_bytes": 1527084,
+      "variant_bytes": 12492,
       "nodes": 5,
       "materials": 1,
       "cardboard": {
         "meshes": [
           {
             "mesh": "timber",
-            "category": "foliage",
+            "category": "single_tree_board",
+            "single_board": true,
+            "thickness": 0.12,
+            "outline_points": 15,
+            "ground_y": 0,
             "requested_cut_width": 0.12,
-            "bevel_faces": 27,
-            "layered_edges": 3,
-            "groove_depth_max": 0.013982144389654207,
-            "layer_width_max": 0.13982144389654205,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf1",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 832,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.15686517849037568,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf2",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 832,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.15579593366387967,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf3",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 848,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.14683151438472297,
-            "boundary_components_before": 0,
-            "boundary_components_after": 0,
-            "boundary_edges_before": 0,
-            "boundary_edges_after": 0,
-            "protected_join_components": 0
-          },
-          {
-            "mesh": "leaf0",
-            "category": "foliage",
-            "requested_cut_width": 0.12,
-            "bevel_faces": 900,
-            "layered_edges": 3,
-            "groove_depth_max": 0.0144,
-            "layer_width_max": 0.15642893201817704,
+            "bevel_faces": 45,
+            "layered_edges": 15,
+            "groove_depth_max": 0.04719433736801152,
+            "layer_width_max": 0.12,
             "boundary_components_before": 0,
             "boundary_components_after": 0,
             "boundary_edges_before": 0,
@@ -1961,7 +1857,7 @@
           }
         ],
         "layered_edges": 15,
-        "groove_depth_max": 0.0144
+        "groove_depth_max": 0.04719433736801152
       }
     },
     {
@@ -2518,23 +2414,27 @@
     {
       "id": "tree",
       "source_sha256": "ed9e2221d32c5cf7835944ff8c43ebe88af50974157a111a2cb1dc6425036b48",
-      "variant_sha256": "64e969fb347f0af1f98c15c3b7f543f5cc3d9167959134c9abf21c50c52aa0e9",
+      "variant_sha256": "b50f486fcbbfde287383f4c03846cf2892890ff9a015a491deb54a758e6ccc55",
       "source_triangles": 500,
-      "triangles": 1410,
+      "triangles": 116,
       "source_bytes": 53364,
-      "variant_bytes": 170664,
+      "variant_bytes": 12280,
       "nodes": 2,
       "materials": 1,
       "cardboard": {
         "meshes": [
           {
             "mesh": "Body.013",
-            "category": "foliage",
-            "requested_cut_width": 0.08438028097152711,
-            "bevel_faces": 195,
-            "layered_edges": 3,
-            "groove_depth_max": 0.005863735047034982,
-            "layer_width_max": 0.05863735047034981,
+            "category": "single_tree_board",
+            "single_board": true,
+            "thickness": 0.1,
+            "outline_points": 15,
+            "ground_y": 0,
+            "requested_cut_width": 0.1,
+            "bevel_faces": 45,
+            "layered_edges": 15,
+            "groove_depth_max": 0.020460000157356283,
+            "layer_width_max": 0.1,
             "boundary_components_before": 0,
             "boundary_components_after": 0,
             "boundary_edges_before": 0,
@@ -2542,8 +2442,8 @@
             "protected_join_components": 0
           }
         ],
-        "layered_edges": 3,
-        "groove_depth_max": 0.005863735047034982
+        "layered_edges": 15,
+        "groove_depth_max": 0.020460000157356283
       }
     }
   ]
