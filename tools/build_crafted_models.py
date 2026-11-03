@@ -9,6 +9,7 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from clay_palette import pigment as saturated_clay_pigment
+from cardboard_geometry import cut_edges
 
 def glb(path):
  raw=path.read_bytes();n,kind=struct.unpack_from('<II',raw,12);assert kind==0x4e4f534a
@@ -103,7 +104,7 @@ def pigment(material,style):
  if style=='paper_craft':c=[min(.91,x*.88+.075) for x in c]
  return c
 
-def build_mesh(obj,style,material):
+def build_mesh(obj,style,material,asset_id="",cardboard_stats=None):
  mesh=obj.data;original_materials=list(mesh.materials);colors=[pigment(m,style) for m in original_materials]
  source_min=Vector([min(v.co[j] for v in mesh.vertices) for j in range(3)]);source_max=Vector([max(v.co[j] for v in mesh.vertices) for j in range(3)])
  corners=[Vector(v) for v in obj.bound_box];span=Vector([max(v[j] for v in corners)-min(v[j] for v in corners) for j in range(3)])
@@ -126,10 +127,8 @@ def build_mesh(obj,style,material):
    folded=bmesh.ops.poke(bm,faces=folds,offset=0,center_mode='MEAN_WEIGHTED')
    for v in folded['verts']:v.co+=v.normal*min(.012,longest*.0018)
   bm.normal_update()
-  edges=[e for e in bm.edges if e.is_manifold and e.calc_length()>.12 and e.calc_face_angle()>.65]
-  edge_material=len(colors);colors.append([.91,.875,.78])
-  if edges:
-   bmesh.ops.bevel(bm,geom=edges,offset=min(.012,longest*.005),segments=1,affect='EDGES',profile=.5,clamp_overlap=True,material=edge_material)
+  stats=cut_edges(bm,span,asset_id,wheel,colors)
+  if cardboard_stats is not None:cardboard_stats.append(dict(mesh=obj.name,**stats))
  bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.normal_update();bm.to_mesh(mesh);bm.free();mesh.update()
  # Keep exact visual envelope, units and pivot clearance, including wheel radius.
  current_min=Vector([min(v.co[j] for v in mesh.vertices) for j in range(3)]);current_max=Vector([max(v.co[j] for v in mesh.vertices) for j in range(3)])
@@ -170,9 +169,9 @@ def build(style,names):
   assert name in catalog,name
   source=ROOT/'assets/models'/(name+'.glb');original,_=glb(source)
   bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source))
-  material=craft_material(style,normal_path);triangles=0
+  material=craft_material(style,normal_path);triangles=0;cardboard_stats=[]
   for obj in list(bpy.context.scene.objects):
-   if obj.type=='MESH':triangles+=build_mesh(obj,style,material)
+   if obj.type=='MESH':triangles+=build_mesh(obj,style,material,name,cardboard_stats)
   dest=out/(name+'.glb')
   bpy.ops.export_scene.gltf(filepath=str(dest),export_format='GLB',export_yup=True,export_apply=True,export_materials='EXPORT',export_vertex_color='ACTIVE',export_cameras=False,export_lights=False)
   doc,binary=glb(dest);restore_contract(doc,original);binary=shared_surface_texture(doc,binary)
@@ -188,12 +187,13 @@ def build(style,names):
   settings=re.sub(r'^import_script/path=.*$', 'import_script/path="res://tools/import_crafted_models.gd"',settings,flags=re.M)
   import_path.write_text(settings)
   prior[name]={'id':name,'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'variant_sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'source_triangles':source_triangles,'triangles':triangles,'source_bytes':source.stat().st_size,'variant_bytes':dest.stat().st_size,'nodes':len(doc['nodes']),'materials':len(doc.get('materials',[]))}
+  if style=='paper_craft':prior[name]['cardboard']={'meshes':cardboard_stats,'layered_edges':sum(s['layered_edges'] for s in cardboard_stats),'groove_depth_max':max((s['groove_depth_max'] for s in cardboard_stats),default=0)}
   if style=='bright_clay':
    from recolor_clay_models import read,non_color_buffer_hash
    final_doc,final_binary=read(dest.read_bytes());prior[name]['non_color_buffer_sha256']=non_color_buffer_hash(final_doc,final_binary)
   print('CRAFT_MODEL',style,name,source_triangles,'->',triangles,flush=True)
  complete=set(prior)==set(catalog)
- manifest_path.write_text(json.dumps({**({'palette':'saturated_clay_v2'} if style=='bright_clay' else {}),'format':2,'style':style,'complete':complete,'geometry':'sculpted uneven clay' if style=='bright_clay' else 'faceted folded paper with physical edge bands','surface':'opaque corner pigment and baked tangent normal map','models':[prior[x] for x in sorted(prior)]},indent=2)+'\n')
+ manifest_path.write_text(json.dumps({**({'palette':'saturated_clay_v2'} if style=='bright_clay' else {}),'format':2,'style':style,'complete':complete,'geometry':'sculpted uneven clay' if style=='bright_clay' else 'thick cut cardboard with recessed laminated edge geometry','surface':'opaque corner pigment and baked tangent normal map','models':[prior[x] for x in sorted(prior)]},indent=2)+'\n')
  print('CRAFT_DONE',style,len(prior),'complete',complete,flush=True)
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--style',choices=['bright_clay','paper_craft'],required=True);parser.add_argument('--models',nargs='*')

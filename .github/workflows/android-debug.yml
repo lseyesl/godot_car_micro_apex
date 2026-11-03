@@ -85,6 +85,12 @@ jobs:
       - name: Test model style build validation
         run: python3 -m unittest discover -s tests -p test_model_style.py
 
+      - name: Validate authored model geometry and pigments
+        run: |
+          python3 -m unittest discover -s tests -p test_crafted_catalog.py
+          python3 -m unittest discover -s tests -p test_clay_palette.py
+          python3 -m unittest discover -s tests -p test_cardboard_geometry.py
+
       - name: Test Android manifest validation
         run: python3 -m unittest discover -s tests -p test_android_manifest.py
 
